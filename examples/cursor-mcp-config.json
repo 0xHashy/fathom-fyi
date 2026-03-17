@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "fathom": {
+      "command": "npx",
+      "args": ["-y", "fathom-fyi"],
+      "env": {
+        "CG_API_KEY": "your-coingecko-api-key",
+        "FRED_API_KEY": "your-fred-api-key",
+        "API_TIER": "free"
+      }
+    }
+  }
+}

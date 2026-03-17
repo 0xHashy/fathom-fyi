@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fathom — Financial Reality for AI Agents</title>
+  <meta name="description" content="Fathom is an MCP server that gives AI agents financial reality awareness before they make consequential decisions. The FYI your agent needs before it acts.">
+  <meta name="keywords" content="MCP, Model Context Protocol, AI agents, crypto, financial intelligence, trading bots, DeFi, Bitcoin, Claude, Cursor">
+  <meta property="og:title" content="Fathom — Financial Reality for AI Agents">
+  <meta property="og:description" content="The FYI your agent needs before it acts. MCP server for financial reality awareness.">
+  <meta property="og:url" content="https://fathom.fyi">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0a0a0f;
+      --bg-raised: #12121a;
+      --bg-card: #16161f;
+      --bg-code: #0d0d14;
+      --border: #1e1e2e;
+      --border-bright: #2a2a3a;
+      --text: #e0e0e8;
+      --text-muted: #8888a0;
+      --text-dim: #555568;
+      --accent: #00ff88;
+      --accent-dim: #00cc6a;
+      --accent-glow: rgba(0, 255, 136, 0.15);
+      --accent-glow-strong: rgba(0, 255, 136, 0.3);
+      --red: #ff4466;
+      --yellow: #ffcc00;
+      --blue: #4488ff;
+      --purple: #aa66ff;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── Utility ── */
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .section {
+      padding: 100px 0;
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 20px;
+    }
+
+    .section-subtitle {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 640px;
+      line-height: 1.7;
+    }
+
+    /* ── Animations ── */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(24px);
+      animation: fadeInUp 0.7s ease forwards;
+    }
+
+    .fade-in-delay-1 { animation-delay: 0.1s; }
+    .fade-in-delay-2 { animation-delay: 0.2s; }
+    .fade-in-delay-3 { animation-delay: 0.3s; }
+    .fade-in-delay-4 { animation-delay: 0.4s; }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes terminalBlink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 136, 0.1); }
+      50% { box-shadow: 0 0 40px rgba(0, 255, 136, 0.2); }
+    }
+
+    @keyframes scanline {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100vh); }
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(10, 10, 15, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .nav-logo {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-logo span {
+      color: var(--accent);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .nav-cta {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      padding: 8px 16px;
+      background: var(--accent);
+      color: #000;
+      border-radius: 6px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .nav-cta:hover {
+      background: #00e07a;
+      color: #000 !important;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 160px 0 120px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(0, 255, 136, 0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--accent);
+      background: var(--accent-glow);
+      border: 1px solid rgba(0, 255, 136, 0.2);
+      padding: 6px 14px;
+      border-radius: 100px;
+      margin-bottom: 32px;
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: terminalBlink 1.5s infinite;
+    }
+
+    .hero h1 {
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -2px;
+      margin-bottom: 24px;
+      max-width: 720px;
+    }
+
+    .hero h1 .highlight {
+      color: var(--accent);
+    }
+
+    .hero-subtitle {
+      font-size: clamp(18px, 2.5vw, 22px);
+      color: var(--text-muted);
+      max-width: 560px;
+      margin-bottom: 48px;
+      line-height: 1.6;
+    }
+
+    .hero-subtitle em {
+      color: var(--text);
+      font-style: normal;
+      font-weight: 500;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 600;
+      padding: 14px 28px;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: #00e07a;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(0, 255, 136, 0.25);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 500;
+      padding: 14px 28px;
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border-bright);
+      border-radius: 8px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--text-muted);
+      color: var(--text);
+    }
+
+    /* ── Problem Section ── */
+    .problem {
+      background: var(--bg-raised);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .problem-headline {
+      font-size: clamp(24px, 3.5vw, 36px);
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 48px;
+      max-width: 680px;
+    }
+
+    .problem-headline .dim {
+      color: var(--text-dim);
+    }
+
+    .contrast-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
+    .contrast-card {
+      padding: 32px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .contrast-card.before {
+      background: var(--bg);
+    }
+
+    .contrast-card.after {
+      background: var(--bg);
+      border-color: rgba(0, 255, 136, 0.2);
+    }
+
+    .contrast-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .contrast-card.before .contrast-label {
+      color: var(--red);
+    }
+
+    .contrast-card.after .contrast-label {
+      color: var(--accent);
+    }
+
+    .contrast-card h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .contrast-card p {
+      color: var(--text-muted);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .contrast-card code {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      background: var(--bg-code);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--text-muted);
+    }
+
+    .contrast-card.after p em {
+      color: var(--accent);
+      font-style: normal;
+    }
+
+    /* ── Terminal Demo ── */
+    .demo-section {
+      position: relative;
+    }
+
+    .demo-section .section-subtitle {
+      margin-bottom: 48px;
+    }
+
+    .terminal {
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      max-width: 840px;
+      margin: 0 auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .terminal-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 20px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .terminal-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .terminal-dot.red { background: #ff5f57; }
+    .terminal-dot.yellow { background: #febc2e; }
+    .terminal-dot.green { background: #28c840; }
+
+    .terminal-title {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-left: 8px;
+    }
+
+    .terminal-body {
+      padding: 24px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text-muted);
+      overflow-x: auto;
+    }
+
+    .terminal-body .prompt {
+      color: var(--accent);
+    }
+
+    .terminal-body .cmd {
+      color: var(--text);
+    }
+
+    .terminal-body .header {
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .terminal-body .summary {
+      color: var(--text);
+    }
+
+    .terminal-body .score {
+      color: var(--yellow);
+    }
+
+    .terminal-body .regime {
+      color: var(--red);
+    }
+
+    .terminal-body .opportunity {
+      color: var(--accent);
+    }
+
+    .terminal-body .risk-item {
+      color: var(--red);
+    }
+
+    .terminal-body .opp-item {
+      color: var(--accent);
+    }
+
+    .terminal-body .guidance {
+      color: var(--blue);
+    }
+
+    .terminal-body .separator {
+      color: var(--text-dim);
+    }
+
+    /* ── Tools Grid ── */
+    .tools-section {
+      background: var(--bg-raised);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 48px;
+    }
+
+    .tool-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      transition: all 0.2s;
+    }
+
+    .tool-card:hover {
+      border-color: var(--border-bright);
+      transform: translateY(-2px);
+    }
+
+    .tool-card.free-tier {
+      border-color: rgba(0, 255, 136, 0.15);
+    }
+
+    .tool-card.free-tier:hover {
+      border-color: rgba(0, 255, 136, 0.3);
+    }
+
+    .tool-icon {
+      font-size: 28px;
+      margin-bottom: 14px;
+      display: block;
+    }
+
+    .tool-name {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .tool-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .tool-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-top: 12px;
+    }
+
+    .tool-badge.free {
+      color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .tool-badge.paid {
+      color: var(--text-dim);
+      background: rgba(85, 85, 104, 0.2);
+    }
+
+    /* ── How It Works ── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      margin-top: 56px;
+    }
+
+    .step {
+      position: relative;
+    }
+
+    .step-number {
+      font-family: var(--font-mono);
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--accent);
+      opacity: 0.2;
+      margin-bottom: 16px;
+      line-height: 1;
+    }
+
+    .step h3 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .step p {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .step code {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      background: var(--bg-code);
+      padding: 3px 8px;
+      border-radius: 4px;
+      color: var(--accent);
+    }
+
+    /* ── Pricing ── */
+    .pricing-section {
+      background: var(--bg-raised);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-top: 56px;
+    }
+
+    .pricing-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 28px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: all 0.3s;
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .pricing-card.featured {
+      border-color: rgba(0, 255, 136, 0.3);
+      animation: pulseGlow 4s ease-in-out infinite;
+    }
+
+    .pricing-card.featured::before {
+      content: 'MOST POPULAR';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #000;
+      background: var(--accent);
+      padding: 4px 14px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+
+    .pricing-card.highlight-free {
+      border-color: rgba(0, 255, 136, 0.15);
+    }
+
+    .pricing-tier {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .pricing-price {
+      font-size: 44px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .pricing-price span {
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+
+    .pricing-period {
+      font-size: 14px;
+      color: var(--text-dim);
+      margin-bottom: 28px;
+    }
+
+    .pricing-features {
+      list-style: none;
+      flex: 1;
+      margin-bottom: 28px;
+    }
+
+    .pricing-features li {
+      font-size: 14px;
+      color: var(--text-muted);
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .pricing-features li::before {
+      content: '>';
+      font-family: var(--font-mono);
+      color: var(--accent);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .pricing-btn {
+      display: block;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 12px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .pricing-btn.primary {
+      background: var(--accent);
+      color: #000;
+    }
+
+    .pricing-btn.primary:hover {
+      background: #00e07a;
+    }
+
+    .pricing-btn.secondary {
+      background: var(--bg-card);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .pricing-btn.secondary:hover {
+      border-color: var(--text-dim);
+      color: var(--text);
+    }
+
+    /* ── Quick Start ── */
+    .quickstart-section {
+      position: relative;
+    }
+
+    .quickstart-blocks {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      margin-top: 48px;
+    }
+
+    .qs-block {
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .qs-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .qs-block-title {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .qs-step-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--accent-glow);
+      padding: 3px 10px;
+      border-radius: 100px;
+    }
+
+    .qs-block pre {
+      padding: 20px 24px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text);
+      overflow-x: auto;
+    }
+
+    .qs-block pre .comment {
+      color: var(--text-dim);
+    }
+
+    .qs-block pre .string {
+      color: var(--accent);
+    }
+
+    .qs-block pre .key {
+      color: var(--blue);
+    }
+
+    .qs-block pre .cmd-prompt {
+      color: var(--accent);
+      user-select: none;
+    }
+
+    /* ── Data Sources ── */
+    .sources-section {
+      background: var(--bg-raised);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sources-tagline {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      color: var(--accent);
+      margin-bottom: 40px;
+    }
+
+    .sources-tagline span {
+      color: var(--text-muted);
+    }
+
+    .sources-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .source-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      transition: border-color 0.2s;
+    }
+
+    .source-item:hover {
+      border-color: var(--border-bright);
+    }
+
+    .source-name {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .source-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    .source-cost {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .footer-logo {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .footer-logo span {
+      color: var(--accent);
+    }
+
+    .footer-tagline {
+      font-size: 14px;
+      color: var(--text-dim);
+      margin-bottom: 24px;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-size: 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--accent);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .contrast-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tools-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+
+      .pricing-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .nav-links .hide-mobile {
+        display: none;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .section {
+        padding: 72px 0;
+      }
+
+      .hero {
+        padding: 120px 0 80px;
+      }
+
+      .tools-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .pricing-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-ctas {
+        flex-direction: column;
+      }
+
+      .hero-ctas a {
+        text-align: center;
+      }
+
+      .terminal-body {
+        font-size: 11px;
+        padding: 16px;
+      }
+
+      .nav-links {
+        gap: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Nav ─── -->
+  <nav>
+    <div class="container nav-inner">
+      <a href="/" class="nav-logo">fathom<span>.fyi</span></a>
+      <ul class="nav-links">
+        <li class="hide-mobile"><a href="#tools">Tools</a></li>
+        <li class="hide-mobile"><a href="#pricing">Pricing</a></li>
+        <li class="hide-mobile"><a href="#quickstart">Quick Start</a></li>
+        <li><a href="https://github.com/fathom-fyi/fathom-fyi" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="#quickstart" class="nav-cta">Get Started</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ─── Hero ─── -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-badge fade-in">MCP Server &mdash; Live Now</div>
+      <h1 class="fade-in fade-in-delay-1">Financial Reality<br>for <span class="highlight">AI Agents</span></h1>
+      <p class="hero-subtitle fade-in fade-in-delay-2">
+        <em>The FYI your agent needs before it acts.</em><br>
+        Fathom gives AI agents interpreted financial intelligence &mdash; regime, sentiment, cycle, macro, on-chain &mdash; so they stop flying blind.
+      </p>
+      <div class="hero-ctas fade-in fade-in-delay-3">
+        <a href="#quickstart" class="btn-primary">Get Started &mdash; Free</a>
+        <a href="https://github.com/fathom-fyi/fathom-fyi" target="_blank" rel="noopener" class="btn-secondary">View on GitHub &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── The Problem ─── -->
+  <section class="section problem">
+    <div class="container">
+      <div class="section-label fade-in">The Problem</div>
+      <h2 class="problem-headline fade-in fade-in-delay-1">
+        Every AI agent trading crypto today is <span class="dim">flying blind.</span>
+      </h2>
+      <div class="contrast-grid">
+        <div class="contrast-card before fade-in fade-in-delay-2">
+          <div class="contrast-label">What agents get today</div>
+          <h3>Raw numbers. No understanding.</h3>
+          <p>
+            Your agent sees <code>BTC: $82,341</code> and <code>ETH: $3,102</code>. It can read a price feed. But it has zero idea if the market is in euphoria or capitulation, whether macro is a headwind or tailwind, if DeFi is healthy or collapsing, or where we are in the cycle. It trades in the dark.
+          </p>
+        </div>
+        <div class="contrast-card after fade-in fade-in-delay-3">
+          <div class="contrast-label">What Fathom gives them</div>
+          <h3>Interpreted intelligence. Actionable guidance.</h3>
+          <p>
+            Fathom tells your agent: <em>"Market is in risk-off rotation. Fear &amp; Greed at 28. BTC dominance rising &mdash; capital rotating to safety. Cycle analog: pre-recovery accumulation. Recommended posture: defensive. Reduce position sizes, tighten stops."</em> That is the difference.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Live Demo Output ─── -->
+  <section class="section demo-section" id="demo">
+    <div class="container">
+      <div class="section-label fade-in">Live Output</div>
+      <h2 class="section-title fade-in fade-in-delay-1">See what your agent sees</h2>
+      <p class="section-subtitle fade-in fade-in-delay-2">
+        One call to <code style="font-family: var(--font-mono); font-size: 15px; color: var(--accent); background: var(--accent-glow); padding: 2px 8px; border-radius: 4px;">get_reality_check</code> returns a complete financial reality briefing.
+      </p>
+      <div class="terminal fade-in fade-in-delay-3">
+        <div class="terminal-bar">
+          <div class="terminal-dot red"></div>
+          <div class="terminal-dot yellow"></div>
+          <div class="terminal-dot green"></div>
+          <span class="terminal-title">fathom &mdash; get_reality_check</span>
+        </div>
+        <div class="terminal-body">
+<span class="prompt">$</span> <span class="cmd">fathom get_reality_check</span>
+
+<span class="header">FATHOM REALITY CHECK &mdash; 2026-03-17</span>
+
+<span class="summary">Executive Summary: Markets are in risk-off mode with capital rotating
+toward safety. Fear &amp; Greed at 28 (Fear). BTC dominance rising.
+DeFi TVL contracting for 3rd consecutive week. Macro conditions
+present a headwind. Recommended posture: DEFENSIVE.</span>
+
+<span class="score">Risk Score: 68/100</span>  |  <span class="score">Opportunity Score: 47/100</span>
+<span class="regime">Regime: risk-off</span>  |  Cycle: mid_bull  |  Posture: <span class="regime">DEFENSIVE</span>
+
+<span class="separator">────────────────────────────────────────────</span>
+Top Risks:
+<span class="risk-item">  &#x2022; Risk-off regime means further downside likely</span>
+<span class="risk-item">  &#x2022; Tightening monetary conditions reduce liquidity</span>
+<span class="risk-item">  &#x2022; Declining DeFi TVL suggests eroding confidence</span>
+
+Top Opportunities:
+<span class="opp-item">  &#x2022; Fear zone historically offers better entries</span>
+<span class="opp-item">  &#x2022; Mid-bull cycle positioning &mdash; strongest forward returns</span>
+
+<span class="separator">────────────────────────────────────────────</span>
+<span class="guidance">Agent Guidance: Defensive posture recommended. Reduce position sizes.
+Tighten stop losses. Increase stablecoin allocation. Wait for Fear &amp;
+Greed to recover above 40 before adding exposure.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Tools Grid ─── -->
+  <section class="section tools-section" id="tools">
+    <div class="container">
+      <div class="section-label fade-in">9 Tools</div>
+      <h2 class="section-title fade-in fade-in-delay-1">Everything your agent needs to understand markets</h2>
+      <p class="section-subtitle fade-in fade-in-delay-2">3 core tools are free forever. All 9 unlock on Starter and above.</p>
+      <div class="tools-grid">
+
+        <div class="tool-card free-tier fade-in">
+          <span class="tool-icon">&#x1F3AF;</span>
+          <div class="tool-name">get_reality_check</div>
+          <div class="tool-desc">Master briefing &mdash; synthesizes all sources into a unified financial reality assessment with risk scores and posture guidance.</div>
+          <span class="tool-badge free">Free</span>
+        </div>
+
+        <div class="tool-card free-tier fade-in">
+          <span class="tool-icon">&#x1F30A;</span>
+          <div class="tool-name">get_market_regime</div>
+          <div class="tool-desc">Classify the current regime: risk-on, risk-off, transitional, euphoric, or capitulation. With confidence and evidence.</div>
+          <span class="tool-badge free">Free</span>
+        </div>
+
+        <div class="tool-card free-tier fade-in">
+          <span class="tool-icon">&#x1F9E0;</span>
+          <div class="tool-name">get_sentiment_state</div>
+          <div class="tool-desc">Fear &amp; Greed Index, 7-day trend, contrarian signals, and extreme fear/greed opportunity detection.</div>
+          <span class="tool-badge free">Free</span>
+        </div>
+
+        <div class="tool-card fade-in">
+          <span class="tool-icon">&#x1F525;</span>
+          <div class="tool-name">get_narrative_pulse</div>
+          <div class="tool-desc">Identify accelerating, decelerating, and emerging crypto narratives. Sector rotation and momentum scores.</div>
+          <span class="tool-badge paid">Starter+</span>
+        </div>
+
+        <div class="tool-card fade-in">
+          <span class="tool-icon">&#x1F50D;</span>
+          <div class="tool-name">get_asset_context</div>
+          <div class="tool-desc">Deep context on any specific asset: cycle position, trend, volume health, risk level, and positioning guidance.</div>
+          <span class="tool-badge paid">Starter+</span>
+        </div>
+
+        <div class="tool-card fade-in">
+          <span class="tool-icon">&#x23F3;</span>
+          <div class="tool-name">get_temporal_context</div>
+          <div class="tool-desc">Bitcoin halving cycle positioning: days since halving, cycle phase, historical analogs, and cycle-based guidance.</div>
+          <span class="tool-badge paid">Starter+</span>
+        </div>
+
+        <div class="tool-card fade-in">
+          <span class="tool-icon">&#x1F3E6;</span>
+          <div class="tool-name">get_defi_health</div>
+          <div class="tool-desc">DeFi ecosystem health: total TVL, trends, top chains/protocols, health score, and concentration risk.</div>
+          <span class="tool-badge paid">Starter+</span>
+        </div>
+
+        <div class="tool-card fade-in">
+          <span class="tool-icon">&#x1F30D;</span>
+          <div class="tool-name">get_macro_context</div>
+          <div class="tool-desc">Macro backdrop for crypto: Fed Funds Rate, DXY, yield curve, recession probability, and net impact assessment.</div>
+          <span class="tool-badge paid">Starter+</span>
+        </div>
+
+        <div class="tool-card fade-in">
+          <span class="tool-icon">&#x26D3;&#xFE0F;</span>
+          <div class="tool-name">get_onchain_pulse</div>
+          <div class="tool-desc">Bitcoin on-chain health: mempool congestion, fees, miner distribution, network security, and mining economics.</div>
+          <span class="tool-badge paid">Starter+</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── How It Works ─── -->
+  <section class="section" id="how">
+    <div class="container">
+      <div class="section-label fade-in">How It Works</div>
+      <h2 class="section-title fade-in fade-in-delay-1">Three steps to financial reality</h2>
+      <div class="steps">
+        <div class="step fade-in fade-in-delay-1">
+          <div class="step-number">01</div>
+          <h3>Install</h3>
+          <p>
+            Install Fathom via npm. One command, no complex setup.<br><br>
+            <code>npx fathom-fyi</code> or <code>npm i -g fathom-fyi</code>
+          </p>
+        </div>
+        <div class="step fade-in fade-in-delay-2">
+          <div class="step-number">02</div>
+          <h3>Connect</h3>
+          <p>
+            Add Fathom to Claude Desktop, Cursor, or any MCP-compatible client. Just drop in the config JSON and you are live.
+          </p>
+        </div>
+        <div class="step fade-in fade-in-delay-3">
+          <div class="step-number">03</div>
+          <h3>Ask</h3>
+          <p>
+            Tell your agent: <em>"Check reality before acting."</em> Fathom delivers a complete financial briefing in under 3 seconds. Your agent now knows what it is walking into.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Pricing ─── -->
+  <section class="section pricing-section" id="pricing">
+    <div class="container">
+      <div class="section-label fade-in">Pricing</div>
+      <h2 class="section-title fade-in fade-in-delay-1">Start free. Scale when you need to.</h2>
+      <p class="section-subtitle fade-in fade-in-delay-2">Every tier includes the full intelligence engine. You are only paying for access breadth and freshness.</p>
+      <div class="pricing-grid">
+
+        <div class="pricing-card highlight-free fade-in fade-in-delay-1">
+          <div class="pricing-tier">Free</div>
+          <div class="pricing-price">$0</div>
+          <div class="pricing-period">forever</div>
+          <ul class="pricing-features">
+            <li>3 core tools</li>
+            <li>get_reality_check included</li>
+            <li>10 requests / hour</li>
+            <li>Standard cache freshness</li>
+            <li>Community support</li>
+          </ul>
+          <a href="#quickstart" class="pricing-btn primary">Start Free</a>
+        </div>
+
+        <div class="pricing-card fade-in fade-in-delay-2">
+          <div class="pricing-tier">Starter</div>
+          <div class="pricing-price">$29<span>/mo</span></div>
+          <div class="pricing-period">billed monthly</div>
+          <ul class="pricing-features">
+            <li>All 9 tools</li>
+            <li>500 requests / hour</li>
+            <li>Standard cache freshness</li>
+            <li>Asset-level deep dives</li>
+            <li>Email support</li>
+          </ul>
+          <a href="#quickstart" class="pricing-btn secondary">Get Started</a>
+        </div>
+
+        <div class="pricing-card featured fade-in fade-in-delay-3">
+          <div class="pricing-tier">Pro</div>
+          <div class="pricing-price">$99<span>/mo</span></div>
+          <div class="pricing-period">billed monthly</div>
+          <ul class="pricing-features">
+            <li>All 9 tools</li>
+            <li>2,000 requests / hour</li>
+            <li>2x fresher cache (50% TTL)</li>
+            <li>Priority data pipeline</li>
+            <li>Priority support</li>
+          </ul>
+          <a href="#quickstart" class="pricing-btn primary">Go Pro</a>
+        </div>
+
+        <div class="pricing-card fade-in fade-in-delay-4">
+          <div class="pricing-tier">Trading Bot</div>
+          <div class="pricing-price">$299<span>/mo</span></div>
+          <div class="pricing-period">billed monthly</div>
+          <ul class="pricing-features">
+            <li>All 9 tools</li>
+            <li>Unlimited requests</li>
+            <li>4x fresher cache (25% TTL)</li>
+            <li>Webhook support</li>
+            <li>Dedicated support</li>
+          </ul>
+          <a href="#quickstart" class="pricing-btn secondary">Contact Us</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Quick Start ─── -->
+  <section class="section quickstart-section" id="quickstart">
+    <div class="container">
+      <div class="section-label fade-in">Quick Start</div>
+      <h2 class="section-title fade-in fade-in-delay-1">Running in under 2 minutes</h2>
+      <div class="quickstart-blocks">
+
+        <div class="qs-block fade-in fade-in-delay-1">
+          <div class="qs-block-header">
+            <span class="qs-block-title">Install Fathom</span>
+            <span class="qs-step-badge">Step 1</span>
+          </div>
+          <pre><span class="comment"># Install globally</span>
+<span class="cmd-prompt">$</span> npm install -g fathom-fyi
+
+<span class="comment"># Or run directly with npx</span>
+<span class="cmd-prompt">$</span> npx fathom-fyi</pre>
+        </div>
+
+        <div class="qs-block fade-in fade-in-delay-2">
+          <div class="qs-block-header">
+            <span class="qs-block-title">Claude Desktop &mdash; claude_desktop_config.json</span>
+            <span class="qs-step-badge">Step 2a</span>
+          </div>
+          <pre>{
+  <span class="key">"mcpServers"</span>: {
+    <span class="key">"fathom"</span>: {
+      <span class="key">"command"</span>: <span class="string">"npx"</span>,
+      <span class="key">"args"</span>: [<span class="string">"fathom-fyi"</span>],
+      <span class="key">"env"</span>: {
+        <span class="key">"CG_API_KEY"</span>: <span class="string">"your_coingecko_key"</span>,
+        <span class="key">"FRED_API_KEY"</span>: <span class="string">"your_fred_key"</span>,
+        <span class="key">"API_TIER"</span>: <span class="string">"free"</span>
+      }
+    }
+  }
+}</pre>
+        </div>
+
+        <div class="qs-block fade-in fade-in-delay-3">
+          <div class="qs-block-header">
+            <span class="qs-block-title">Cursor &mdash; .cursor/mcp.json</span>
+            <span class="qs-step-badge">Step 2b</span>
+          </div>
+          <pre>{
+  <span class="key">"mcpServers"</span>: {
+    <span class="key">"fathom"</span>: {
+      <span class="key">"command"</span>: <span class="string">"npx"</span>,
+      <span class="key">"args"</span>: [<span class="string">"fathom-fyi"</span>],
+      <span class="key">"env"</span>: {
+        <span class="key">"CG_API_KEY"</span>: <span class="string">"your_coingecko_key"</span>,
+        <span class="key">"FRED_API_KEY"</span>: <span class="string">"your_fred_key"</span>,
+        <span class="key">"API_TIER"</span>: <span class="string">"free"</span>
+      }
+    }
+  }
+}</pre>
+        </div>
+
+        <div class="qs-block fade-in fade-in-delay-4">
+          <div class="qs-block-header">
+            <span class="qs-block-title">Get your API keys (both free)</span>
+            <span class="qs-step-badge">Step 3</span>
+          </div>
+          <pre><span class="comment"># CoinGecko API key (free tier, 30 calls/min)</span>
+<span class="string">https://www.coingecko.com/en/api</span>
+
+<span class="comment"># FRED API key (free, unlimited)</span>
+<span class="string">https://fred.stlouisfed.org/docs/api/api_key.html</span>
+
+<span class="comment"># That's it. Both keys are free to obtain.</span>
+<span class="comment"># Set API_TIER to "free" and you're live.</span></pre>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Data Sources ─── -->
+  <section class="section sources-section" id="sources">
+    <div class="container">
+      <div class="section-label fade-in">Data Sources</div>
+      <h2 class="section-title fade-in fade-in-delay-1">Real data. Real-time. Nearly free.</h2>
+      <p class="sources-tagline fade-in fade-in-delay-2">5 sources. 4 free forever. <span>~$0/month infrastructure.</span></p>
+      <div class="sources-list">
+
+        <div class="source-item fade-in">
+          <div class="source-name">CoinGecko</div>
+          <div class="source-desc">Prices, market caps, OHLC, categories, trending coins, and volume data.</div>
+          <div class="source-cost">Free tier (30 calls/min)</div>
+        </div>
+
+        <div class="source-item fade-in">
+          <div class="source-name">Alternative.me</div>
+          <div class="source-desc">Fear &amp; Greed Index &mdash; the single most important sentiment signal in crypto.</div>
+          <div class="source-cost">Free forever</div>
+        </div>
+
+        <div class="source-item fade-in">
+          <div class="source-name">DeFiLlama</div>
+          <div class="source-desc">Total Value Locked, protocol rankings, chain data, fees, and revenue trends.</div>
+          <div class="source-cost">Free forever</div>
+        </div>
+
+        <div class="source-item fade-in">
+          <div class="source-name">FRED</div>
+          <div class="source-desc">Federal Funds Rate, DXY (dollar strength), yield curve, and recession indicators.</div>
+          <div class="source-cost">Free forever</div>
+        </div>
+
+        <div class="source-item fade-in">
+          <div class="source-name">Mempool.space</div>
+          <div class="source-desc">Bitcoin network health: mempool congestion, fee estimates, and mining economics.</div>
+          <div class="source-cost">Free forever</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Footer ─── -->
+  <footer>
+    <div class="container">
+      <div class="footer-logo">fathom<span>.fyi</span></div>
+      <p class="footer-tagline">Built for the AI agent economy.</p>
+      <ul class="footer-links">
+        <li><a href="https://github.com/fathom-fyi/fathom-fyi" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="#quickstart">Quick Start</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="https://fathom.fyi">fathom.fyi</a></li>
+      </ul>
+    </div>
+  </footer>
+
+</body>
+</html>
