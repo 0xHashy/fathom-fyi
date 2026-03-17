@@ -98,7 +98,7 @@ export async function getNarrativePulse(cache: CacheService): Promise<NarrativeP
       error_source: 'get_narrative_pulse',
       agent_guidance: 'Narrative data unavailable. Without sector rotation context, avoid concentrated bets on specific narratives. Stick to large-cap positions until data is restored.',
       last_known_data: cache.get<NarrativePulseOutput>(CACHE_KEY)?.data ?? null,
-      data_warnings: [`Failed to fetch narrative data: ${err instanceof Error ? err.message : String(err)}`],
+      data_warnings: ['Narrative data source temporarily unavailable. Retry shortly.'],
     };
   }
 }

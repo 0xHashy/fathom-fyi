@@ -72,9 +72,9 @@ export async function getAssetContext(cache: CacheService, asset: string): Promi
     return {
       error: true,
       error_source: 'get_asset_context',
-      agent_guidance: `Asset data for "${asset}" unavailable. Do not make positioning decisions on this asset until data is restored. If this is a new or low-cap asset, it may not be indexed.`,
+      agent_guidance: 'Asset data unavailable. Do not make positioning decisions on this asset until data is restored. If this is a new or low-cap asset, it may not be indexed.',
       last_known_data: cache.get<AssetContextOutput>(cacheKey)?.data ?? null,
-      data_warnings: [`Failed to fetch asset data: ${err instanceof Error ? err.message : String(err)}`],
+      data_warnings: ['Asset data source temporarily unavailable. Verify the asset name or symbol and retry.'],
     };
   }
 }

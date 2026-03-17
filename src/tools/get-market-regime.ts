@@ -62,7 +62,7 @@ export async function getMarketRegime(cache: CacheService): Promise<MarketRegime
       error_source: 'get_market_regime',
       agent_guidance: 'Market regime data unavailable. Fathom recommends delaying financially consequential decisions until data is restored. Treat current conditions as high-uncertainty.',
       last_known_data: cache.get<MarketRegimeOutput>(CACHE_KEY)?.data ?? null,
-      data_warnings: [`Failed to fetch regime data: ${err instanceof Error ? err.message : String(err)}`],
+      data_warnings: ['Market regime data source temporarily unavailable. Retry shortly.'],
     };
   }
 }

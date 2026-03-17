@@ -26,7 +26,7 @@ async function fetchWithRetry(url: string, maxRetries = 3): Promise<Response> {
         continue;
       }
       if (!res.ok) {
-        throw new Error(`CoinGecko API error: ${res.status} ${res.statusText}`);
+        throw new Error(`Market data source temporarily unavailable (${res.status})`);
       }
       return res;
     } catch (err) {
@@ -60,7 +60,7 @@ export async function getCoinMarket(coinId: string): Promise<CoinGeckoMarketCoin
   const url = `${BASE_URL}/coins/markets?vs_currency=usd&ids=${encodeURIComponent(coinId)}&price_change_percentage=7d`;
   const res = await fetchWithRetry(url);
   const data = (await res.json()) as CoinGeckoMarketCoin[];
-  if (!data.length) throw new Error(`Coin not found: ${coinId}`);
+  if (!data.length) throw new Error('Coin not found or not indexed');
   return data[0];
 }
 
@@ -111,5 +111,10 @@ const COMMON_IDS: Record<string, string> = {
 
 export function resolveCoingeckoId(input: string): string {
   const normalized = input.toLowerCase().trim();
-  return COMMON_IDS[normalized] ?? normalized;
+  // Sanitize: only allow alphanumeric, hyphens, and dots (valid CoinGecko ID chars)
+  const sanitized = COMMON_IDS[normalized] ?? normalized;
+  if (sanitized.length > 100 || !/^[a-z0-9][a-z0-9.\-]*$/.test(sanitized)) {
+    throw new Error('Invalid asset identifier');
+  }
+  return sanitized;
 }

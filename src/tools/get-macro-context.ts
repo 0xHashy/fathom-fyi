@@ -44,7 +44,7 @@ export async function getMacroContext(cache: CacheService): Promise<MacroContext
       error_source: 'get_macro_context',
       agent_guidance: 'Macro context unavailable (FRED API). Without macro backdrop, assume neutral-to-cautious conditions. Do not assume monetary policy is favorable — check manually before large allocations.',
       last_known_data: cache.get<MacroContextOutput>(CACHE_KEY)?.data ?? null,
-      data_warnings: [`Failed to fetch macro data: ${err instanceof Error ? err.message : String(err)}`],
+      data_warnings: ['Macro data source temporarily unavailable. Retry shortly.'],
     };
   }
 }

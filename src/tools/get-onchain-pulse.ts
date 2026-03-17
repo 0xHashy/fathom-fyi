@@ -79,7 +79,7 @@ export async function getOnchainPulse(cache: CacheService): Promise<OnchainPulse
       error_source: 'get_onchain_pulse',
       agent_guidance: 'Bitcoin on-chain data unavailable. Without network health context, avoid making timing-sensitive BTC transactions. Network conditions are unknown.',
       last_known_data: cache.get<OnchainPulseOutput>(CACHE_KEY)?.data ?? null,
-      data_warnings: [`Failed to fetch on-chain data: ${err instanceof Error ? err.message : String(err)}`],
+      data_warnings: ['On-chain data source temporarily unavailable. Retry shortly.'],
     };
   }
 }

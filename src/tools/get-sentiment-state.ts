@@ -53,7 +53,7 @@ export async function getSentimentState(cache: CacheService): Promise<SentimentS
       error_source: 'get_sentiment_state',
       agent_guidance: 'Sentiment data unavailable. Without sentiment context, treat current conditions as uncertain. Reduce position sizes until sentiment data is restored.',
       last_known_data: cache.get<SentimentStateOutput>(CACHE_KEY)?.data ?? null,
-      data_warnings: [`Failed to fetch sentiment data: ${err instanceof Error ? err.message : String(err)}`],
+      data_warnings: ['Sentiment data source temporarily unavailable. Retry shortly.'],
     };
   }
 }

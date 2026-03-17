@@ -6,10 +6,11 @@ async function fetchFredSeries(seriesId: string, limit = 5): Promise<FredRespons
   const key = process.env.FRED_API_KEY;
   if (!key) throw new Error('FRED_API_KEY not configured');
 
-  const url = `${BASE_URL}/series/observations?series_id=${seriesId}&api_key=${key}&file_type=json&sort_order=desc&limit=${limit}`;
+  const url = `${BASE_URL}/series/observations?series_id=${encodeURIComponent(seriesId)}&api_key=${key}&file_type=json&sort_order=desc&limit=${limit}`;
   const res = await fetch(url, { headers: { Accept: 'application/json' } });
   if (!res.ok) {
-    throw new Error(`FRED API error for ${seriesId}: ${res.status} ${res.statusText}`);
+    // Sanitize error — never leak the full URL (contains API key)
+    throw new Error(`FRED data temporarily unavailable for series ${seriesId}`);
   }
   return res.json() as Promise<FredResponse>;
 }

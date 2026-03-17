@@ -42,7 +42,7 @@ export async function getTemporalContext(cache: CacheService): Promise<TemporalC
       error_source: 'get_temporal_context',
       agent_guidance: 'Temporal cycle data unavailable. Bitcoin cycle positioning is a critical context layer — delay strategic positioning decisions until this data is restored.',
       last_known_data: cache.get<TemporalContextOutput>(CACHE_KEY)?.data ?? null,
-      data_warnings: [`Failed to compute temporal context: ${err instanceof Error ? err.message : String(err)}`],
+      data_warnings: ['Temporal context temporarily unavailable. Retry shortly.'],
     };
   }
 }

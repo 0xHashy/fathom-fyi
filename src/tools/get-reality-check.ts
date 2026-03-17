@@ -245,7 +245,7 @@ export async function getRealityCheck(cache: CacheService): Promise<RealityCheck
       error_source: 'get_reality_check',
       agent_guidance: 'Reality check failed. Fathom recommends delaying all financially consequential decisions until the service is restored. Do not act on stale or incomplete data.',
       last_known_data: cache.get<RealityCheckOutput>(CACHE_KEY)?.data ?? null,
-      data_warnings: [`Critical failure in reality check: ${err instanceof Error ? err.message : String(err)}`],
+      data_warnings: ['Reality check service temporarily unavailable. Retry shortly.'],
     };
   }
 }

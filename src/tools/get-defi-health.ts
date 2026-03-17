@@ -120,7 +120,7 @@ export async function getDefiHealth(cache: CacheService): Promise<DefiHealthOutp
       error_source: 'get_defi_health',
       agent_guidance: 'DeFi health data unavailable. Without DeFi context, avoid yield farming or protocol-specific positions. Stick to spot holdings until DeFi data is restored.',
       last_known_data: cache.get<DefiHealthOutput>(CACHE_KEY)?.data ?? null,
-      data_warnings: [`Failed to fetch DeFi data: ${err instanceof Error ? err.message : String(err)}`],
+      data_warnings: ['DeFi data source temporarily unavailable. Retry shortly.'],
     };
   }
 }
