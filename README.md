@@ -72,7 +72,7 @@ Add an `"env"` block to unlock additional data sources and paid tools:
 | `CG_API_KEY` | Faster price data, higher rate limits | [coingecko.com/api](https://www.coingecko.com/en/api) | Free |
 | `FATHOM_API_KEY` | All 27 tools, alerts, strategies, alternative signals | [fathom.fyi](https://fathom.fyi) | From $29/mo |
 
-## Tools (22 instruments)
+## Tools (27 instruments)
 
 ### Free Tier (3 tools)
 
@@ -106,7 +106,7 @@ All free tools plus:
 | `get_correlation_matrix` | BTC correlation with S&P 500 and Gold, TradFi prices, macro risk appetite |
 | `set_signal_preferences` | Customize which signals feed into your reality check |
 
-### Pro Tier (27 tools — $99/mo)
+### Pro Tier (25 tools — $99/mo)
 
 All Starter tools plus:
 
