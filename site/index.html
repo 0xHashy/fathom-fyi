@@ -168,8 +168,13 @@
     }
 
     .hero-grid {
-      display: grid; grid-template-columns: 1fr 340px; gap: 80px;
+      display: grid; grid-template-columns: 1fr 1px 340px; gap: 40px;
       align-items: end; position: relative;
+    }
+
+    .hero-divider {
+      width: 1px; background: var(--gold-dim); align-self: stretch;
+      opacity: 0; animation: fadeUp 0.6s 0.9s ease forwards;
     }
 
     .hero-label {
@@ -217,7 +222,7 @@
 
     /* Hero data panel */
     .hero-panel {
-      border-left: 1px solid var(--gold-dim); padding-left: 28px;
+      padding-left: 0;
       position: relative;
       opacity: 0; animation: fadeUp 0.6s 1.0s ease forwards;
     }
@@ -497,6 +502,7 @@
     /* ── Responsive ── */
     @media (max-width: 900px) {
       .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+      .hero-divider { display: none; }
       .hero-panel { border-left: none; padding-left: 0; border-top: 1px solid var(--border); padding-top: 24px; }
       .ed-cols { grid-template-columns: 1fr; }
       .aud-grid { grid-template-columns: 1fr; }
@@ -551,6 +557,7 @@
           <a href="https://github.com/0xHashy/fathom-fyi" target="_blank" rel="noopener" class="btn-ghost">View Source</a>
         </div>
       </div>
+      <div class="hero-divider"></div>
       <div class="hero-panel">
         <div class="hero-panel-line"><span class="lbl">Protocol</span><span class="val">MCP</span></div>
         <div class="hero-panel-line"><span class="lbl">Sources</span><span class="val" data-count="5">0</span></div>
