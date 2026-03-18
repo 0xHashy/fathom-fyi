@@ -1,4 +1,6 @@
 {
+  "buildCommand": "",
+  "outputDirectory": "public",
   "functions": {
     "api/*.js": {
       "memory": 128
