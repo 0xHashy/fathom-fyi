@@ -14,12 +14,18 @@ import { getDefiHealth } from './tools/get-defi-health.js';
 import { getMacroContext } from './tools/get-macro-context.js';
 import { getOnchainPulse } from './tools/get-onchain-pulse.js';
 import { getRealityCheck } from './tools/get-reality-check.js';
+import { setPortfolioContext } from './tools/set-portfolio-context.js';
+import { getPortfolioAnalysis } from './tools/get-portfolio-analysis.js';
+import { getCrowdIntel } from './tools/get-crowd-intelligence.js';
+import { getSignalHistory } from './tools/get-signal-history.js';
+import { logSignal } from './storage/signal-logger.js';
+import { startBackgroundWorker } from './worker/background-worker.js';
 
 const cache = new CacheService(process.env.CACHE_ENABLED !== 'false');
 
 const server = new McpServer({
   name: 'fathom',
-  version: '1.0.0',
+  version: '2.0.0',
 });
 
 // Helper: check access + rate limit, return error JSON string or null
@@ -39,6 +45,26 @@ function gateTool(toolName: string): string | null {
   return null;
 }
 
+// Helper: wrap tool execution with signal logging
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function executeAndLog(
+  toolName: string,
+  inputParams: Record<string, unknown>,
+  fn: () => any,
+): Promise<string> {
+  const startMs = performance.now();
+  const result = await fn();
+  const elapsedMs = Math.round(performance.now() - startMs);
+
+  // Add response time to result
+  const output = { ...result, response_time_ms: elapsedMs };
+
+  // Log signal (non-blocking)
+  try { logSignal(toolName, inputParams, output as Record<string, unknown>); } catch { /* never crash */ }
+
+  return JSON.stringify(output, null, 2);
+}
+
 // ─── Tool: get_market_regime ───
 server.tool(
   'get_market_regime',
@@ -48,8 +74,8 @@ server.tool(
     const gateError = gateTool('get_market_regime');
     if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
 
-    const result = await getMarketRegime(cache);
-    return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+    const text = await executeAndLog('get_market_regime', {}, () => getMarketRegime(cache));
+    return { content: [{ type: 'text' as const, text }] };
   },
 );
 
@@ -62,8 +88,8 @@ server.tool(
     const gateError = gateTool('get_sentiment_state');
     if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
 
-    const result = await getSentimentState(cache);
-    return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+    const text = await executeAndLog('get_sentiment_state', {}, () => getSentimentState(cache));
+    return { content: [{ type: 'text' as const, text }] };
   },
 );
 
@@ -76,8 +102,8 @@ server.tool(
     const gateError = gateTool('get_narrative_pulse');
     if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
 
-    const result = await getNarrativePulse(cache);
-    return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+    const text = await executeAndLog('get_narrative_pulse', {}, () => getNarrativePulse(cache));
+    return { content: [{ type: 'text' as const, text }] };
   },
 );
 
@@ -90,8 +116,8 @@ server.tool(
     const gateError = gateTool('get_asset_context');
     if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
 
-    const result = await getAssetContext(cache, asset);
-    return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+    const text = await executeAndLog('get_asset_context', { asset }, () => getAssetContext(cache, asset));
+    return { content: [{ type: 'text' as const, text }] };
   },
 );
 
@@ -104,8 +130,8 @@ server.tool(
     const gateError = gateTool('get_temporal_context');
     if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
 
-    const result = await getTemporalContext(cache);
-    return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+    const text = await executeAndLog('get_temporal_context', {}, () => getTemporalContext(cache));
+    return { content: [{ type: 'text' as const, text }] };
   },
 );
 
@@ -118,8 +144,8 @@ server.tool(
     const gateError = gateTool('get_defi_health');
     if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
 
-    const result = await getDefiHealth(cache);
-    return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+    const text = await executeAndLog('get_defi_health', {}, () => getDefiHealth(cache));
+    return { content: [{ type: 'text' as const, text }] };
   },
 );
 
@@ -132,8 +158,8 @@ server.tool(
     const gateError = gateTool('get_macro_context');
     if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
 
-    const result = await getMacroContext(cache);
-    return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+    const text = await executeAndLog('get_macro_context', {}, () => getMacroContext(cache));
+    return { content: [{ type: 'text' as const, text }] };
   },
 );
 
@@ -146,8 +172,8 @@ server.tool(
     const gateError = gateTool('get_onchain_pulse');
     if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
 
-    const result = await getOnchainPulse(cache);
-    return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+    const text = await executeAndLog('get_onchain_pulse', {}, () => getOnchainPulse(cache));
+    return { content: [{ type: 'text' as const, text }] };
   },
 );
 
@@ -160,16 +186,83 @@ server.tool(
     const gateError = gateTool('get_reality_check');
     if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
 
-    const result = await getRealityCheck(cache);
+    const text = await executeAndLog('get_reality_check', {}, () => getRealityCheck(cache));
+    return { content: [{ type: 'text' as const, text }] };
+  },
+);
+
+// ─── Tool: set_portfolio_context ───
+server.tool(
+  'set_portfolio_context',
+  'Save your portfolio holdings so Fathom can give personalized guidance. Pass an array of holdings with asset name and amount. Example: [{asset: "bitcoin", amount: 2}, {asset: "solana", amount: 50}, {asset: "usdc", amount: 10000}].',
+  {
+    holdings: z.array(z.object({
+      asset: z.string().describe('Asset name or symbol (e.g., "bitcoin", "btc", "sol", "usdc")'),
+      amount: z.number().describe('Amount held'),
+      entry_price_usd: z.number().optional().describe('Optional: average entry price in USD'),
+    })).describe('Array of portfolio holdings'),
+  },
+  async ({ holdings }) => {
+    const gateError = gateTool('set_portfolio_context');
+    if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
+
+    const result = setPortfolioContext(holdings);
     return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+// ─── Tool: get_portfolio_analysis ───
+server.tool(
+  'get_portfolio_analysis',
+  'Get personalized portfolio analysis against current market conditions. Shows position values, allocation percentages, PnL, concentration risk, regime alignment, and specific rebalancing suggestions. Requires set_portfolio_context to be called first.',
+  {},
+  async () => {
+    const gateError = gateTool('get_portfolio_analysis');
+    if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
+
+    const text = await executeAndLog('get_portfolio_analysis', {}, () => getPortfolioAnalysis(cache));
+    return { content: [{ type: 'text' as const, text }] };
+  },
+);
+
+// ─── Tool: get_crowd_intelligence ───
+server.tool(
+  'get_crowd_intelligence',
+  'See what other Fathom-connected agents are doing. Returns aggregate posture distribution, consensus strength, most-queried assets, and crowd fear levels. Data improves as more agents connect.',
+  {},
+  async () => {
+    const gateError = gateTool('get_crowd_intelligence');
+    if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
+
+    const text = await executeAndLog('get_crowd_intelligence', {}, () => getCrowdIntel());
+    return { content: [{ type: 'text' as const, text }] };
+  },
+);
+
+// ─── Tool: get_signal_history ───
+server.tool(
+  'get_signal_history',
+  'View Fathom\'s signal history and accuracy track record. Shows recent signals with their regimes, postures, and risk scores, plus aggregate accuracy statistics. Fathom logs every signal and tracks what it recommended vs what actually happened.',
+  {
+    limit: z.number().optional().describe('Number of recent signals to return (default: 20)'),
+  },
+  async ({ limit }) => {
+    const gateError = gateTool('get_signal_history');
+    if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
+
+    const text = await executeAndLog('get_signal_history', { limit }, () => getSignalHistory(limit ?? 20));
+    return { content: [{ type: 'text' as const, text }] };
   },
 );
 
 // ─── Start Server ───
 async function main() {
+  // Start background worker to pre-compute data
+  startBackgroundWorker(cache);
+
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('Fathom MCP server running on stdio');
+  console.error('Fathom MCP server v2.0.0 running on stdio — 13 tools, 5 sources');
 }
 
 main().catch((err) => {

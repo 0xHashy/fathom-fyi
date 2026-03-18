@@ -1,11 +1,19 @@
 import type { ApiTier, TierConfig, TierViolation } from '../types/index.js';
 
 const FREE_TOOLS = ['get_reality_check', 'get_market_regime', 'get_sentiment_state'];
-const ALL_TOOLS = [
+const STARTER_TOOLS = [
   'get_reality_check', 'get_market_regime', 'get_sentiment_state',
   'get_narrative_pulse', 'get_asset_context', 'get_temporal_context',
   'get_defi_health', 'get_macro_context', 'get_onchain_pulse',
+  'set_portfolio_context',
 ];
+
+const PRO_TOOLS = [
+  ...STARTER_TOOLS,
+  'get_portfolio_analysis', 'get_crowd_intelligence', 'get_signal_history',
+];
+
+const ALL_TOOLS = PRO_TOOLS;
 
 const TIER_CONFIGS: Record<ApiTier, TierConfig> = {
   free: {
@@ -15,19 +23,19 @@ const TIER_CONFIGS: Record<ApiTier, TierConfig> = {
     webhooks: false,
   },
   starter: {
-    tools: ALL_TOOLS,
+    tools: STARTER_TOOLS,
     rateLimit: 500,
     cacheTtlMultiplier: 1,
     webhooks: false,
   },
   pro: {
-    tools: ALL_TOOLS,
+    tools: PRO_TOOLS,
     rateLimit: 2000,
     cacheTtlMultiplier: 0.5,
     webhooks: false,
   },
   trading_bot: {
-    tools: ALL_TOOLS,
+    tools: PRO_TOOLS,
     rateLimit: -1,
     cacheTtlMultiplier: 0.25,
     webhooks: true,

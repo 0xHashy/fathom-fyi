@@ -449,7 +449,8 @@
     }
 
     .instrument:nth-child(3n) { border-right: none; }
-    .instrument:nth-child(n+7) { border-bottom: none; }
+    .instrument:last-child { border-bottom: none; }
+    .instrument:nth-last-child(-n+3) { border-bottom: none; }
 
     .instrument:hover {
       background: var(--surface);
@@ -848,7 +849,7 @@
           <div class="hero-meta">
             <strong>Protocol</strong> &mdash; Model Context Protocol (MCP)<br>
             <strong>Sources</strong> &mdash; 5 real-time data feeds<br>
-            <strong>Instruments</strong> &mdash; 9 intelligence tools<br>
+            <strong>Instruments</strong> &mdash; 13 intelligence tools<br>
             <strong>Latency</strong> &mdash; &lt;3 second full briefing<br>
             <strong>Infrastructure</strong> &mdash; ~$0/month
           </div>
@@ -917,8 +918,38 @@
     </div>
   </section>
 
+  <!-- ─── Who It's For ─── -->
+  <section class="data-section" id="audience">
+    <div class="container">
+      <div class="editorial-header reveal">
+        <span class="editorial-label">Who It's For</span>
+        <span class="editorial-date">4 audiences</span>
+      </div>
+      <h2 class="reveal" style="font-family: var(--font-display); font-size: clamp(28px, 3.5vw, 42px); font-weight: 400; margin-bottom: 48px;">Built for anyone putting capital at risk with code.</h2>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--border);" class="reveal">
+        <div style="padding: 32px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <div style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 14px;">Trading Bot Developers</div>
+          <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7;">Your bot sees price. Fathom tells it whether the market is in euphoria or capitulation before it places the trade. One call to <span style="font-family: var(--font-mono); color: var(--gold);">get_reality_check</span> returns posture, risk score, and regime &mdash; the difference between a smart entry and catching a falling knife.</p>
+        </div>
+        <div style="padding: 32px; border-bottom: 1px solid var(--border);">
+          <div style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 14px;">DeFi Agents</div>
+          <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7;">Before your agent farms a yield, Fathom tells it if DeFi TVL is collapsing and the protocol is at risk. <span style="font-family: var(--font-mono); color: var(--gold);">get_defi_health</span> returns TVL trends, concentration risk, and revenue health so your agent deploys capital with open eyes.</p>
+        </div>
+        <div style="padding: 32px; border-right: 1px solid var(--border);">
+          <div style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 14px;">Treasury Managers</div>
+          <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7;">Set your portfolio context. Fathom tells you if your SOL allocation is 3x overweight for a defensive market. <span style="font-family: var(--font-mono); color: var(--gold);">get_portfolio_analysis</span> returns regime alignment, concentration risk, and specific rebalancing suggestions personalized to your holdings.</p>
+        </div>
+        <div style="padding: 32px;">
+          <div style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 14px;">Agent Frameworks</div>
+          <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7;">LangChain, CrewAI, AutoGen, any MCP client. One connection, 13 tools. Your agent framework gets financial reality context it never had. Fathom logs every signal and tracks accuracy over time &mdash; your agents get smarter with every call.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ─── Terminal Output ─── -->
-  <section class="data-section" id="output">
+  <section class="data-section" id="output" style="background: var(--bg)">
     <div class="container">
       <div class="editorial-header reveal">
         <span class="editorial-label">Live Output</span>
@@ -979,10 +1010,10 @@ to recover above 40 before adding exposure.</span>
     <div class="container">
       <div class="editorial-header reveal">
         <span class="editorial-label">Instruments</span>
-        <span class="editorial-date">9 tools</span>
+        <span class="editorial-date">13 tools</span>
       </div>
-      <h2 class="reveal" style="font-family: var(--font-display); font-size: clamp(28px, 3.5vw, 42px); font-weight: 400; margin-bottom: 8px;">Nine dimensions of financial reality</h2>
-      <p class="reveal" style="font-size: 15px; color: var(--text-secondary);">Three core instruments free forever. All nine on Starter and above.</p>
+      <h2 class="reveal" style="font-family: var(--font-display); font-size: clamp(28px, 3.5vw, 42px); font-weight: 400; margin-bottom: 8px;">Thirteen instruments. Four moats.</h2>
+      <p class="reveal" style="font-size: 15px; color: var(--text-secondary);">Nine reality tools, plus portfolio intelligence, crowd consensus, signal tracking, and accuracy scoring.</p>
 
       <div class="instruments-grid reveal">
         <div class="instrument">
@@ -1047,6 +1078,34 @@ to recover above 40 before adding exposure.</span>
           <div class="instrument-desc">Bitcoin network health. Mempool congestion, fees, miner distribution, mining economics.</div>
           <div class="instrument-cache">TTL 600s</div>
         </div>
+
+        <div class="instrument">
+          <div class="instrument-tier paid">Starter+</div>
+          <div class="instrument-name">set_portfolio_context</div>
+          <div class="instrument-desc">Save your holdings. Fathom personalizes all guidance to your specific positions, allocations, and entry prices.</div>
+          <div class="instrument-cache">Persistent</div>
+        </div>
+
+        <div class="instrument">
+          <div class="instrument-tier paid">Pro+</div>
+          <div class="instrument-name">get_portfolio_analysis</div>
+          <div class="instrument-desc">Personalized portfolio analysis. Regime alignment, concentration risk, PnL, and specific rebalancing suggestions.</div>
+          <div class="instrument-cache">Real-time</div>
+        </div>
+
+        <div class="instrument">
+          <div class="instrument-tier paid">Pro+</div>
+          <div class="instrument-name">get_crowd_intelligence</div>
+          <div class="instrument-desc">Aggregate behavior of all Fathom-connected agents. Consensus posture, crowd fear level, most-queried assets.</div>
+          <div class="instrument-cache">Real-time</div>
+        </div>
+
+        <div class="instrument">
+          <div class="instrument-tier paid">Pro+</div>
+          <div class="instrument-name">get_signal_history</div>
+          <div class="instrument-desc">Fathom's track record. Every signal logged, every outcome tracked. Win rates by regime and posture.</div>
+          <div class="instrument-cache">Real-time</div>
+        </div>
       </div>
     </div>
   </section>
@@ -1110,21 +1169,21 @@ to recover above 40 before adding exposure.</span>
           <tr>
             <td class="tier-name">Starter</td>
             <td><span class="tier-price">$29<span>/mo</span></span></td>
-            <td>All 9</td>
+            <td>10 tools + portfolio</td>
             <td>500 req/hr</td>
             <td>Standard</td>
           </tr>
           <tr class="featured-row">
             <td class="tier-name gold-marker">Pro</td>
             <td><span class="tier-price gold-marker">$99<span>/mo</span></span></td>
-            <td>All 9</td>
+            <td>All 13 + crowd + accuracy</td>
             <td>2,000 req/hr</td>
             <td>2x fresher</td>
           </tr>
           <tr>
             <td class="tier-name">Trading Bot</td>
             <td><span class="tier-price">$299<span>/mo</span></span></td>
-            <td>All 9 + webhooks</td>
+            <td>All 13 + webhooks</td>
             <td>Unlimited</td>
             <td>4x fresher</td>
           </tr>
