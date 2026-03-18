@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fathom — Financial Reality for AI Agents</title>
+  <meta name="description" content="Fathom is an MCP server that gives AI agents financial reality awareness before they make consequential decisions. The FYI your agent needs before it acts.">
+  <meta name="keywords" content="MCP, Model Context Protocol, AI agents, crypto, financial intelligence, trading bots, DeFi, Bitcoin, Claude, Cursor">
+  <meta property="og:title" content="Fathom — Financial Reality for AI Agents">
+  <meta property="og:description" content="The FYI your agent needs before it acts. MCP server for financial reality awareness.">
+  <meta property="og:url" content="https://fathom.fyi">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0A0A08;
+      --surface: #111110;
+      --surface-2: #191917;
+      --border: #2A2A26;
+      --border-subtle: #1E1E1C;
+      --text: #F5F0E8;
+      --text-2: #8A8578;
+      --text-muted: #4A4840;
+      --gold: #C9A84C;
+      --gold-dim: #8A6E2A;
+      --green: #4A9B6F;
+      --red: #8B2E2E;
+      --yellow: #8A7A3A;
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-mono: 'IBM Plex Mono', Consolas, monospace;
+      --font-body: 'DM Sans', 'Helvetica Neue', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* noise overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+
+    /* ── Reveal ── */
+    .rv { opacity: 0; transform: translateY(8px); transition: opacity 0.5s ease, transform 0.5s ease; }
+    .rv.vis { opacity: 1; transform: translateY(0); }
+    .rv-line { width: 0; transition: width 0.8s ease; }
+    .rv-line.vis { width: 100%; }
+
+    /* ── Section Rule ── */
+    .sec-rule { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+    .sec-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 20px;
+      padding-top: 48px;
+    }
+
+    .sec-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .sec-date {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      padding-top: 48px;
+    }
+
+    .sec-title {
+      font-family: var(--font-display);
+      font-size: clamp(30px, 4vw, 48px);
+      font-weight: 400;
+      line-height: 1.15;
+      margin-bottom: 32px;
+      max-width: 700px;
+    }
+
+    .sec-title em {
+      font-weight: 600;
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(10, 10, 8, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s;
+    }
+    nav.scrolled { border-bottom-color: var(--border-subtle); }
+
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 52px; }
+
+    .nav-logo {
+      font-family: var(--font-mono); font-size: 14px; font-weight: 600;
+      color: var(--text); text-decoration: none; letter-spacing: 0.05em;
+    }
+    .nav-logo::before { content: '\25C6 '; color: var(--gold); font-size: 8px; vertical-align: 1px; }
+
+    .nav-links { display: flex; align-items: center; gap: 24px; list-style: none; }
+    .nav-links a {
+      font-family: var(--font-body); font-size: 13px; font-weight: 400;
+      color: var(--text-2); text-decoration: none; transition: color 0.2s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: -2px; left: 0;
+      width: 0; height: 1px; background: var(--gold); transition: width 0.3s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover::after { width: 100%; }
+
+    .nav-cta {
+      font-family: var(--font-mono) !important; font-size: 10px !important;
+      letter-spacing: 0.15em !important; text-transform: uppercase;
+      padding: 6px 16px; border: 1px solid var(--gold);
+      color: var(--gold) !important; border-radius: 0; transition: all 0.2s;
+    }
+    .nav-cta:hover { background: var(--gold); color: var(--bg) !important; }
+    .nav-cta::after { display: none !important; }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100vh; display: flex; align-items: center;
+      padding: 120px 0 80px;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+
+    /* subtle grid */
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background-image:
+        linear-gradient(var(--border-subtle) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .hero-grid {
+      display: grid; grid-template-columns: 1fr 1px 340px; gap: 40px;
+      align-items: center; position: relative;
+    }
+
+    .hero-divider {
+      width: 1px; background: var(--gold-dim); align-self: stretch;
+      opacity: 0; animation: fadeUp 0.6s 0.9s ease forwards;
+    }
+
+    .hero-label {
+      font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+      letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold);
+      margin-bottom: 40px;
+      opacity: 0; animation: fadeUp 0.5s 0.1s ease forwards;
+    }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(44px, 6.5vw, 80px);
+      font-weight: 300; line-height: 1.0; letter-spacing: -0.5px;
+      opacity: 0; animation: fadeUp 0.6s 0.3s ease forwards;
+    }
+    .hero h1 em { font-weight: 600; font-style: italic; color: var(--gold); }
+
+    .hero-sub {
+      font-family: var(--font-body); font-size: 16px; font-weight: 400;
+      color: var(--text-2); line-height: 1.7; margin-top: 28px; max-width: 440px;
+      opacity: 0; animation: fadeUp 0.5s 0.6s ease forwards;
+    }
+
+    .hero-ctas {
+      display: flex; gap: 16px; margin-top: 48px;
+      opacity: 0; animation: fadeUp 0.5s 0.8s ease forwards;
+    }
+
+    .btn-gold {
+      font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 14px 32px; border: 1px solid var(--gold);
+      background: transparent; color: var(--gold);
+      text-decoration: none; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-gold:hover { background: var(--gold); color: var(--bg); }
+
+    .btn-ghost {
+      font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 14px 32px; background: transparent; border: 1px solid var(--border);
+      color: var(--text-2); text-decoration: none; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--text-2); color: var(--text); }
+
+    /* Hero data panel */
+    .hero-panel {
+      padding-left: 0;
+      position: relative;
+      opacity: 0; animation: fadeUp 0.6s 1.0s ease forwards;
+    }
+
+    /* scanline overlay on panel */
+    .hero-panel::before {
+      content: ''; position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        transparent, transparent 2px, rgba(10,10,8,0.15) 2px, rgba(10,10,8,0.15) 4px
+      );
+      pointer-events: none;
+    }
+
+    .hero-panel-line {
+      font-family: var(--font-mono); font-size: 11px; line-height: 2.2;
+      display: flex; justify-content: space-between; gap: 16px;
+    }
+    .hero-panel-line .lbl { color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; font-size: 9px; }
+    .hero-panel-line .val { color: var(--text); }
+    .hero-panel-line .val-gold { color: var(--gold); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Ticker ── */
+    .ticker {
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+      background: #0D0D0B; overflow: hidden;
+    }
+    .ticker-inner {
+      display: flex; gap: 0; white-space: nowrap; width: max-content;
+      font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);
+      animation: tickScroll 45s linear infinite;
+    }
+    .ticker-item { display: inline-flex; align-items: center; }
+    .ticker-item::after {
+      content: '\25C6'; color: var(--gold-dim); margin: 0 20px; font-size: 6px;
+    }
+    .ticker-item strong { color: var(--text-2); font-weight: 500; margin-right: 6px; }
+    .ticker-item .up { color: var(--green); }
+    .ticker-item .dn { color: var(--red); }
+
+    @keyframes tickScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+    /* ── Editorial ── */
+    .editorial { padding: 0 0 80px; }
+
+    .ed-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 8px; }
+
+    .ed-col p {
+      font-size: 15px; color: var(--text-2); line-height: 1.85; margin-bottom: 16px;
+    }
+    .ed-col p strong { color: var(--text); font-weight: 500; }
+
+    /* pull quote accent */
+    .ed-accent {
+      border-left: 2px solid var(--gold); padding-left: 20px;
+      font-family: var(--font-display); font-size: 20px; font-weight: 400;
+      font-style: italic; color: var(--text); line-height: 1.5;
+      margin: 24px 0;
+    }
+
+    /* ── Audience Grid ── */
+    .audience { padding: 0 0 80px; background: var(--surface); }
+    .audience-inner { padding: 0 0 0; }
+
+    .aud-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+      border: 1px solid var(--border); margin-top: 8px;
+    }
+    .aud-cell {
+      padding: 32px; border-bottom: 1px solid var(--border);
+      transition: background 0.2s;
+    }
+    .aud-cell:nth-child(odd) { border-right: 1px solid var(--border); }
+    .aud-cell:nth-child(n+3) { border-bottom: none; }
+    .aud-cell:hover { background: var(--surface-2); }
+
+    .aud-label {
+      font-family: var(--font-mono); font-size: 9px; font-weight: 500;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold);
+      margin-bottom: 12px;
+    }
+    .aud-cell p { font-size: 13px; color: var(--text-2); line-height: 1.7; }
+    .aud-cell code { font-family: var(--font-mono); font-size: 11px; color: var(--gold); }
+
+    /* ── Terminal ── */
+    .term-section { padding: 0 0 80px; }
+
+    .terminal {
+      background: #050504; border: 1px solid var(--border);
+      max-width: 880px; margin-top: 32px; position: relative; overflow: hidden;
+    }
+    /* scanlines */
+    .terminal::after {
+      content: ''; position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px
+      );
+      pointer-events: none;
+    }
+
+    .term-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; border-bottom: 1px solid var(--border); background: #0A0A08;
+    }
+    .term-bar-left { display: flex; align-items: center; gap: 10px; }
+    .term-dots { display: flex; gap: 6px; }
+    .term-dots span { width: 8px; height: 8px; border-radius: 50%; }
+    .term-dots .r { background: #5C2626; } .term-dots .y { background: #5C5226; } .term-dots .g { background: #265C3A; }
+    .term-title { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.1em; }
+    .term-time { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
+
+    .term-body {
+      padding: 24px; font-family: var(--font-mono); font-size: 12px;
+      line-height: 1.9; color: #A8C5A0; overflow-x: auto; position: relative; z-index: 1;
+    }
+    .term-body .tl { color: var(--text-muted); letter-spacing: 0.15em; text-transform: uppercase; font-size: 9px; }
+    .term-body .tw { color: #C5D4C0; }
+    .term-body .tg { color: var(--gold); }
+    .term-body .tr { color: #C07070; }
+    .term-body .tgr { color: #70C090; }
+    .term-body .td { color: #505048; }
+    .term-body .tn { color: var(--gold); font-weight: 500; }
+
+    .term-cursor {
+      display: inline-block; width: 7px; height: 14px; background: #A8C5A0;
+      animation: blink 1s step-end infinite; vertical-align: text-bottom;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ── Instruments Table ── */
+    .inst-section { padding: 0 0 80px; background: var(--surface); }
+
+    .inst-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    .inst-table th {
+      font-family: var(--font-mono); font-size: 9px; font-weight: 500;
+      letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted);
+      text-align: left; padding: 14px 16px; border-bottom: 2px solid var(--border);
+    }
+    .inst-table td {
+      padding: 14px 16px; border-bottom: 1px solid var(--border-subtle);
+      font-size: 13px; color: var(--text-2); vertical-align: top;
+      transition: all 0.15s;
+    }
+    .inst-table tr { transition: all 0.15s; position: relative; }
+    .inst-table tbody tr:hover td { background: var(--surface-2); }
+    .inst-table tbody tr:hover td:first-child { box-shadow: inset 2px 0 0 var(--gold); }
+
+    .inst-table .iname {
+      font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--text);
+    }
+    .inst-table .idesc { font-family: var(--font-body); }
+    .inst-table .ittl { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+
+    .tier-free { font-family: var(--font-mono); font-size: 9px; font-weight: 500; letter-spacing: 0.1em; color: var(--green); }
+    .tier-starter { font-family: var(--font-mono); font-size: 9px; font-weight: 500; letter-spacing: 0.1em; color: var(--gold); }
+    .tier-pro {
+      font-family: var(--font-mono); font-size: 9px; font-weight: 500; letter-spacing: 0.1em;
+      color: var(--text-2); border: 1px solid var(--border); padding: 1px 6px;
+    }
+
+    /* ── Process ── */
+    .process-section { padding: 0 0 80px; }
+
+    .proc-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+      margin-top: 8px; border-top: 1px solid var(--border);
+    }
+    .proc-step {
+      padding: 40px 32px 40px 0;
+      border-right: 1px solid var(--border);
+    }
+    .proc-step:last-child { border-right: none; }
+    .proc-step:first-child { padding-left: 0; }
+
+    .proc-num {
+      font-family: var(--font-display); font-size: 56px; font-weight: 300;
+      color: var(--text-muted); line-height: 1; margin-bottom: 20px;
+    }
+    .proc-step h3 {
+      font-family: var(--font-display); font-size: 22px; font-weight: 500; margin-bottom: 12px;
+    }
+    .proc-step p { font-size: 13px; color: var(--text-2); line-height: 1.7; }
+    .proc-step code { font-family: var(--font-mono); font-size: 11px; color: var(--gold); }
+
+    /* ── Pricing ── */
+    .pricing-section { padding: 0 0 80px; background: var(--surface); }
+
+    .price-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    .price-table th {
+      font-family: var(--font-mono); font-size: 9px; font-weight: 500;
+      letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted);
+      text-align: left; padding: 14px 16px;
+      border-bottom: 2px solid var(--border); background: var(--surface-2);
+    }
+    .price-table td {
+      padding: 18px 16px; border-bottom: 1px solid var(--border-subtle);
+      font-family: var(--font-mono); font-size: 13px; color: var(--text-2);
+    }
+    .price-table .tname { color: var(--text); font-weight: 500; }
+    .price-table .tprice {
+      font-family: var(--font-display); font-size: 32px; font-weight: 400; color: var(--text);
+    }
+    .price-table .tprice small {
+      font-family: var(--font-body); font-size: 12px; color: var(--text-muted);
+    }
+    .price-table .feat td { border-left: 1px solid var(--gold); border-right: 1px solid var(--gold); }
+    .price-table .feat .tname { color: var(--gold); }
+    .price-table .feat .tprice { color: var(--gold); }
+
+    .price-table tbody tr:hover td { background: rgba(201, 168, 76, 0.03); }
+
+    .sub-link {
+      font-family: var(--font-mono); font-size: 9px; font-weight: 500;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--gold); text-decoration: none;
+      padding: 6px 14px; border: 1px solid var(--gold);
+      transition: all 0.2s; display: inline-block;
+    }
+    .sub-link:hover { background: var(--gold); color: var(--bg); }
+
+    /* ── Quick Start ── */
+    .qs-section { padding: 0 0 80px; }
+
+    .qs-blocks { display: flex; flex-direction: column; gap: 20px; margin-top: 8px; }
+
+    .qs-block { background: #050504; border: 1px solid var(--border); }
+    .qs-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--surface);
+    }
+    .qs-head-title { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
+    .qs-head-step { font-family: var(--font-mono); font-size: 9px; color: var(--gold); letter-spacing: 0.15em; text-transform: uppercase; }
+
+    .qs-block pre {
+      padding: 18px 20px; font-family: var(--font-mono); font-size: 12px;
+      line-height: 1.8; color: var(--text); overflow-x: auto;
+    }
+    .qs-block pre .c { color: var(--text-muted); }
+    .qs-block pre .g { color: var(--gold); }
+    .qs-block pre .k { color: var(--text-2); }
+
+    /* ── Sources ── */
+    .src-section { padding: 0 0 80px; background: var(--surface); }
+
+    .src-row {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 0;
+      margin-top: 8px; border: 1px solid var(--border);
+    }
+    .src-cell { padding: 24px 20px; border-right: 1px solid var(--border); }
+    .src-cell:last-child { border-right: none; }
+
+    .src-name { font-family: var(--font-mono); font-size: 11px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+    .src-desc { font-size: 11px; color: var(--text-2); line-height: 1.5; margin-bottom: 10px; }
+    .src-cost { font-family: var(--font-mono); font-size: 9px; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; }
+
+    /* ── Footer ── */
+    footer {
+      padding: 32px 0; border-top: 1px solid var(--border);
+    }
+    .foot-inner { display: flex; justify-content: space-between; align-items: center; }
+    .foot-left {
+      font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);
+    }
+    .foot-left::before { content: '\25C6 '; color: var(--gold-dim); font-size: 7px; }
+    .foot-left span { color: var(--gold-dim); }
+    .foot-links { display: flex; gap: 20px; list-style: none; }
+    .foot-links a {
+      font-family: var(--font-body); font-size: 11px; color: var(--text-muted);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .foot-links a:hover { color: var(--text-2); }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+      .hero-divider { display: none; }
+      .hero-panel { border-left: none; padding-left: 0; border-top: 1px solid var(--border); padding-top: 24px; }
+      .ed-cols { grid-template-columns: 1fr; }
+      .aud-grid { grid-template-columns: 1fr; }
+      .aud-cell { border-right: none !important; border-bottom: 1px solid var(--border) !important; }
+      .aud-cell:last-child { border-bottom: none !important; }
+      .proc-grid { grid-template-columns: 1fr; }
+      .proc-step { border-right: none; border-bottom: 1px solid var(--border); padding: 32px 0; }
+      .proc-step:last-child { border-bottom: none; }
+      .src-row { grid-template-columns: 1fr 1fr; }
+      .src-cell { border-bottom: 1px solid var(--border); }
+      .price-table { display: block; overflow-x: auto; }
+      .inst-table { display: block; overflow-x: auto; }
+      .nav-links .hm { display: none; }
+    }
+
+    @media (max-width: 600px) {
+      .hero { min-height: auto; padding: 120px 0 60px; }
+      .hero h1 { font-size: 38px; }
+      .hero-ctas { flex-direction: column; }
+      .src-row { grid-template-columns: 1fr; }
+      .src-cell { border-right: none; }
+      .foot-inner { flex-direction: column; gap: 12px; }
+      .aud-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── Nav ─── -->
+<nav id="nav">
+  <div class="container nav-inner">
+    <a href="/" class="nav-logo">FATHOM</a>
+    <ul class="nav-links">
+      <li class="hm"><a href="#instruments">Instruments</a></li>
+      <li class="hm"><a href="#pricing">Pricing</a></li>
+      <li><a href="https://github.com/0xHashy/fathom-fyi" target="_blank" rel="noopener">GitHub</a></li>
+      <li><a href="#quickstart" class="nav-cta">Get Started</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ─── Hero ─── -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-label">FATHOM.FYI &mdash; FOR YOUR INTELLIGENCE</div>
+        <h1>Can your agent<br><em>fathom</em> the market?</h1>
+        <p class="hero-sub">Financial reality intelligence for AI agents. Not data. Not charts. Understanding.</p>
+        <div class="hero-ctas">
+          <a href="#quickstart" class="btn-gold">Get Started &mdash; Free</a>
+          <a href="https://github.com/0xHashy/fathom-fyi" target="_blank" rel="noopener" class="btn-ghost">View Source</a>
+        </div>
+      </div>
+      <div class="hero-divider"></div>
+      <div class="hero-panel">
+        <div class="hero-panel-line"><span class="lbl">Protocol</span><span class="val">MCP</span></div>
+        <div class="hero-panel-line"><span class="lbl">Sources</span><span class="val" data-count="5">0</span></div>
+        <div class="hero-panel-line"><span class="lbl">Instruments</span><span class="val" data-count="13">0</span></div>
+        <div class="hero-panel-line"><span class="lbl">Latency</span><span class="val">&lt;3s</span></div>
+        <div class="hero-panel-line"><span class="lbl">Cost</span><span class="val-gold">$0/mo</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Ticker ─── -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ticker-item"><strong>REGIME</strong> risk-off</span>
+    <span class="ticker-item"><strong>FEAR/GREED</strong> <span class="dn">28</span> Fear</span>
+    <span class="ticker-item"><strong>BTC.D</strong> 56.76%</span>
+    <span class="ticker-item"><strong>DEFI TVL</strong> $100.4B <span class="up">+6.3%</span></span>
+    <span class="ticker-item"><strong>FED RATE</strong> 3.64%</span>
+    <span class="ticker-item"><strong>DXY</strong> 120.55</span>
+    <span class="ticker-item"><strong>CYCLE</strong> Day 697 &mdash; Late Bull</span>
+    <span class="ticker-item"><strong>POSTURE</strong> <span class="dn">Defensive</span></span>
+    <span class="ticker-item"><strong>RISK</strong> <span class="dn">55/100</span></span>
+    <span class="ticker-item"><strong>OPP</strong> <span class="up">60/100</span></span>
+    <span class="ticker-item"><strong>REGIME</strong> risk-off</span>
+    <span class="ticker-item"><strong>FEAR/GREED</strong> <span class="dn">28</span> Fear</span>
+    <span class="ticker-item"><strong>BTC.D</strong> 56.76%</span>
+    <span class="ticker-item"><strong>DEFI TVL</strong> $100.4B <span class="up">+6.3%</span></span>
+    <span class="ticker-item"><strong>FED RATE</strong> 3.64%</span>
+    <span class="ticker-item"><strong>DXY</strong> 120.55</span>
+    <span class="ticker-item"><strong>CYCLE</strong> Day 697 &mdash; Late Bull</span>
+    <span class="ticker-item"><strong>POSTURE</strong> <span class="dn">Defensive</span></span>
+    <span class="ticker-item"><strong>RISK</strong> <span class="dn">55/100</span></span>
+    <span class="ticker-item"><strong>OPP</strong> <span class="up">60/100</span></span>
+  </div>
+</div>
+
+<!-- ─── Thesis ─── -->
+<section class="editorial" id="thesis">
+  <div class="container">
+    <hr class="sec-rule">
+    <div class="sec-header"><span class="sec-label rv">THE THESIS</span><span class="sec-date rv">March 2026</span></div>
+    <h2 class="sec-title rv">Your agent has data. It doesn't have understanding. It can't <em>fathom</em> what's happening.</h2>
+    <div class="ed-cols">
+      <div class="ed-col rv">
+        <p>Trading bots see prices. DeFi agents see yields. Treasury managers see balances. <strong>None of them understand context.</strong></p>
+        <p>They cannot tell you if the market is in euphoria or capitulation. They do not know where we are in the Bitcoin halving cycle. They have no concept of whether macro conditions are a tailwind or headwind. They act on data without understanding.</p>
+      </div>
+      <div class="ed-col rv">
+        <div class="ed-accent">Fathom closes this gap.</div>
+        <p>It synthesizes five real-time data sources into interpreted intelligence &mdash; regime classification, cycle positioning, sentiment state, DeFi health, macro context, and on-chain signals.</p>
+        <p>Your agent does not receive "BTC is $82,000." It receives a complete financial reality briefing with risk scores, historical analogs, and a specific recommended posture. That is the difference between data and understanding.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Who It's For ─── -->
+<section class="audience" id="audience">
+  <div class="container">
+    <hr class="sec-rule">
+    <div class="sec-header"><span class="sec-label rv">WHO IT'S FOR</span><span class="sec-date rv">4 audiences</span></div>
+    <h2 class="sec-title rv">If your code moves money, it needs to <em>fathom</em> the market first.</h2>
+    <div class="aud-grid rv">
+      <div class="aud-cell">
+        <div class="aud-label">Trading Bot Developers</div>
+        <p>Your bot sees price. Fathom tells it whether the market is in euphoria or capitulation before it places the trade. One call to <code>get_reality_check</code> returns posture, risk score, and regime &mdash; the difference between a smart entry and catching a falling knife.</p>
+      </div>
+      <div class="aud-cell">
+        <div class="aud-label">DeFi Agents</div>
+        <p>Before your agent farms a yield, Fathom tells it if DeFi TVL is collapsing and the protocol is at risk. <code>get_defi_health</code> returns TVL trends, concentration risk, and revenue health so your agent deploys capital with open eyes.</p>
+      </div>
+      <div class="aud-cell">
+        <div class="aud-label">Treasury Managers</div>
+        <p>Set your portfolio context. Fathom tells you if your SOL allocation is 3x overweight for a defensive market. <code>get_portfolio_analysis</code> returns regime alignment, concentration risk, and specific rebalancing suggestions personalized to your holdings.</p>
+      </div>
+      <div class="aud-cell">
+        <div class="aud-label">Agent Frameworks</div>
+        <p>LangChain, CrewAI, AutoGen, any MCP client. One connection, 13 tools. Your agent framework gets financial reality context it never had. Fathom logs every signal and tracks accuracy over time &mdash; your agents get smarter with every call.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Terminal ─── -->
+<section class="term-section" id="output">
+  <div class="container">
+    <hr class="sec-rule">
+    <div class="sec-header"><span class="sec-label rv">LIVE OUTPUT</span><span class="sec-date rv">get_reality_check</span></div>
+    <h2 class="sec-title rv">What your agent sees</h2>
+    <p class="rv" style="font-size: 14px; color: var(--text-2); margin-bottom: 8px;">One call. Complete financial reality. Under three seconds.</p>
+
+    <div class="terminal rv">
+      <div class="term-bar">
+        <div class="term-bar-left">
+          <div class="term-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <span class="term-title">fathom &mdash; get_reality_check</span>
+        </div>
+        <span class="term-time">2026-03-17 22:23:34 UTC</span>
+      </div>
+      <div class="term-body" id="term-output">
+<span class="tl">EXECUTIVE SUMMARY</span>
+<span class="tw" id="typewriter">Markets are in risk-off mode with capital rotating toward safety.
+Fear &amp; Greed at 28. BTC dominance rising. DeFi TVL expanding at
+$100.4B. Macro conditions present a headwind as dollar strengthens.
+Recommended posture: DEFENSIVE.</span>
+
+<span class="td">&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;</span>
+
+<span class="tl">SCORES</span>
+Risk        <span class="tn" data-count="55">0</span>/100            Opportunity  <span class="tn" data-count="60">0</span>/100
+Regime      <span class="tr">risk-off</span>          Cycle        <span class="tg">late_bull</span>
+Posture     <span class="tr">DEFENSIVE</span>         Fear/Greed   <span class="tn" data-count="28">0</span>
+
+<span class="td">&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;</span>
+
+<span class="tl">KEY RISKS</span>
+<span class="tr">  1. Late-bull cycle &mdash; window for easy gains is closing</span>
+<span class="tr">  2. Tightening monetary conditions reduce liquidity</span>
+<span class="tr">  3. Risk-off regime means further downside likely</span>
+
+<span class="tl">KEY OPPORTUNITIES</span>
+<span class="tgr">  1. Fear zone historically offers better entries</span>
+<span class="tgr">  2. DeFi TVL expanding &mdash; on-chain activity growing</span>
+
+<span class="td">&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;</span>
+
+<span class="tl">AGENT GUIDANCE</span>
+<span class="tg">Defensive posture recommended. Reduce position sizes. Tighten
+stop losses. Increase stablecoin allocation. Wait for Fear &amp; Greed
+to recover above 40 before adding exposure.</span>
+
+<span class="td">Sources: CoinGecko, Alternative.me, DeFiLlama, FRED, Mempool.space</span>
+<span class="td">Data warnings: none</span><span class="term-cursor"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Instruments ─── -->
+<section class="inst-section" id="instruments">
+  <div class="container">
+    <hr class="sec-rule">
+    <div class="sec-header"><span class="sec-label rv">INSTRUMENTS</span><span class="sec-date rv">13 tools</span></div>
+    <h2 class="sec-title rv">Thirteen instruments. Four moats.</h2>
+
+    <table class="inst-table rv">
+      <thead>
+        <tr><th>Instrument</th><th>Description</th><th>TTL</th><th>Tier</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="iname">get_reality_check</td><td class="idesc">Master briefing. All sources synthesized into unified assessment with risk scores, posture, and guidance.</td><td class="ittl">180s</td><td><span class="tier-free">FREE</span></td></tr>
+        <tr><td class="iname">get_market_regime</td><td class="idesc">Classify current regime: risk-on, risk-off, transitional, euphoric, or capitulation. Confidence-scored.</td><td class="ittl">300s</td><td><span class="tier-free">FREE</span></td></tr>
+        <tr><td class="iname">get_sentiment_state</td><td class="idesc">Fear &amp; Greed Index, 7-day trend, contrarian signals, extreme opportunity detection.</td><td class="ittl">300s</td><td><span class="tier-free">FREE</span></td></tr>
+        <tr><td class="iname">get_narrative_pulse</td><td class="idesc">Accelerating, decelerating, and emerging narratives. Sector rotation and momentum scoring.</td><td class="ittl">900s</td><td><span class="tier-starter">STARTER+</span></td></tr>
+        <tr><td class="iname">get_asset_context</td><td class="idesc">Deep context on any asset: cycle position, trend, volume health, holder behavior, risk level.</td><td class="ittl">120s</td><td><span class="tier-starter">STARTER+</span></td></tr>
+        <tr><td class="iname">get_temporal_context</td><td class="idesc">Bitcoin halving cycle positioning. Days since halving, phase estimation, historical analogs.</td><td class="ittl">3600s</td><td><span class="tier-starter">STARTER+</span></td></tr>
+        <tr><td class="iname">get_defi_health</td><td class="idesc">DeFi ecosystem health. TVL trends, top chains, protocol rankings, concentration risk.</td><td class="ittl">600s</td><td><span class="tier-starter">STARTER+</span></td></tr>
+        <tr><td class="iname">get_macro_context</td><td class="idesc">Macro backdrop. Fed Funds Rate, DXY, yield curve, recession probability, net crypto impact.</td><td class="ittl">14400s</td><td><span class="tier-starter">STARTER+</span></td></tr>
+        <tr><td class="iname">get_onchain_pulse</td><td class="idesc">Bitcoin network health. Mempool congestion, fees, miner distribution, mining economics.</td><td class="ittl">600s</td><td><span class="tier-starter">STARTER+</span></td></tr>
+        <tr><td class="iname">set_portfolio_context</td><td class="idesc">Save your holdings. Fathom personalizes all guidance to your specific positions, allocations, and entry prices.</td><td class="ittl">&mdash;</td><td><span class="tier-starter">STARTER+</span></td></tr>
+        <tr><td class="iname">get_portfolio_analysis</td><td class="idesc">Personalized portfolio analysis. Regime alignment, concentration risk, PnL, and specific rebalancing.</td><td class="ittl">RT</td><td><span class="tier-pro">PRO+</span></td></tr>
+        <tr><td class="iname">get_crowd_intelligence</td><td class="idesc">Aggregate behavior of all Fathom-connected agents. Consensus posture, crowd fear, top assets.</td><td class="ittl">RT</td><td><span class="tier-pro">PRO+</span></td></tr>
+        <tr><td class="iname">get_signal_history</td><td class="idesc">Fathom's track record. Every signal logged, every outcome tracked. Win rates by regime and posture.</td><td class="ittl">RT</td><td><span class="tier-pro">PRO+</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ─── Process ─── -->
+<section class="process-section" id="process">
+  <div class="container">
+    <hr class="sec-rule">
+    <div class="sec-header"><span class="sec-label rv">INTEGRATION</span><span class="sec-date rv">3 steps</span></div>
+    <h2 class="sec-title rv">Operational in under two minutes</h2>
+    <div class="proc-grid rv">
+      <div class="proc-step">
+        <div class="proc-num">1</div>
+        <h3>Install</h3>
+        <p>One command. No dependencies beyond Node 20+.<br><br><code>npx fathom-fyi</code></p>
+      </div>
+      <div class="proc-step" style="padding-left: 32px;">
+        <div class="proc-num">2</div>
+        <h3>Connect</h3>
+        <p>Add Fathom to Claude Desktop, Cursor, or any MCP-compatible client. Drop in the config JSON.</p>
+      </div>
+      <div class="proc-step" style="padding-left: 32px;">
+        <div class="proc-num">3</div>
+        <h3>Brief</h3>
+        <p>Tell your agent: "Check reality before acting." Complete financial briefing in under three seconds.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Pricing ─── -->
+<section class="pricing-section" id="pricing">
+  <div class="container">
+    <hr class="sec-rule">
+    <div class="sec-header"><span class="sec-label rv">PRICING</span><span class="sec-date rv">4 tiers</span></div>
+    <h2 class="sec-title rv">Intelligence is free. Depth has a price.</h2>
+
+    <table class="price-table rv">
+      <thead><tr><th>Tier</th><th>Price</th><th>Instruments</th><th>Rate</th><th>Cache</th><th></th></tr></thead>
+      <tbody>
+        <tr><td class="tname">Free</td><td><span class="tprice">$0</span></td><td>3 core tools</td><td>10/hr</td><td>Standard</td><td><a href="#quickstart" class="sub-link">START</a></td></tr>
+        <tr><td class="tname">Starter</td><td><span class="tprice">$29<small>/mo</small></span></td><td>10 + portfolio</td><td>500/hr</td><td>Standard</td><td><a href="https://buy.stripe.com/14A9ASeyNgTb5lg21e0Fi00" target="_blank" rel="noopener" class="sub-link">SUBSCRIBE</a></td></tr>
+        <tr class="feat"><td class="tname">Pro</td><td><span class="tprice">$99<small>/mo</small></span></td><td>All 13 + crowd</td><td>2,000/hr</td><td>2x fresher</td><td><a href="https://buy.stripe.com/14A5kC0HXauNfZU6hu0Fi01" target="_blank" rel="noopener" class="sub-link">SUBSCRIBE</a></td></tr>
+        <tr><td class="tname">Trading Bot</td><td><span class="tprice">$299<small>/mo</small></span></td><td>All 13 + webhooks</td><td>Unlimited</td><td>4x fresher</td><td><a href="https://buy.stripe.com/aFa28q8ap7iB6pk8pC0Fi02" target="_blank" rel="noopener" class="sub-link">SUBSCRIBE</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ─── Quick Start ─── -->
+<section class="qs-section" id="quickstart">
+  <div class="container">
+    <hr class="sec-rule">
+    <div class="sec-header"><span class="sec-label rv">QUICK START</span><span class="sec-date rv">Configuration</span></div>
+    <h2 class="sec-title rv">Running in under two minutes</h2>
+    <div class="qs-blocks">
+      <div class="qs-block rv">
+        <div class="qs-head"><span class="qs-head-title">Install</span><span class="qs-head-step">Step 1</span></div>
+        <pre><span class="c"># Install globally</span>
+$ npm install -g fathom-fyi
+
+<span class="c"># Or run directly</span>
+$ npx fathom-fyi</pre>
+      </div>
+      <div class="qs-block rv">
+        <div class="qs-head"><span class="qs-head-title">Claude Desktop &mdash; claude_desktop_config.json</span><span class="qs-head-step">Step 2</span></div>
+        <pre>{
+  <span class="k">"mcpServers"</span>: {
+    <span class="k">"fathom"</span>: {
+      <span class="k">"command"</span>: <span class="g">"npx"</span>,
+      <span class="k">"args"</span>: [<span class="g">"fathom-fyi"</span>],
+      <span class="k">"env"</span>: {
+        <span class="k">"CG_API_KEY"</span>: <span class="g">"your_coingecko_key"</span>,
+        <span class="k">"FRED_API_KEY"</span>: <span class="g">"your_fred_key"</span>,
+        <span class="k">"FATHOM_API_KEY"</span>: <span class="g">"your_fathom_key"</span>
+      }
+    }
+  }
+}</pre>
+      </div>
+      <div class="qs-block rv">
+        <div class="qs-head"><span class="qs-head-title">Cursor &mdash; .cursor/mcp.json</span><span class="qs-head-step">Step 2 alt</span></div>
+        <pre>{
+  <span class="k">"mcpServers"</span>: {
+    <span class="k">"fathom"</span>: {
+      <span class="k">"command"</span>: <span class="g">"npx"</span>,
+      <span class="k">"args"</span>: [<span class="g">"fathom-fyi"</span>],
+      <span class="k">"env"</span>: {
+        <span class="k">"CG_API_KEY"</span>: <span class="g">"your_coingecko_key"</span>,
+        <span class="k">"FRED_API_KEY"</span>: <span class="g">"your_fred_key"</span>,
+        <span class="k">"FATHOM_API_KEY"</span>: <span class="g">"your_fathom_key"</span>
+      }
+    }
+  }
+}</pre>
+      </div>
+      <div class="qs-block rv">
+        <div class="qs-head"><span class="qs-head-title">API Keys (both free)</span><span class="qs-head-step">Step 3</span></div>
+        <pre><span class="c"># CoinGecko API key (free tier, 30 calls/min)</span>
+<span class="g">https://www.coingecko.com/en/api</span>
+
+<span class="c"># FRED API key (free, unlimited)</span>
+<span class="g">https://fred.stlouisfed.org/docs/api/api_key.html</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Sources ─── -->
+<section class="src-section" id="sources">
+  <div class="container">
+    <hr class="sec-rule">
+    <div class="sec-header"><span class="sec-label rv">DATA SOURCES</span><span class="sec-date rv">~$0/month</span></div>
+    <h2 class="sec-title rv">Five sources. Four free forever.</h2>
+    <div class="src-row rv">
+      <div class="src-cell"><div class="src-name">CoinGecko</div><div class="src-desc">Prices, market caps, OHLC, categories, trending, volume</div><div class="src-cost">Free tier</div></div>
+      <div class="src-cell"><div class="src-name">Alternative.me</div><div class="src-desc">Fear &amp; Greed Index &mdash; crypto sentiment signal</div><div class="src-cost">Free forever</div></div>
+      <div class="src-cell"><div class="src-name">DeFiLlama</div><div class="src-desc">TVL, protocol rankings, chain data, fees, revenue</div><div class="src-cost">Free forever</div></div>
+      <div class="src-cell"><div class="src-name">FRED</div><div class="src-desc">Fed Funds Rate, DXY, yield curve, recession indicators</div><div class="src-cost">Free forever</div></div>
+      <div class="src-cell"><div class="src-name">Mempool.space</div><div class="src-desc">Bitcoin mempool, fees, mining pools, difficulty</div><div class="src-cost">Free forever</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Footer ─── -->
+<footer>
+  <div class="container foot-inner">
+    <div class="foot-left">FATHOM<span>.FYI</span> &mdash; FOR YOUR INTELLIGENCE</div>
+    <ul class="foot-links">
+      <li><a href="https://github.com/0xHashy/fathom-fyi" target="_blank" rel="noopener">GitHub</a></li>
+      <li><a href="https://www.npmjs.com/package/fathom-fyi" target="_blank" rel="noopener">npm</a></li>
+      <li><a href="#quickstart">Quick Start</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+  // Nav scroll border
+  window.addEventListener('scroll', () => {
+    document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  // Reveal on scroll
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.rv, .rv-line').forEach(el => obs.observe(el));
+
+  // Count-up
+  document.querySelectorAll('[data-count]').forEach(el => {
+    const target = parseInt(el.dataset.count);
+    const dur = 1200;
+    const io = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        const start = performance.now();
+        (function tick(now) {
+          const p = Math.min((now - start) / dur, 1);
+          el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+          if (p < 1) requestAnimationFrame(tick);
+        })(start);
+        io.disconnect();
+      }
+    });
+    io.observe(el);
+  });
+
+  // Typewriter effect on terminal
+  const tw = document.getElementById('typewriter');
+  if (tw) {
+    const fullText = tw.textContent;
+    tw.textContent = '';
+    const twObs = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        let i = 0;
+        (function type() {
+          if (i < fullText.length) {
+            tw.textContent += fullText[i++];
+            setTimeout(type, 18);
+          }
+        })();
+        twObs.disconnect();
+      }
+    }, { threshold: 0.3 });
+    twObs.observe(tw);
+  }
+</script>
+
+</body>
+</html>

@@ -1,3 +1,4 @@
 {
-  "outputDirectory": "public"
+  "buildCommand": "echo done",
+  "installCommand": "echo done"
 }
