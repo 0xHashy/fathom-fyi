@@ -2,174 +2,164 @@
 
 ---
 
-## Thread 1: The Announcement
+## Thread 1: The Hook (Lead with Alternative Signals)
+
+**Tweet 1 (Hook)**
+Your AI trading agent checks price, volume, and sentiment before it trades.
+
+Mine also checks if it's cloudy in New York.
+
+Sound crazy? The Journal of Finance proved sunshine in financial centers correlates with market returns.
+
+Introducing Fathom.
+
+**Tweet 2**
+Fathom gives AI agents something no other tool does: understanding.
+
+Not data. Not charts. Interpreted financial intelligence.
+
+Regime classification. Cycle positioning. Risk scoring. Macro context. DeFi health. On-chain signals.
+
+And yes — weather in financial centers, political cycles, and seasonality patterns.
+
+**Tweet 3**
+Before your agent trades, Fathom checks:
+
+- Is the market in euphoria or capitulation?
+- Where are we in the Bitcoin halving cycle?
+- Is the Fed a tailwind or headwind?
+- Are 3 out of 4 financial centers under grey skies?
+- Is it September (historically worst month for equities)?
+- Is FOMC in 3 days?
+
+One call. All of it.
+
+**Tweet 4**
+21 tools. 6 data sources. Every response includes plain English guidance.
+
+Your agent doesn't get "Fear & Greed: 28." It gets:
+
+"Defensive posture recommended. Fear at 28 with risk-off regime. Late-bull cycle positioning. Reduce position sizes. Wait for recovery above 40 before adding exposure."
+
+**Tweet 5**
+The patterns everyone ignores:
+
+- Sunshine effect (academic research, Journal of Finance)
+- Presidential cycle (Year 3 averages +16% for equities)
+- Sell in May, January effect, Santa Claus rally
+- FOMC proximity, CPI dates, options expiry calendar
+- Monday effect, quarter-end rebalancing
+
+Your agent now sees what most traders pretend doesn't matter.
+
+**Tweet 6**
+Works with Claude Desktop, Cursor, Windsurf, or any MCP client.
+
+Free tier: 3 core tools, no credit card.
+Starter ($29/mo): 16 tools + alerts + strategies
+Pro ($99/mo): All 21 tools + crowd intelligence + accuracy tracking
+
+Setup takes 2 minutes.
+
+**Tweet 7**
+Can your agent fathom the market?
+
+fathom.fyi — For Your Intelligence.
+
+---
+
+## Thread 2: The Problem/Solution
 
 **Tweet 1 (Hook)**
 Every AI agent trading crypto right now is flying blind.
 
-They see prices. They don't see context.
+They see prices. They don't see context. They can't tell you if the market is in euphoria or capitulation.
 
-We just fixed that. Introducing Fathom.
+We just built the missing layer.
 
 **Tweet 2**
-The problem: your AI agent knows BTC is $82,000.
+The problem: your agent knows BTC is $82,000.
 
-It doesn't know that Fear & Greed is at 28, BTC dominance is rising (capital fleeing to safety), DeFi TVL dropped 8% this week, and the yield curve just re-inverted.
+It doesn't know that Fear & Greed is at 28, BTC dominance is rising, the yield curve just shifted, we're in late-bull cycle positioning, and it's a cloudy Tuesday in September with FOMC in 3 days.
 
 It has data. It has zero understanding.
 
 **Tweet 3**
-Fathom is an MCP server that gives AI agents financial reality awareness.
-
-Instead of raw numbers, your agent gets:
-- Regime classification (risk-on, risk-off, euphoric, capitulation)
-- Cycle positioning (where we are in the 4-year halving cycle)
-- Risk score (0-100)
-- Plain English guidance on how to act
-
-**Tweet 4**
-Every Fathom response includes an `agent_guidance` field.
-
-No parsing. No prompt engineering. No hallucinated analysis.
-
-Just grounded, sourced intelligence your agent can act on immediately.
-
-Example: "Defensive posture recommended. Multiple risk indicators elevated. Reduce position sizes. Tighten stop losses. Avoid new leveraged positions."
-
-**Tweet 5**
-9 tools covering every dimension of financial reality:
+Fathom synthesizes 6 real-time data sources into interpreted intelligence:
 
 - Market regime & sentiment
 - Bitcoin halving cycle position
 - DeFi ecosystem health
 - Macro context (Fed, DXY, yield curve)
-- On-chain signals (fees, mining, mempool)
-- Sector rotation & narrative momentum
-- Deep asset context
+- On-chain signals
+- Alternative signals (weather, political cycles, seasonality)
+
+21 tools. One API call for the full picture.
+
+**Tweet 4**
+What makes Fathom different:
+
+Every response includes `agent_guidance` — a specific directive your agent can act on immediately. No parsing. No prompt engineering.
+
+"Defensive posture. 4/5 alternative signals bearish. September bias negative. FOMC in 3 days. Reduce position sizes."
+
+**Tweet 5**
+Plus features no one else has:
+
+- Set your portfolio → get personalized rebalancing suggestions
+- Custom alerts → "tell me when Fear & Greed drops below 20"
+- Strategy templates → test conservative_dca or momentum_rider against live conditions
+- Crowd intelligence → see what other Fathom-connected agents are doing
 
 **Tweet 6**
-Built on 5 real-time data sources. No paid API keys required to get started.
+Free to start. No credit card needed.
 
-The value isn't the data — it's the interpretation layer.
-
-Free tier: 3 core tools, 10 req/hr.
-Full access starts at $29/mo.
-
-No credit card. No waitlist.
-
-**Tweet 7**
-The FYI your agent needs before it acts.
-
-Try Fathom free: https://fathom.fyi
-GitHub: [link]
-
-Works with Claude Desktop, Cursor, and any MCP client. Setup takes 2 minutes.
+fathom.fyi — For Your Intelligence.
 
 ---
 
-## Thread 2: The Technical Deep Dive
+## Thread 3: The Demo
 
 **Tweet 1 (Hook)**
-I built an MCP server that synthesizes 5 real-time data sources into interpreted financial intelligence for AI agents.
+I asked my AI agent to check reality before trading.
 
-Here's the architecture behind Fathom and why every response includes plain English guidance instead of raw numbers.
-
-**Tweet 2**
-The stack:
-
-- TypeScript MCP server (stdio transport)
-- 5 data sources: CoinGecko, Alternative.me, DeFiLlama, FRED, Mempool.space
-- Intelligence layer: regime classifier, cycle analyzer, analog matcher, risk scorer
-- Tiered caching (120s to 14,400s TTLs based on data volatility)
-- Graceful degradation on source failures
-
-**Tweet 3**
-The intelligence layer is the key differentiator.
-
-Raw input: BTC price, market cap, dominance %, Fear & Greed score, DeFi TVL, Fed Funds rate, yield curve spread.
-
-Output: regime classification, risk score (0-100), opportunity score, suggested posture (aggressive/moderate/defensive/sideline), and `agent_guidance`.
-
-**Tweet 4**
-Every single tool response includes `agent_guidance` — a plain English directive that tells the AI exactly what the data means and how to act on it.
-
-This is not a summary. It's an interpreted signal. The agent doesn't need to figure out what "Fear & Greed at 28 with rising BTC dominance" means. Fathom tells it.
-
-**Tweet 5**
-Claude Desktop config — this is all you need:
-
-```json
-{
-  "mcpServers": {
-    "fathom": {
-      "command": "node",
-      "args": ["/path/to/fathom.fyi/dist/index.js"],
-      "env": {
-        "CG_API_KEY": "your_coingecko_key",
-        "FRED_API_KEY": "your_fred_key",
-        "API_TIER": "free"
-      }
-    }
-  }
-}
-```
-
-Two free API keys. Two minutes to set up.
-
-**Tweet 6**
-Failure handling was a first-class design goal.
-
-If CoinGecko is down, Fathom doesn't silently return garbage. It tells the agent exactly what's missing, provides last-known-good data, and adjusts confidence scores.
-
-Your agent never operates on incomplete data without knowing it.
-
-**Tweet 7**
-Source code and docs: https://fathom.fyi
-
-Free tier: `get_reality_check`, `get_market_regime`, `get_sentiment_state` — 10 req/hr.
-
-Full suite (9 tools, up to unlimited requests): starts at $29/mo.
-
-Works with any MCP-compatible client.
-
----
-
-## Thread 3: The Business Case
-
-**Tweet 1 (Hook)**
-If you're building a crypto trading bot and your agent doesn't know the current market regime, cycle position, or macro context before it trades — you have a liability, not a product.
-
-Here's how to fix that for $0.
+Here's what Fathom returned in under 3 seconds:
 
 **Tweet 2**
-Fathom is an MCP server that gives AI agents financial reality awareness.
+[Screenshot of terminal output from get_reality_check]
 
-Your bot calls `get_reality_check` before every trade. It gets back a risk score, regime classification, cycle position, and plain English guidance: "Defensive posture. Risk 68/100. Reduce position sizes. Tighten stops."
+Risk Score: 55/100
+Regime: risk-off
+Posture: DEFENSIVE
+Fear & Greed: 28
+Cycle: Late Bull (Day 697 post-halving)
 
-That's the difference between a toy and a tool.
+Key Risk: "Late-bull cycle — window for easy gains is closing"
 
 **Tweet 3**
-The data sources are all free or near-free:
-- CoinGecko (free tier)
-- Alternative.me (free forever)
-- DeFiLlama (free forever)
-- FRED / Federal Reserve (free forever)
-- Mempool.space (free forever)
+Then I asked for alternative signals:
 
-Infrastructure cost: ~$0/month.
+[Screenshot of get_alternative_signals output]
+
+3/4 financial centers overcast
+Presidential Year 2 (midterm volatility)
+March: neutral historical bias
+FOMC meeting today
+Options expiry in 3 days
+
+Composite: BEARISH
 
 **Tweet 4**
-Pricing:
-- Free: 3 core tools, 10 req/hr — enough for manual agent workflows
-- Starter ($29/mo): All 9 tools, 500 req/hr
-- Pro ($99/mo): All 9 tools, fresher cache, 2,000 req/hr
-- Trading Bot ($299/mo): Priority freshness, unlimited requests
+Then I set my portfolio and asked for analysis:
+
+"Your SOL position is 35% of portfolio — overweight for defensive posture. Reduce by 50%. Increase stablecoin allocation to 40%+."
+
+No other tool gives your agent this.
 
 **Tweet 5**
-The free tier is not a demo. It's a fully functional financial awareness layer.
+21 tools. 6 data sources. Personalized to your portfolio.
 
-`get_reality_check` alone synthesizes 7 data dimensions into a single actionable briefing. Most agents only need that one call.
+Works with Claude, Cursor, Windsurf, any MCP client.
+Free tier available. Full access from $29/mo.
 
-Start free. Upgrade when your bot needs more.
-
-https://fathom.fyi
+fathom.fyi — For Your Intelligence.
