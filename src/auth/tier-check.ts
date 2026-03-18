@@ -27,25 +27,21 @@ const TIER_CONFIGS: Record<ApiTier, TierConfig> = {
     tools: FREE_TOOLS,
     rateLimit: 10,
     cacheTtlMultiplier: 1,
-    webhooks: false,
   },
   starter: {
     tools: STARTER_TOOLS,
     rateLimit: 500,
     cacheTtlMultiplier: 1,
-    webhooks: false,
   },
   pro: {
     tools: PRO_TOOLS,
     rateLimit: 2000,
     cacheTtlMultiplier: 0.5,
-    webhooks: false,
   },
-  trading_bot: {
+  unlimited: {
     tools: PRO_TOOLS,
     rateLimit: -1,
     cacheTtlMultiplier: 0.25,
-    webhooks: true,
   },
 };
 

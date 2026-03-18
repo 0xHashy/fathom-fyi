@@ -51,7 +51,8 @@ async function getSession(sessionId) {
 
 function tierFromName(name) {
   const l = (name || '').toLowerCase();
-  if (l.includes('trading bot')) return 'trading_bot';
+  if (l.includes('unlimited')) return 'unlimited';
+  if (l.includes('trading bot')) return 'unlimited';
   if (l.includes('pro')) return 'pro';
   return 'starter';
 }

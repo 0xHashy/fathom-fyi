@@ -1,12 +1,11 @@
 // ─── Tier System ───
 
-export type ApiTier = 'free' | 'starter' | 'pro' | 'trading_bot';
+export type ApiTier = 'free' | 'starter' | 'pro' | 'unlimited';
 
 export interface TierConfig {
   tools: string[];
   rateLimit: number; // requests per hour, -1 = unlimited
   cacheTtlMultiplier: number;
-  webhooks: boolean;
 }
 
 export interface TierViolation {

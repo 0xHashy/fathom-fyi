@@ -30,8 +30,8 @@ export default async function handler(req, res) {
 
   const keyRec = await kvGet(`key:${key}`);
   if (!keyRec || !keyRec.active) return res.status(200).json({ error: 'Invalid key' });
-  if (keyRec.tier !== 'pro' && keyRec.tier !== 'trading_bot') {
-    return res.status(200).json({ error: 'Requires Pro or Trading Bot tier' });
+  if (keyRec.tier !== 'pro' && keyRec.tier !== 'unlimited') {
+    return res.status(200).json({ error: 'Requires Pro or Unlimited tier' });
   }
 
   const cached = await kvGet('crowd:cache');

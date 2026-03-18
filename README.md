@@ -142,21 +142,19 @@ All Starter tools plus:
 | Free | $0 | 3 core tools | 10 req/hr |
 | Starter | $29/mo | 17 tools + alerts + strategies + alternative signals | 500 req/hr |
 | Pro | $99/mo | All 22 + custom strategies + crowd intelligence | 2,000 req/hr |
-| Trading Bot | $299/mo | All 22 + webhooks + 4x fresher cache | Unlimited |
+| Unlimited | $299/mo | All 22 + unlimited requests + 4x fresher cache | Unlimited |
 
 [Subscribe at fathom.fyi](https://fathom.fyi)
 
 ## Data Sources
 
-| Source | Cost | What it provides |
-|--------|------|------------------|
-| **CoinGecko** | Free tier (30 calls/min) | Prices, market caps, OHLC, categories, trending |
-| **Alternative.me** | Free forever | Fear & Greed Index |
-| **DeFiLlama** | Free forever | DeFi TVL, protocol data, fees |
-| **FRED** | Free forever | Fed Funds Rate, DXY, yield curve |
-| **Mempool.space** | Free forever | Bitcoin network health, fees, mining |
-
-**All data sources are free or have generous free tiers. No paid API subscriptions required to run Fathom.**
+| Source | What it provides | Freshness |
+|--------|------------------|-----------|
+| **CoinGecko** | Prices, market caps, OHLC, categories, trending | Real-time |
+| **Alternative.me** | Fear & Greed Index | Real-time |
+| **DeFiLlama** | DeFi TVL, protocol data, fees | Real-time |
+| **FRED** | Fed Funds Rate, DXY, yield curve | Daily |
+| **Mempool.space** | Bitcoin network health, fees, mining | Real-time |
 
 ## License
 
