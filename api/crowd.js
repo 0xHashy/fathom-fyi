@@ -19,7 +19,7 @@ async function kvGet(key) {
   try { return JSON.parse(raw); } catch { return raw; }
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 'no-store');
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
@@ -34,26 +34,23 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ error: 'Requires Pro or Trading Bot tier' });
   }
 
-  // Check cache
   const cached = await kvGet('crowd:cache');
   if (cached && cached.computed_at) {
     const age = Date.now() - new Date(cached.computed_at).getTime();
     if (age < 300000) return res.status(200).json(cached);
   }
 
-  // Get recent signals
   const raw = await kvCommand('LRANGE', 'signals', 0, 999);
   const signals = (Array.isArray(raw) ? raw : []).map(s => { try { return JSON.parse(s); } catch { return null; } }).filter(Boolean);
   const cutoff = Date.now() - 86400000;
   const recent = signals.filter(s => new Date(s.timestamp).getTime() > cutoff);
 
   const agents = new Set(recent.map(s => s.agent_id));
-  const pc = {}, rc = {};
+  const pc = {};
   let rs = 0, rn = 0, os = 0, on = 0;
 
   for (const s of recent) {
     if (s.posture) pc[s.posture] = (pc[s.posture] || 0) + 1;
-    if (s.regime) rc[s.regime] = (rc[s.regime] || 0) + 1;
     if (s.risk_score != null) { rs += s.risk_score; rn++; }
     if (s.opportunity_score != null) { os += s.opportunity_score; on++; }
   }
@@ -81,4 +78,4 @@ module.exports = async function handler(req, res) {
 
   await kvCommand('SET', 'crowd:cache', JSON.stringify(result), 'EX', 300);
   return res.status(200).json(result);
-};
+}

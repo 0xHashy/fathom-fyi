@@ -19,7 +19,7 @@ async function kvGet(key) {
   try { return JSON.parse(raw); } catch { return raw; }
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 'no-store');
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
@@ -28,13 +28,11 @@ module.exports = async function handler(req, res) {
   if (!sessionId) return res.status(400).json({ error: 'Missing session_id' });
 
   if (KV_URL && KV_TOKEN) {
-    // Try session mapping first
     const sessionRec = await kvGet(`session:${sessionId}`);
     if (sessionRec && sessionRec.key) {
       return res.status(200).json({ key: sessionRec.key, tier: sessionRec.tier });
     }
 
-    // Fallback: look up via Stripe API
     const sk = process.env.STRIPE_SECRET_KEY;
     if (sk) {
       try {
@@ -57,4 +55,4 @@ module.exports = async function handler(req, res) {
   }
 
   return res.status(404).json({ error: 'Key not found. Payment may still be processing. Refresh in 30 seconds.' });
-};
+}

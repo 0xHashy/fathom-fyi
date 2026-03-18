@@ -1,4 +1,4 @@
-const { createHash } = require('crypto');
+import { createHash } from 'crypto';
 
 const KV_URL = process.env.KV_REST_API_URL;
 const KV_TOKEN = process.env.KV_REST_API_TOKEN;
@@ -21,7 +21,7 @@ async function kvGet(key) {
   try { return JSON.parse(raw); } catch { return raw; }
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -47,4 +47,4 @@ module.exports = async function handler(req, res) {
   await kvCommand('LTRIM', 'signals', 0, 4999);
 
   return res.status(200).json({ stored: true });
-};
+}

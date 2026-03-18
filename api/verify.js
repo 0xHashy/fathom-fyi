@@ -19,7 +19,7 @@ async function kvGet(key) {
   try { return JSON.parse(raw); } catch { return raw; }
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Cache-Control', 'no-store');
@@ -31,7 +31,6 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ valid: false, tier: 'free', message: 'No API key provided. Free tier active.' });
   }
 
-  // Check KV
   if (KV_URL && KV_TOKEN) {
     const record = await kvGet(`key:${key}`);
     if (record && record.active) {
@@ -42,7 +41,6 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // Fallback to FATHOM_KEYS env var
   try {
     const raw = process.env.FATHOM_KEYS;
     if (raw) {
@@ -52,4 +50,4 @@ module.exports = async function handler(req, res) {
   } catch {}
 
   return res.status(200).json({ valid: false, tier: 'free', message: 'Invalid API key. Free tier active.' });
-};
+}

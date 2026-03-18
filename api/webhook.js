@@ -1,8 +1,5 @@
-const { createHmac, timingSafeEqual, randomFillSync } = require('crypto');
+import { createHmac, timingSafeEqual, randomFillSync } from 'crypto';
 
-// Config exported at bottom of file
-
-// ── KV helpers ──
 const KV_URL = process.env.KV_REST_API_URL;
 const KV_TOKEN = process.env.KV_REST_API_TOKEN;
 
@@ -29,7 +26,6 @@ async function kvGet(key) {
   try { return JSON.parse(raw); } catch { return raw; }
 }
 
-// ── Stripe helpers ──
 function verifySignature(rawBody, sigHeader) {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!secret || !sigHeader) return false;
@@ -45,12 +41,12 @@ function verifySignature(rawBody, sigHeader) {
 async function getSession(sessionId) {
   const sk = process.env.STRIPE_SECRET_KEY;
   if (!sk) return null;
-  const res = await fetch(
+  const r = await fetch(
     `https://api.stripe.com/v1/checkout/sessions/${sessionId}?expand[]=line_items`,
     { headers: { Authorization: `Bearer ${sk}` } }
   );
-  if (!res.ok) return null;
-  return res.json();
+  if (!r.ok) return null;
+  return r.json();
 }
 
 function tierFromName(name) {
@@ -69,7 +65,6 @@ function generateKey() {
   return key;
 }
 
-// ── Handler ──
 async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -100,9 +95,7 @@ async function handler(req, res) {
       if (existing && existing.key) {
         const rec = await kvGet(`key:${existing.key}`);
         if (rec) {
-          rec.tier = tier;
-          rec.active = true;
-          rec.updated_at = new Date().toISOString();
+          rec.tier = tier; rec.active = true; rec.updated_at = new Date().toISOString();
           await kvSet(`key:${existing.key}`, rec);
           await kvSet(`customer:${customerId}`, { ...existing, tier });
           await kvSet(`session:${session.id}`, { key: existing.key, tier }, 3600);
@@ -123,8 +116,7 @@ async function handler(req, res) {
       if (rec && rec.key) {
         const keyRec = await kvGet(`key:${rec.key}`);
         if (keyRec) {
-          keyRec.active = false;
-          keyRec.deactivated_at = new Date().toISOString();
+          keyRec.active = false; keyRec.deactivated_at = new Date().toISOString();
           await kvSet(`key:${rec.key}`, keyRec);
         }
       }
@@ -137,5 +129,5 @@ async function handler(req, res) {
   return res.status(200).json({ received: true });
 }
 
-module.exports = handler;
-module.exports.config = { api: { bodyParser: false } };
+export default handler;
+export const config = { api: { bodyParser: false } };
