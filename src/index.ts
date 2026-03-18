@@ -25,7 +25,7 @@ const cache = new CacheService(process.env.CACHE_ENABLED !== 'false');
 
 const server = new McpServer({
   name: 'fathom',
-  version: '2.1.1',
+  version: '2.2.0',
 });
 
 // Helper: check access + rate limit, return error JSON string or null
