@@ -31,7 +31,7 @@ async function main() {
       env: {
         CG_API_KEY: process.env.CG_API_KEY ?? "",
         FRED_API_KEY: process.env.FRED_API_KEY ?? "",
-        API_TIER: process.env.API_TIER ?? "free",
+        FATHOM_API_KEY: process.env.FATHOM_API_KEY ?? "",
       },
     },
   });
