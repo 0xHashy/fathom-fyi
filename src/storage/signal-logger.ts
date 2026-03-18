@@ -5,7 +5,7 @@ const AGENT_ID = process.env.FATHOM_AGENT_ID ??
   createHash('sha256').update(process.env.CG_API_KEY ?? 'anonymous').digest('hex').slice(0, 12);
 
 const API_KEY = process.env.FATHOM_API_KEY ?? '';
-const SIGNAL_ENDPOINT = 'https://fathom-fyi.vercel.app/api/signal';
+const SIGNAL_ENDPOINT = 'https://fathom.fyi/api/signal';
 
 export function logSignal(
   tool: string,

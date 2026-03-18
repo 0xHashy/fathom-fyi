@@ -2,7 +2,7 @@ import { getCrowdIntelligence, type CrowdIntelligence } from '../crowd/crowd-agg
 import type { ErrorOutput } from '../types/index.js';
 
 const API_KEY = process.env.FATHOM_API_KEY ?? '';
-const CROWD_ENDPOINT = 'https://fathom-fyi.vercel.app/api/crowd';
+const CROWD_ENDPOINT = 'https://fathom.fyi/api/crowd';
 
 export async function getCrowdIntel(): Promise<CrowdIntelligence | ErrorOutput> {
   // Try central API first (real crowd data from all agents)
