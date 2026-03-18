@@ -1,6 +1,6 @@
 import type { RealityCheckOutput, ErrorOutput, NarrativeEntry } from '../types/index.js';
 import { CacheService } from '../cache/cache-service.js';
-import { getCacheTtl } from '../auth/tier-check.js';
+import { getCacheTtl, getTierConfig } from '../auth/tier-check.js';
 import { getMarketRegime } from './get-market-regime.js';
 import { getTemporalContext } from './get-temporal-context.js';
 import { getDefiHealth } from './get-defi-health.js';
@@ -17,6 +17,13 @@ import {
   generateKeyRisks,
   generateKeyOpportunities,
 } from '../intelligence/interpreter.js';
+import { getFinancialCenterWeather } from '../sources/weather.js';
+import {
+  getPoliticalCycle,
+  getSeasonality,
+  getMacroCalendar,
+  analyzeWeatherSentiment,
+} from '../intelligence/alternative-signals.js';
 
 const CACHE_KEY = 'reality_check';
 const BASE_TTL = 180;
@@ -29,8 +36,11 @@ export async function getRealityCheck(cache: CacheService): Promise<RealityCheck
   const sourcesUsed: string[] = [];
 
   try {
-    // Fetch all data in parallel
-    const [regimeRes, cycleRes, defiRes, macroRes, sentimentRes, onchainRes, narrativeRes] = await Promise.all([
+    // Check if paid tier (alternative signals only for paid users)
+    const isPaid = getTierConfig().tools.includes('get_alternative_signals');
+
+    // Fetch all data in parallel (weather only for paid tiers)
+    const [regimeRes, cycleRes, defiRes, macroRes, sentimentRes, onchainRes, narrativeRes, weatherRes] = await Promise.all([
       getMarketRegime(cache),
       getTemporalContext(cache),
       getDefiHealth(cache),
@@ -38,7 +48,14 @@ export async function getRealityCheck(cache: CacheService): Promise<RealityCheck
       getSentimentState(cache),
       getOnchainPulse(cache),
       getNarrativePulse(cache),
+      isPaid ? getFinancialCenterWeather().catch(() => []) : Promise.resolve([]),
     ]);
+
+    // Compute alternative signals (only for paid tiers)
+    const weatherSentiment = isPaid ? analyzeWeatherSentiment(weatherRes) : null;
+    const politicalCycle = isPaid ? getPoliticalCycle() : null;
+    const seasonality = isPaid ? getSeasonality() : null;
+    const macroCalendar = isPaid ? getMacroCalendar() : null;
 
     // Check for partial failures
     const isError = (r: unknown): r is ErrorOutput => (r as ErrorOutput).error === true;
@@ -214,9 +231,32 @@ export async function getRealityCheck(cache: CacheService): Promise<RealityCheck
       agent_guidance: 'On-chain data unavailable.',
     };
 
+    // Build alternative signals summary (paid tiers only)
+    const altBullish: string[] = [];
+    const altBearish: string[] = [];
+    let altBias = 'neutral';
+
+    if (isPaid && weatherSentiment && politicalCycle && seasonality && macroCalendar) {
+      if (weatherSentiment.weather_bias === 'positive') altBullish.push('Sunshine effect: majority of financial centers clear');
+      if (weatherSentiment.weather_bias === 'negative') altBearish.push('Overcast effect: majority of financial centers grey');
+      if (politicalCycle.term_year === 3) altBullish.push(`Presidential Year 3 — historically strongest`);
+      if (politicalCycle.term_year === 1) altBearish.push('Presidential Year 1 — policy uncertainty');
+      if (seasonality.monthly_bias === 'bullish') altBullish.push(`${seasonality.month}: historically bullish`);
+      if (seasonality.monthly_bias === 'bearish') altBearish.push(`${seasonality.month}: historically bearish`);
+      if (macroCalendar.calendar_risk === 'high') altBearish.push('Major macro event imminent');
+      if (macroCalendar.next_options_expiry.days_until <= 3) altBearish.push('Options expiry approaching');
+      for (const e of seasonality.active_effects) {
+        if (e.includes('Best six months') || e.includes('Santa') || e.includes('January Effect')) altBullish.push(e);
+        if (e.includes('Sell in May') || e.includes('Monday effect')) altBearish.push(e);
+      }
+      altBias = altBullish.length > altBearish.length + 1 ? 'bullish'
+        : altBearish.length > altBullish.length + 1 ? 'bearish' : 'neutral';
+      sourcesUsed.push('Open-Meteo (weather)', 'Political cycle data', 'Seasonality patterns');
+    }
+
     const result: RealityCheckOutput = {
       timestamp: now.toISOString(),
-      fathom_version: '1.0.0',
+      fathom_version: '3.1.0',
       executive_summary: executiveSummary,
       overall_risk_environment: riskEnvironment,
       risk_score: riskScore,
@@ -228,6 +268,15 @@ export async function getRealityCheck(cache: CacheService): Promise<RealityCheck
       sentiment: defaultSentiment,
       onchain: defaultOnchain,
       top_narratives: topNarratives,
+      alternative_signals: isPaid && weatherSentiment && politicalCycle && seasonality && macroCalendar ? {
+        weather: weatherSentiment,
+        political_cycle: politicalCycle,
+        seasonality: { month: seasonality.month, bias: seasonality.monthly_bias, active_effects: seasonality.active_effects },
+        macro_calendar: { next_fomc: macroCalendar.next_fomc, next_cpi: macroCalendar.next_cpi, next_options_expiry: macroCalendar.next_options_expiry, calendar_risk: macroCalendar.calendar_risk },
+        composite_bias: altBias,
+        bullish_signals: altBullish,
+        bearish_signals: altBearish,
+      } : undefined,
       agent_guidance: agentGuidance,
       suggested_posture: posture,
       key_risks: keyRisks,

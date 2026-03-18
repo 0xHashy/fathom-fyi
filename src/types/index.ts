@@ -220,6 +220,15 @@ export interface RealityCheckOutput {
   sentiment: SentimentStateOutput;
   onchain: OnchainPulseOutput;
   top_narratives: NarrativeEntry[];
+  alternative_signals?: {
+    weather: unknown;
+    political_cycle: unknown;
+    seasonality: { month: string; bias: string; active_effects: string[] };
+    macro_calendar: { next_fomc: unknown; next_cpi: unknown; next_options_expiry: unknown; calendar_risk: string };
+    composite_bias: string;
+    bullish_signals: string[];
+    bearish_signals: string[];
+  };
   agent_guidance: string;
   suggested_posture: SuggestedPosture;
   key_risks: string[];

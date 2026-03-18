@@ -2,164 +2,115 @@
 
 ---
 
-## Thread 1: The Hook (Lead with Alternative Signals)
+## Thread 1: The Synthesis Angle (RECOMMENDED FIRST POST)
 
 **Tweet 1 (Hook)**
-Your AI trading agent checks price, volume, and sentiment before it trades.
+What if the reason your last trade failed wasn't the chart?
 
-Mine also checks if it's cloudy in New York.
+It was a cloudy Tuesday in September, 3 days before FOMC, in Year 2 of a presidential cycle, with Fear & Greed at 28 and DeFi TVL contracting.
 
-Sound crazy? The Journal of Finance proved sunshine in financial centers correlates with market returns.
-
-Introducing Fathom.
+No human connects all of that. No agent could — until now.
 
 **Tweet 2**
-Fathom gives AI agents something no other tool does: understanding.
+We built Fathom — a financial intelligence layer that synthesizes 21 signals across 6 data sources into one briefing your AI agent gets before every trade.
 
-Not data. Not charts. Interpreted financial intelligence.
+Not data. Not charts. Understanding.
 
-Regime classification. Cycle positioning. Risk scoring. Macro context. DeFi health. On-chain signals.
-
-And yes — weather in financial centers, political cycles, and seasonality patterns.
+Regime. Sentiment. Cycle. Macro. On-chain. DeFi. Weather. Political cycles. Seasonality. Options expiry. All of it. Combined.
 
 **Tweet 3**
-Before your agent trades, Fathom checks:
+Here's what your agent gets in under 3 seconds:
 
-- Is the market in euphoria or capitulation?
-- Where are we in the Bitcoin halving cycle?
-- Is the Fed a tailwind or headwind?
-- Are 3 out of 4 financial centers under grey skies?
-- Is it September (historically worst month for equities)?
-- Is FOMC in 3 days?
+"Risk-off regime. Fear at 28. Late-bull cycle. DXY strengthening. 3/4 financial centers overcast. September bearish bias. FOMC in 3 days. Options expiry Friday. Presidential Year 2. Composite: DEFENSIVE."
 
-One call. All of it.
+That's 21 data points synthesized into one posture.
 
 **Tweet 4**
-21 tools. 6 data sources. Every response includes plain English guidance.
+The patterns nobody talks about but the data proves:
 
-Your agent doesn't get "Fear & Greed: 28." It gets:
+- Sunshine in NYC correlates with positive market returns (Journal of Finance, 2003)
+- Year 3 of presidential cycle averages +16% for equities
+- September is historically the worst month for stocks
+- Markets compress volatility 5 days before FOMC, then expand after
 
-"Defensive posture recommended. Fear at 28 with risk-off regime. Late-bull cycle positioning. Reduce position sizes. Wait for recovery above 40 before adding exposure."
+Your agent now sees all of this. Automatically.
 
 **Tweet 5**
-The patterns everyone ignores:
+But that's just the start. Fathom also:
 
-- Sunshine effect (academic research, Journal of Finance)
-- Presidential cycle (Year 3 averages +16% for equities)
-- Sell in May, January effect, Santa Claus rally
-- FOMC proximity, CPI dates, options expiry calendar
-- Monday effect, quarter-end rebalancing
-
-Your agent now sees what most traders pretend doesn't matter.
+- Tracks your portfolio and tells you if you're overexposed
+- Lets you set custom alerts ("tell me when fear drops below 20")
+- Has 5 built-in trading strategies you can test against live conditions
+- Tracks its own accuracy over time
+- Shows you what other Fathom-connected agents are doing
 
 **Tweet 6**
 Works with Claude Desktop, Cursor, Windsurf, or any MCP client.
 
-Free tier: 3 core tools, no credit card.
-Starter ($29/mo): 16 tools + alerts + strategies
-Pro ($99/mo): All 21 tools + crowd intelligence + accuracy tracking
+Free: 3 core tools (regime, sentiment, risk score)
+Starter ($29/mo): 16 tools + alerts + strategies + alternative signals
+Pro ($99/mo): All 21 + crowd intelligence + accuracy tracking
 
-Setup takes 2 minutes.
+No credit card for free tier.
 
 **Tweet 7**
+The full picture. Every signal. One call.
+
 Can your agent fathom the market?
 
 fathom.fyi — For Your Intelligence.
 
 ---
 
-## Thread 2: The Problem/Solution
+## Thread 2: The "Why" Thread
 
 **Tweet 1 (Hook)**
-Every AI agent trading crypto right now is flying blind.
+I know a millionaire who only trades when the sun is shining.
 
-They see prices. They don't see context. They can't tell you if the market is in euphoria or capitulation.
+Sounds crazy. But the Journal of Finance published a study proving sunshine in financial centers correlates with positive returns.
 
-We just built the missing layer.
+What if nobody is wrong — they're just looking at different signals?
 
 **Tweet 2**
-The problem: your agent knows BTC is $82,000.
+The best traders I know all have "weird" signals:
 
-It doesn't know that Fear & Greed is at 28, BTC dominance is rising, the yield curve just shifted, we're in late-bull cycle positioning, and it's a cloudy Tuesday in September with FOMC in 3 days.
+One watches weather patterns. Another tracks political cycles. Another swears by September weakness and the January effect.
 
-It has data. It has zero understanding.
+None of them are looking at just price and volume.
+
+So why are AI agents?
 
 **Tweet 3**
-Fathom synthesizes 6 real-time data sources into interpreted intelligence:
+We built Fathom because AI agents are making financial decisions with 5% of the picture.
 
-- Market regime & sentiment
-- Bitcoin halving cycle position
-- DeFi ecosystem health
-- Macro context (Fed, DXY, yield curve)
-- On-chain signals
-- Alternative signals (weather, political cycles, seasonality)
+They see BTC price. They don't see that it's a cloudy September day, 3 days before FOMC, with Fear & Greed at 28, late-bull cycle positioning, and options expiry on Friday.
 
-21 tools. One API call for the full picture.
+The combination is the signal.
 
 **Tweet 4**
-What makes Fathom different:
+21 tools. 6 data sources. Regime classification, halving cycle position, DeFi health, macro context, on-chain signals, weather in financial centers, political cycles, seasonality patterns, macro event calendar.
 
-Every response includes `agent_guidance` — a specific directive your agent can act on immediately. No parsing. No prompt engineering.
-
-"Defensive posture. 4/5 alternative signals bearish. September bias negative. FOMC in 3 days. Reduce position sizes."
+No other tool combines these. Because nobody thought to.
 
 **Tweet 5**
-Plus features no one else has:
+Free tier available. No credit card.
 
-- Set your portfolio → get personalized rebalancing suggestions
-- Custom alerts → "tell me when Fear & Greed drops below 20"
-- Strategy templates → test conservative_dca or momentum_rider against live conditions
-- Crowd intelligence → see what other Fathom-connected agents are doing
-
-**Tweet 6**
-Free to start. No credit card needed.
+Full access with alternative signals starts at $29/mo.
 
 fathom.fyi — For Your Intelligence.
 
 ---
 
-## Thread 3: The Demo
+## Thread 3: Short & Visual (for screenshots)
 
-**Tweet 1 (Hook)**
-I asked my AI agent to check reality before trading.
+**Tweet 1**
+One API call. 21 signals. 3 seconds.
 
-Here's what Fathom returned in under 3 seconds:
+Before your agent trades, it should fathom the market.
+
+[Screenshot of get_reality_check output including alternative_signals section]
 
 **Tweet 2**
-[Screenshot of terminal output from get_reality_check]
-
-Risk Score: 55/100
-Regime: risk-off
-Posture: DEFENSIVE
-Fear & Greed: 28
-Cycle: Late Bull (Day 697 post-halving)
-
-Key Risk: "Late-bull cycle — window for easy gains is closing"
-
-**Tweet 3**
-Then I asked for alternative signals:
-
-[Screenshot of get_alternative_signals output]
-
-3/4 financial centers overcast
-Presidential Year 2 (midterm volatility)
-March: neutral historical bias
-FOMC meeting today
-Options expiry in 3 days
-
-Composite: BEARISH
-
-**Tweet 4**
-Then I set my portfolio and asked for analysis:
-
-"Your SOL position is 35% of portfolio — overweight for defensive posture. Reduce by 50%. Increase stablecoin allocation to 40%+."
-
-No other tool gives your agent this.
-
-**Tweet 5**
-21 tools. 6 data sources. Personalized to your portfolio.
-
-Works with Claude, Cursor, Windsurf, any MCP client.
-Free tier available. Full access from $29/mo.
-
 fathom.fyi — For Your Intelligence.
+
+Free tier. No credit card. Works with Claude, Cursor, Windsurf.
