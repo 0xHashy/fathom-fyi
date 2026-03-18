@@ -23,7 +23,12 @@ const PRO_TOOLS = [
   'get_historical_context', 'set_custom_strategy',
 ];
 
-const ALL_TOOLS = PRO_TOOLS;
+const UNLIMITED_TOOLS = [
+  ...PRO_TOOLS,
+  'set_webhook', 'manage_webhooks',
+];
+
+const ALL_TOOLS = UNLIMITED_TOOLS;
 
 const TIER_CONFIGS: Record<ApiTier, TierConfig> = {
   free: {
@@ -42,7 +47,7 @@ const TIER_CONFIGS: Record<ApiTier, TierConfig> = {
     cacheTtlMultiplier: 0.5,
   },
   unlimited: {
-    tools: PRO_TOOLS,
+    tools: UNLIMITED_TOOLS,
     rateLimit: -1,
     cacheTtlMultiplier: 0.25,
   },

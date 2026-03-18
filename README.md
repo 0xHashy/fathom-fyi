@@ -70,7 +70,7 @@ Add an `"env"` block to unlock additional data sources and paid tools:
 |----------|----------------|-----------------|------|
 | `FRED_API_KEY` | Macro data — Fed rates, DXY, yield curve | [fred.stlouisfed.org](https://fred.stlouisfed.org/docs/api/api_key.html) | Free |
 | `CG_API_KEY` | Faster price data, higher rate limits | [coingecko.com/api](https://www.coingecko.com/en/api) | Free |
-| `FATHOM_API_KEY` | All 25 tools, alerts, strategies, alternative signals | [fathom.fyi](https://fathom.fyi) | From $29/mo |
+| `FATHOM_API_KEY` | All 27 tools, alerts, strategies, alternative signals | [fathom.fyi](https://fathom.fyi) | From $29/mo |
 
 ## Tools (22 instruments)
 
@@ -106,7 +106,7 @@ All free tools plus:
 | `get_correlation_matrix` | BTC correlation with S&P 500 and Gold, TradFi prices, macro risk appetite |
 | `set_signal_preferences` | Customize which signals feed into your reality check |
 
-### Pro Tier (25 tools — $99/mo)
+### Pro Tier (27 tools — $99/mo)
 
 All Starter tools plus:
 
@@ -117,6 +117,15 @@ All Starter tools plus:
 | `get_signal_history` | Fathom's track record: every signal logged, outcomes tracked |
 | `get_historical_context` | What were market conditions on any past date? |
 | `set_custom_strategy` | Create custom trading strategies with your own condition rules |
+
+### Unlimited Tier (27 tools — $299/mo)
+
+All Pro tools plus:
+
+| Tool | Description |
+|------|-------------|
+| `set_webhook` | Register HTTP webhooks that fire when market conditions meet your criteria |
+| `manage_webhooks` | List, monitor, and remove active webhooks |
 
 ## Example Agent Prompts
 
@@ -144,8 +153,8 @@ All Starter tools plus:
 |------|-------|-------|------------|
 | Free | $0 | 3 core tools | 10 req/hr |
 | Starter | $29/mo | 20 tools + alerts + strategies + alternative signals | 500 req/hr |
-| Pro | $99/mo | All 25 + custom strategies + crowd intelligence | 2,000 req/hr |
-| Unlimited | $299/mo | All 25 + unlimited requests + 4x fresher cache | Unlimited |
+| Pro | $99/mo | All 27 + custom strategies + crowd intelligence | 2,000 req/hr |
+| Unlimited | $299/mo | All 27 + webhooks + unlimited requests + 4x fresher cache | Unlimited |
 
 [Subscribe at fathom.fyi](https://fathom.fyi)
 

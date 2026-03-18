@@ -7,6 +7,7 @@ import { getOnchainPulse } from '../tools/get-onchain-pulse.js';
 import { getTemporalContext } from '../tools/get-temporal-context.js';
 import { getNarrativePulse } from '../tools/get-narrative-pulse.js';
 import { getRealityCheck } from '../tools/get-reality-check.js';
+import { evaluateAndFireWebhooks } from './webhook-manager.js';
 
 let intervalHandle: ReturnType<typeof setInterval> | null = null;
 
@@ -51,7 +52,10 @@ async function warmCache(cache: CacheService): Promise<void> {
     ]);
 
     // Then pre-compute the master tool (benefits from cached sub-tools)
-    await getRealityCheck(cache);
+    const realityCheck = await getRealityCheck(cache);
+
+    // Evaluate webhook conditions against latest data
+    await evaluateAndFireWebhooks(realityCheck);
   } catch {
     // Background worker should never crash the server
   }

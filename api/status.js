@@ -45,7 +45,7 @@ export default async function handler(req, res) {
       payments: stripe,
     },
     version: '4.0.0',
-    tools: 25,
+    tools: 27,
     timestamp: new Date().toISOString(),
   });
 }

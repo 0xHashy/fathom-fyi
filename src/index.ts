@@ -30,6 +30,7 @@ import { setSignalPreferencesTool } from './tools/set-signal-preferences.js';
 import { getDerivativesContext } from './tools/get-derivatives-context.js';
 import { getStablecoinFlowsTool } from './tools/get-stablecoin-flows.js';
 import { getCorrelationMatrixTool } from './tools/get-correlation-matrix.js';
+import { registerWebhook, removeWebhook, listWebhooks } from './worker/webhook-manager.js';
 import { logSignal } from './storage/signal-logger.js';
 import { startBackgroundWorker } from './worker/background-worker.js';
 
@@ -425,6 +426,91 @@ server.tool(
   },
 );
 
+// ─── Tool: set_webhook ───
+server.tool(
+  'set_webhook',
+  'Register a webhook that fires when market conditions meet your criteria. Fathom evaluates conditions every 60 seconds and POSTs a JSON payload to your URL when all conditions are met. Example: alert me at my bot URL when fear_greed < 20 and regime == capitulation. Available fields: fear_greed, risk_score, opportunity_score, regime, posture, cycle_phase, tvl_change_7d, defi_health, macro_impact, net_flow_signal, leverage_signal, btc_put_call, btc_sp500_correlation, macro_risk_appetite.',
+  {
+    url: z.string().url().describe('HTTPS URL to POST webhook payload to'),
+    conditions: z.array(z.object({
+      field: z.string().describe('Condition field (fear_greed, risk_score, regime, posture, net_flow_signal, leverage_signal, etc.)'),
+      operator: z.enum(['<', '>', '<=', '>=', '==', '!=']).describe('Comparison operator'),
+      threshold: z.union([z.string(), z.number()]).describe('Threshold value'),
+    })).min(1).describe('Conditions that must ALL be true to trigger'),
+    label: z.string().optional().describe('Human-readable label for this webhook'),
+    cooldown_minutes: z.number().optional().describe('Minimum minutes between triggers (default: 60)'),
+  },
+  async ({ url, conditions, label, cooldown_minutes }) => {
+    const gateError = gateTool('set_webhook');
+    if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
+
+    const webhook = registerWebhook({
+      url,
+      conditions: conditions as { field: string; operator: '<' | '>' | '<=' | '>=' | '==' | '!='; threshold: string | number }[],
+      label,
+      cooldown_minutes: cooldown_minutes ?? 60,
+    });
+
+    return { content: [{ type: 'text' as const, text: JSON.stringify({
+      status: 'registered',
+      webhook_id: webhook.id,
+      url: webhook.url,
+      conditions: webhook.conditions,
+      label: webhook.label,
+      cooldown_minutes: webhook.cooldown_minutes,
+      agent_guidance: `Webhook registered. Fathom will POST to ${webhook.url} when all conditions are met. Conditions are evaluated every 60 seconds. Cooldown: ${webhook.cooldown_minutes} minutes between triggers. Use manage_webhooks to list or remove webhooks.`,
+    }, null, 2) }] };
+  },
+);
+
+// ─── Tool: manage_webhooks ───
+server.tool(
+  'manage_webhooks',
+  'List all registered webhooks or remove one by ID. Use action "list" to see all webhooks with their conditions, trigger counts, and last triggered time. Use action "remove" with a webhook_id to delete a webhook.',
+  {
+    action: z.enum(['list', 'remove']).describe('"list" to see all webhooks, "remove" to delete one'),
+    webhook_id: z.string().optional().describe('Webhook ID to remove (required for action "remove")'),
+  },
+  async ({ action, webhook_id }) => {
+    const gateError = gateTool('manage_webhooks');
+    if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
+
+    if (action === 'list') {
+      const hooks = listWebhooks();
+      return { content: [{ type: 'text' as const, text: JSON.stringify({
+        webhooks: hooks.map(h => ({
+          id: h.id,
+          url: h.url,
+          label: h.label,
+          conditions: h.conditions,
+          cooldown_minutes: h.cooldown_minutes,
+          trigger_count: h.trigger_count,
+          last_triggered: h.last_triggered ?? 'never',
+          created_at: h.created_at,
+        })),
+        count: hooks.length,
+        agent_guidance: hooks.length === 0
+          ? 'No webhooks registered. Use set_webhook to create one.'
+          : `${hooks.length} webhook(s) active. Total triggers: ${hooks.reduce((s, h) => s + h.trigger_count, 0)}.`,
+      }, null, 2) }] };
+    }
+
+    if (action === 'remove') {
+      if (!webhook_id) {
+        return { content: [{ type: 'text' as const, text: JSON.stringify({ error: 'webhook_id is required for remove action' }) }] };
+      }
+      const removed = removeWebhook(webhook_id);
+      return { content: [{ type: 'text' as const, text: JSON.stringify({
+        status: removed ? 'removed' : 'not_found',
+        webhook_id,
+        agent_guidance: removed ? 'Webhook removed. It will no longer fire.' : 'Webhook ID not found. Use manage_webhooks with action "list" to see active webhooks.',
+      }, null, 2) }] };
+    }
+
+    return { content: [{ type: 'text' as const, text: '{"error": "Invalid action"}' }] };
+  },
+);
+
 // ─── Tool: get_derivatives_context ───
 server.tool(
   'get_derivatives_context',
@@ -477,7 +563,7 @@ async function main() {
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('Fathom MCP server v4.0.0 running on stdio — 25 tools, 8 sources');
+  console.error('Fathom MCP server v4.1.0 running on stdio — 27 tools, 8 sources');
 }
 
 main().catch((err) => {
