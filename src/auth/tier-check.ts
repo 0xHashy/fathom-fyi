@@ -62,7 +62,7 @@ export async function verifyApiKey(): Promise<void> {
 
   try {
     const res = await fetch(
-      `https://fathom.fyi/api/verify?key=${encodeURIComponent(apiKey)}`,
+      `https://fathom-fyi.vercel.app/api/verify?key=${encodeURIComponent(apiKey)}`,
       { signal: AbortSignal.timeout(5000) },
     );
 
