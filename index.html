@@ -560,8 +560,8 @@
       <div class="hero-divider"></div>
       <div class="hero-panel">
         <div class="hero-panel-line"><span class="lbl">Protocol</span><span class="val">MCP</span></div>
-        <div class="hero-panel-line"><span class="lbl">Sources</span><span class="val" data-count="5">0</span></div>
-        <div class="hero-panel-line"><span class="lbl">Instruments</span><span class="val" data-count="13">0</span></div>
+        <div class="hero-panel-line"><span class="lbl">Sources</span><span class="val" data-count="5" data-immediate="true">0</span></div>
+        <div class="hero-panel-line"><span class="lbl">Instruments</span><span class="val" data-count="20" data-immediate="true">0</span></div>
         <div class="hero-panel-line"><span class="lbl">Latency</span><span class="val">&lt;3s</span></div>
         <div class="hero-panel-line"><span class="lbl">Cost</span><span class="val-gold">$0/mo</span></div>
       </div>
@@ -636,7 +636,7 @@
       </div>
       <div class="aud-cell">
         <div class="aud-label">Agent Frameworks</div>
-        <p>LangChain, CrewAI, AutoGen, any MCP client. One connection, 13 tools. Your agent framework gets financial reality context it never had. Fathom logs every signal and tracks accuracy over time &mdash; your agents get smarter with every call.</p>
+        <p>LangChain, CrewAI, AutoGen, any MCP client. One connection, 20 tools. Your agent framework gets financial reality context it never had. Fathom logs every signal and tracks accuracy over time &mdash; your agents get smarter with every call.</p>
       </div>
     </div>
   </div>
@@ -701,8 +701,8 @@ to recover above 40 before adding exposure.</span>
 <section class="inst-section" id="instruments">
   <div class="container">
     <hr class="sec-rule">
-    <div class="sec-header"><span class="sec-label rv">INSTRUMENTS</span><span class="sec-date rv">13 tools</span></div>
-    <h2 class="sec-title rv">Thirteen instruments. Four moats.</h2>
+    <div class="sec-header"><span class="sec-label rv">INSTRUMENTS</span><span class="sec-date rv">20 tools</span></div>
+    <h2 class="sec-title rv">Twenty instruments. Five dimensions no one else has.</h2>
 
     <table class="inst-table rv">
       <thead>
@@ -722,6 +722,13 @@ to recover above 40 before adding exposure.</span>
         <tr><td class="iname">get_portfolio_analysis</td><td class="idesc">Personalized portfolio analysis. Regime alignment, concentration risk, PnL, and specific rebalancing.</td><td class="ittl">RT</td><td><span class="tier-pro">PRO+</span></td></tr>
         <tr><td class="iname">get_crowd_intelligence</td><td class="idesc">Aggregate behavior of all Fathom-connected agents. Consensus posture, crowd fear, top assets.</td><td class="ittl">RT</td><td><span class="tier-pro">PRO+</span></td></tr>
         <tr><td class="iname">get_signal_history</td><td class="idesc">Fathom's track record. Every signal logged, every outcome tracked. Win rates by regime and posture.</td><td class="ittl">RT</td><td><span class="tier-pro">PRO+</span></td></tr>
+        <tr><td class="iname">set_alert</td><td class="idesc">Define custom alert conditions. "Alert when fear_greed &lt; 20" or "when regime == capitulation."</td><td class="ittl">&mdash;</td><td><span class="tier-starter">STARTER+</span></td></tr>
+        <tr><td class="iname">get_alerts</td><td class="idesc">Check which alerts are triggered right now against live market data.</td><td class="ittl">RT</td><td><span class="tier-starter">STARTER+</span></td></tr>
+        <tr><td class="iname">get_watchlist_report</td><td class="idesc">Batch analyze up to 10 assets. Detects state changes, ranks by risk, flags volume spikes.</td><td class="ittl">RT</td><td><span class="tier-starter">STARTER+</span></td></tr>
+        <tr><td class="iname">evaluate_strategy</td><td class="idesc">Test a strategy against live conditions. 5 built-in: conservative_dca, momentum_rider, macro_aligned, fear_accumulator, full_defensive.</td><td class="ittl">RT</td><td><span class="tier-starter">STARTER+</span></td></tr>
+        <tr><td class="iname">set_custom_strategy</td><td class="idesc">Create your own strategy with custom condition rules. Evaluate with evaluate_strategy.</td><td class="ittl">&mdash;</td><td><span class="tier-pro">PRO+</span></td></tr>
+        <tr><td class="iname">get_chain_context</td><td class="idesc">Per-chain DeFi intelligence. TVL, dominance, trend, top protocols. Ethereum, Solana, Base, Arbitrum, and more.</td><td class="ittl">600s</td><td><span class="tier-starter">STARTER+</span></td></tr>
+        <tr><td class="iname">get_historical_context</td><td class="idesc">What were conditions on a specific date? BTC price, fear/greed, regime, TVL. Compare past to present.</td><td class="ittl">RT</td><td><span class="tier-pro">PRO+</span></td></tr>
       </tbody>
     </table>
   </div>
@@ -764,9 +771,9 @@ to recover above 40 before adding exposure.</span>
       <thead><tr><th>Tier</th><th>Price</th><th>Instruments</th><th>Rate</th><th>Cache</th><th></th></tr></thead>
       <tbody>
         <tr><td class="tname">Free</td><td><span class="tprice">$0</span></td><td>3 core tools</td><td>10/hr</td><td>Standard</td><td><a href="#quickstart" class="sub-link">START</a></td></tr>
-        <tr><td class="tname">Starter</td><td><span class="tprice">$29<small>/mo</small></span></td><td>10 + portfolio</td><td>500/hr</td><td>Standard</td><td><a href="https://buy.stripe.com/14A9ASeyNgTb5lg21e0Fi00" target="_blank" rel="noopener" class="sub-link">SUBSCRIBE</a></td></tr>
-        <tr class="feat"><td class="tname">Pro</td><td><span class="tprice">$99<small>/mo</small></span></td><td>All 13 + crowd</td><td>2,000/hr</td><td>2x fresher</td><td><a href="https://buy.stripe.com/14A5kC0HXauNfZU6hu0Fi01" target="_blank" rel="noopener" class="sub-link">SUBSCRIBE</a></td></tr>
-        <tr><td class="tname">Trading Bot</td><td><span class="tprice">$299<small>/mo</small></span></td><td>All 13 + webhooks</td><td>Unlimited</td><td>4x fresher</td><td><a href="https://buy.stripe.com/aFa28q8ap7iB6pk8pC0Fi02" target="_blank" rel="noopener" class="sub-link">SUBSCRIBE</a></td></tr>
+        <tr><td class="tname">Starter</td><td><span class="tprice">$29<small>/mo</small></span></td><td>15 tools + alerts + strategies</td><td>500/hr</td><td>Standard</td><td><a href="https://buy.stripe.com/14A9ASeyNgTb5lg21e0Fi00" target="_blank" rel="noopener" class="sub-link">SUBSCRIBE</a></td></tr>
+        <tr class="feat"><td class="tname">Pro</td><td><span class="tprice">$99<small>/mo</small></span></td><td>All 20 + custom strategies</td><td>2,000/hr</td><td>2x fresher</td><td><a href="https://buy.stripe.com/14A5kC0HXauNfZU6hu0Fi01" target="_blank" rel="noopener" class="sub-link">SUBSCRIBE</a></td></tr>
+        <tr><td class="tname">Trading Bot</td><td><span class="tprice">$299<small>/mo</small></span></td><td>All 20 + webhooks</td><td>Unlimited</td><td>4x fresher</td><td><a href="https://buy.stripe.com/aFa28q8ap7iB6pk8pC0Fi02" target="_blank" rel="noopener" class="sub-link">SUBSCRIBE</a></td></tr>
       </tbody>
     </table>
   </div>
@@ -876,18 +883,23 @@ $ npx fathom-fyi</pre>
   document.querySelectorAll('[data-count]').forEach(el => {
     const target = parseInt(el.dataset.count);
     const dur = 1200;
-    const io = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting) {
-        const start = performance.now();
-        (function tick(now) {
-          const p = Math.min((now - start) / dur, 1);
-          el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
-          if (p < 1) requestAnimationFrame(tick);
-        })(start);
-        io.disconnect();
-      }
-    });
-    io.observe(el);
+    function runCountUp() {
+      const start = performance.now();
+      (function tick(now) {
+        const p = Math.min((now - start) / dur, 1);
+        el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+        if (p < 1) requestAnimationFrame(tick);
+      })(start);
+    }
+    // Hero elements count up immediately after load animation
+    if (el.dataset.immediate) {
+      setTimeout(runCountUp, 1000);
+    } else {
+      const io = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting) { runCountUp(); io.disconnect(); }
+      });
+      io.observe(el);
+    }
   });
 
   // Typewriter effect on terminal
