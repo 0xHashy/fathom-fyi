@@ -89,39 +89,48 @@ Set environment variables `CG_API_KEY`, `FRED_API_KEY`, and optionally `FATHOM_A
 
 CoinGecko and FRED API keys are **free** to obtain. `FATHOM_API_KEY` unlocks paid tiers.
 
-## Tools (13 instruments)
+## Tools (22 instruments)
 
 ### Free Tier (3 tools)
 
-| Tool | Description | Cache TTL |
-|------|-------------|-----------|
-| `get_reality_check` | Master briefing — synthesizes all sources into unified assessment with risk scores and posture | 180s |
-| `get_market_regime` | Market regime classification (risk-on/off, euphoric, capitulation) with confidence scoring | 300s |
-| `get_sentiment_state` | Fear & Greed Index, 7-day trend, contrarian signals, extreme opportunity detection | 300s |
+| Tool | Description |
+|------|-------------|
+| `get_reality_check` | Market briefing with regime, sentiment, risk score. Paid tiers add alternative signals. |
+| `get_market_regime` | Regime classification (risk-on/off, euphoric, capitulation) with confidence scoring |
+| `get_sentiment_state` | Fear & Greed Index, 7-day trend, contrarian signals, extreme opportunity detection |
 
-### Starter Tier (10 tools — $29/mo)
+### Starter Tier (17 tools — $29/mo)
 
 All free tools plus:
 
-| Tool | Description | Cache TTL |
-|------|-------------|-----------|
-| `get_narrative_pulse` | Sector rotation, accelerating/decelerating narratives, momentum scoring | 900s |
-| `get_asset_context` | Deep context on any asset: cycle position, trend, volume health, risk level | 120s |
-| `get_temporal_context` | Bitcoin halving cycle positioning with historical analogs | 3600s |
-| `get_defi_health` | DeFi ecosystem TVL, health score, concentration risk, revenue trends | 600s |
-| `get_macro_context` | Fed rates, DXY, yield curve, recession probability, crypto impact | 14400s |
-| `get_onchain_pulse` | Bitcoin network health, mempool, fees, mining economics | 600s |
-| `set_portfolio_context` | Save your portfolio holdings for personalized guidance | — |
+| Tool | Description |
+|------|-------------|
+| `get_narrative_pulse` | Sector rotation, accelerating/decelerating narratives, momentum scoring |
+| `get_asset_context` | Deep context on any asset: cycle position, trend, volume health, risk level |
+| `get_temporal_context` | Bitcoin halving cycle positioning with historical analogs |
+| `get_defi_health` | DeFi ecosystem TVL, health score, concentration risk, revenue trends |
+| `get_macro_context` | Fed rates, DXY, yield curve, recession probability, crypto impact |
+| `get_onchain_pulse` | Bitcoin network health, mempool, fees, mining economics |
+| `set_portfolio_context` | Save your portfolio holdings for personalized guidance |
+| `set_alert` | Define custom alert conditions (e.g., "fear_greed < 20") |
+| `get_alerts` | Check which of your alerts are triggered against live data |
+| `get_watchlist_report` | Batch analyze up to 10 assets with state change detection |
+| `evaluate_strategy` | Test built-in or custom strategies against live conditions |
+| `get_chain_context` | Per-chain DeFi intelligence (Ethereum, Solana, Base, Arbitrum, etc.) |
+| `get_alternative_signals` | Weather in financial centers, political cycles, seasonality, macro calendar |
+| `set_signal_preferences` | Customize which signals feed into your reality check |
 
-### Pro Tier (13 tools — $99/mo)
+### Pro Tier (22 tools — $99/mo)
 
 All Starter tools plus:
 
-| Tool | Description | Cache TTL |
-|------|-------------|-----------|
-| `get_portfolio_analysis` | Personalized analysis: regime alignment, concentration risk, rebalancing suggestions | Real-time |
-| `get_crowd_intelligence` | Aggregate behavior of all Fathom-connected agents: consensus posture, crowd fear | Real-time |
-| `get_signal_history` | Fathom's track record: every signal logged, outcomes tracked, win rates | Real-time |
+| Tool | Description |
+|------|-------------|
+| `get_portfolio_analysis` | Personalized portfolio analysis with regime alignment and rebalancing |
+| `get_crowd_intelligence` | Aggregate behavior of all Fathom-connected agents |
+| `get_signal_history` | Fathom's track record: every signal logged, outcomes tracked |
+| `get_historical_context` | What were market conditions on any past date? |
+| `set_custom_strategy` | Create custom trading strategies with your own condition rules |
 
 ## Example Agent Prompts
 
@@ -148,9 +157,9 @@ All Starter tools plus:
 | Tier | Price | Tools | Rate Limit |
 |------|-------|-------|------------|
 | Free | $0 | 3 core tools | 10 req/hr |
-| Starter | $29/mo | 10 tools + portfolio context | 500 req/hr |
-| Pro | $99/mo | All 13 + crowd intelligence + signal history | 2,000 req/hr |
-| Trading Bot | $299/mo | All 13 + webhooks + 4x fresher cache | Unlimited |
+| Starter | $29/mo | 17 tools + alerts + strategies + alternative signals | 500 req/hr |
+| Pro | $99/mo | All 22 + custom strategies + crowd intelligence | 2,000 req/hr |
+| Trading Bot | $299/mo | All 22 + webhooks + 4x fresher cache | Unlimited |
 
 [Subscribe at fathom.fyi](https://fathom.fyi)
 

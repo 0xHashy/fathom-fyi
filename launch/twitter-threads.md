@@ -49,7 +49,7 @@ Works with Claude Desktop, Cursor, Windsurf, or any MCP client.
 
 Free: 3 core tools (regime, sentiment, risk score)
 Starter ($29/mo): 16 tools + alerts + strategies + alternative signals
-Pro ($99/mo): All 21 + crowd intelligence + accuracy tracking
+Pro ($99/mo): All 22 + crowd intelligence + accuracy tracking
 
 No credit card for free tier.
 
@@ -88,7 +88,7 @@ They see BTC price. They don't see that it's a cloudy September day, 3 days befo
 The combination is the signal.
 
 **Tweet 4**
-21 tools. 6 data sources. Regime classification, halving cycle position, DeFi health, macro context, on-chain signals, weather in financial centers, political cycles, seasonality patterns, macro event calendar.
+22 tools. 6 data sources. Regime classification, halving cycle position, DeFi health, macro context, on-chain signals, weather in financial centers, political cycles, seasonality patterns, macro event calendar.
 
 No other tool combines these. Because nobody thought to.
 
