@@ -4,7 +4,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 import { CacheService } from './cache/cache-service.js';
-import { checkToolAccess, checkRateLimit } from './auth/tier-check.js';
+import { checkToolAccess, checkRateLimit, verifyApiKey } from './auth/tier-check.js';
 import { getMarketRegime } from './tools/get-market-regime.js';
 import { getSentimentState } from './tools/get-sentiment-state.js';
 import { getNarrativePulse } from './tools/get-narrative-pulse.js';
@@ -25,7 +25,7 @@ const cache = new CacheService(process.env.CACHE_ENABLED !== 'false');
 
 const server = new McpServer({
   name: 'fathom',
-  version: '2.0.0',
+  version: '2.1.0',
 });
 
 // Helper: check access + rate limit, return error JSON string or null
@@ -257,12 +257,15 @@ server.tool(
 
 // ─── Start Server ───
 async function main() {
+  // Verify API key against fathom.fyi before accepting requests
+  await verifyApiKey();
+
   // Start background worker to pre-compute data
   startBackgroundWorker(cache);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('Fathom MCP server v2.0.0 running on stdio — 13 tools, 5 sources');
+  console.error('Fathom MCP server v2.1.0 running on stdio — 13 tools, 5 sources');
 }
 
 main().catch((err) => {

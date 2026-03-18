@@ -42,14 +42,62 @@ const TIER_CONFIGS: Record<ApiTier, TierConfig> = {
   },
 };
 
-// Simple in-memory rate limiter
-const requestCounts = new Map<string, { count: number; windowStart: number }>();
+// ─── Server-validated tier ───
+// On startup, the server phones home to fathom.fyi/api/verify
+// to validate the API key and get the real tier.
+// Falls back to free if no key, invalid key, or network error.
+
+let verifiedTier: ApiTier = 'free';
+let tierVerified = false;
+
+export async function verifyApiKey(): Promise<void> {
+  const apiKey = process.env.FATHOM_API_KEY;
+
+  if (!apiKey) {
+    verifiedTier = 'free';
+    tierVerified = true;
+    console.error('Fathom: No API key provided. Free tier active (3 tools, 10 req/hr).');
+    return;
+  }
+
+  try {
+    const res = await fetch(
+      `https://fathom.fyi/api/verify?key=${encodeURIComponent(apiKey)}`,
+      { signal: AbortSignal.timeout(5000) },
+    );
+
+    if (res.ok) {
+      const data = await res.json() as { valid: boolean; tier: string; message?: string };
+      if (data.valid && data.tier in TIER_CONFIGS) {
+        verifiedTier = data.tier as ApiTier;
+        console.error(`Fathom: API key verified. ${verifiedTier} tier active.`);
+      } else {
+        verifiedTier = 'free';
+        console.error(`Fathom: Invalid API key. Free tier active. Get a key at https://fathom.fyi`);
+      }
+    } else {
+      verifiedTier = 'free';
+      console.error('Fathom: Key verification unavailable. Free tier active.');
+    }
+  } catch {
+    // Network error, timeout, offline — fall back to free
+    verifiedTier = 'free';
+    console.error('Fathom: Key verification unreachable. Free tier active.');
+  }
+
+  tierVerified = true;
+}
 
 function getCurrentTier(): ApiTier {
-  const tier = process.env.API_TIER ?? 'free';
-  if (tier in TIER_CONFIGS) return tier as ApiTier;
+  // If verified via phone-home, use that
+  if (tierVerified) return verifiedTier;
+
+  // Fallback during startup before verification completes
   return 'free';
 }
+
+// Simple in-memory rate limiter
+const requestCounts = new Map<string, { count: number; windowStart: number }>();
 
 export function getTierConfig(): TierConfig {
   return TIER_CONFIGS[getCurrentTier()];
@@ -61,7 +109,7 @@ export function checkToolAccess(toolName: string): TierViolation | null {
 
   return {
     error: 'upgrade_required',
-    message: `This tool requires Fathom Starter or above. Current tier: ${getCurrentTier()}.`,
+    message: `This tool requires Fathom ${getCurrentTier() === 'free' ? 'Starter' : 'Pro'} or above. Current tier: ${getCurrentTier()}.`,
     upgrade_url: 'https://fathom.fyi',
     available_on_free: FREE_TOOLS,
   };

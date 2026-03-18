@@ -1,6 +1,6 @@
 # Fathom — Financial Reality for AI Agents
 
-> The FYI your agent needs before it acts.
+> For Your Intelligence. The FYI your agent needs before it acts.
 
 **Live at [fathom.fyi](https://fathom.fyi)**
 
@@ -41,7 +41,7 @@ Add to your `claude_desktop_config.json`:
       "env": {
         "CG_API_KEY": "your_coingecko_key",
         "FRED_API_KEY": "your_fred_key",
-        "API_TIER": "free"
+        "FATHOM_API_KEY": "your_fathom_api_key"
       }
     }
   }
@@ -61,7 +61,7 @@ Add to `.cursor/mcp.json`:
       "env": {
         "CG_API_KEY": "your_coingecko_key",
         "FRED_API_KEY": "your_fred_key",
-        "API_TIER": "free"
+        "FATHOM_API_KEY": "your_fathom_api_key"
       }
     }
   }
@@ -76,7 +76,7 @@ Fathom uses stdio transport. Point any MCP client at:
 npx -y fathom-fyi
 ```
 
-Set environment variables `CG_API_KEY`, `FRED_API_KEY`, and `API_TIER` before launching.
+Set environment variables `CG_API_KEY`, `FRED_API_KEY`, and optionally `FATHOM_API_KEY` before launching.
 
 ## Environment Setup
 
@@ -84,29 +84,52 @@ Set environment variables `CG_API_KEY`, `FRED_API_KEY`, and `API_TIER` before la
 |----------|-------------|-----------------|-----------|
 | `CG_API_KEY` | CoinGecko API key | [coingecko.com/api](https://www.coingecko.com/en/api) | Yes |
 | `FRED_API_KEY` | Federal Reserve (FRED) API key | [fred.stlouisfed.org](https://fred.stlouisfed.org/docs/api/api_key.html) | Yes (for macro data) |
-| `API_TIER` | Pricing tier (`free`, `starter`, `pro`, `trading_bot`) | Set based on subscription | No (defaults to `free`) |
+| `FATHOM_API_KEY` | Your Fathom subscription key | [fathom.fyi](https://fathom.fyi) | No (free tier without it) |
 | `CACHE_ENABLED` | Enable response caching | — | No (defaults to `true`) |
 
-Both API keys are **free** to obtain.
+CoinGecko and FRED API keys are **free** to obtain. `FATHOM_API_KEY` unlocks paid tiers.
 
-## Tools
+## Tools (13 instruments)
 
-| Tool | Description | Free Tier | Cache TTL |
-|------|-------------|-----------|-----------|
-| `get_reality_check` | Master briefing — synthesizes all sources into unified assessment | ✅ | 180s |
-| `get_market_regime` | Market regime classification (risk-on/off, euphoric, capitulation) | ✅ | 300s |
-| `get_sentiment_state` | Fear & Greed Index with contrarian signals | ✅ | 300s |
-| `get_narrative_pulse` | Sector rotation and narrative momentum | Starter+ | 900s |
-| `get_asset_context` | Deep context on any specific crypto asset | Starter+ | 120s |
-| `get_temporal_context` | Bitcoin halving cycle positioning | Starter+ | 3600s |
-| `get_defi_health` | DeFi ecosystem TVL, health score, concentration | Starter+ | 600s |
-| `get_macro_context` | Fed rates, DXY, yield curve, recession probability | Starter+ | 14400s |
-| `get_onchain_pulse` | Bitcoin network health, fees, mining economics | Starter+ | 600s |
+### Free Tier (3 tools)
+
+| Tool | Description | Cache TTL |
+|------|-------------|-----------|
+| `get_reality_check` | Master briefing — synthesizes all sources into unified assessment with risk scores and posture | 180s |
+| `get_market_regime` | Market regime classification (risk-on/off, euphoric, capitulation) with confidence scoring | 300s |
+| `get_sentiment_state` | Fear & Greed Index, 7-day trend, contrarian signals, extreme opportunity detection | 300s |
+
+### Starter Tier (10 tools — $29/mo)
+
+All free tools plus:
+
+| Tool | Description | Cache TTL |
+|------|-------------|-----------|
+| `get_narrative_pulse` | Sector rotation, accelerating/decelerating narratives, momentum scoring | 900s |
+| `get_asset_context` | Deep context on any asset: cycle position, trend, volume health, risk level | 120s |
+| `get_temporal_context` | Bitcoin halving cycle positioning with historical analogs | 3600s |
+| `get_defi_health` | DeFi ecosystem TVL, health score, concentration risk, revenue trends | 600s |
+| `get_macro_context` | Fed rates, DXY, yield curve, recession probability, crypto impact | 14400s |
+| `get_onchain_pulse` | Bitcoin network health, mempool, fees, mining economics | 600s |
+| `set_portfolio_context` | Save your portfolio holdings for personalized guidance | — |
+
+### Pro Tier (13 tools — $99/mo)
+
+All Starter tools plus:
+
+| Tool | Description | Cache TTL |
+|------|-------------|-----------|
+| `get_portfolio_analysis` | Personalized analysis: regime alignment, concentration risk, rebalancing suggestions | Real-time |
+| `get_crowd_intelligence` | Aggregate behavior of all Fathom-connected agents: consensus posture, crowd fear | Real-time |
+| `get_signal_history` | Fathom's track record: every signal logged, outcomes tracked, win rates | Real-time |
 
 ## Example Agent Prompts
 
 **Before any trade:**
 > "Use get_reality_check to assess current market conditions. What is the risk score and suggested posture? Should I proceed with this trade?"
+
+**Portfolio check:**
+> "Use set_portfolio_context with my holdings: 2 BTC, 50 SOL, $10k USDC. Then use get_portfolio_analysis — is my portfolio aligned with the current regime?"
 
 **Narrative research:**
 > "Use get_narrative_pulse to identify which crypto sectors are accelerating. Where is the momentum?"
@@ -125,11 +148,11 @@ Both API keys are **free** to obtain.
 | Tier | Price | Tools | Rate Limit |
 |------|-------|-------|------------|
 | Free | $0 | 3 core tools | 10 req/hr |
-| Starter | $29/mo | All 9 tools | 500 req/hr |
-| Pro | $99/mo | All 9 tools + fresher cache | 2,000 req/hr |
-| Trading Bot | $299/mo | All 9 tools + priority freshness | Unlimited |
+| Starter | $29/mo | 10 tools + portfolio context | 500 req/hr |
+| Pro | $99/mo | All 13 + crowd intelligence + signal history | 2,000 req/hr |
+| Trading Bot | $299/mo | All 13 + webhooks + 4x fresher cache | Unlimited |
 
-[fathom.fyi](https://fathom.fyi)
+[Subscribe at fathom.fyi](https://fathom.fyi)
 
 ## Data Sources
 
