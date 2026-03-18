@@ -27,6 +27,11 @@ export async function getProtocols(): Promise<DefiLlamaProtocol[]> {
   return res.json() as Promise<DefiLlamaProtocol[]>;
 }
 
+export async function getChainHistoricalTvl(chain: string): Promise<Array<{ date: number; tvl: number }>> {
+  const res = await fetchDeFiLlama(`/v2/historicalChainTvl/${encodeURIComponent(chain)}`);
+  return res.json() as Promise<Array<{ date: number; tvl: number }>>;
+}
+
 export async function getFees(): Promise<{
   protocols: Array<{ name: string; total24h: number | null; total7d: number | null; total30d: number | null }>;
 }> {

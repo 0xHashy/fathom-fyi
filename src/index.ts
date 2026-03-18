@@ -18,6 +18,13 @@ import { setPortfolioContext } from './tools/set-portfolio-context.js';
 import { getPortfolioAnalysis } from './tools/get-portfolio-analysis.js';
 import { getCrowdIntel } from './tools/get-crowd-intelligence.js';
 import { getSignalHistory } from './tools/get-signal-history.js';
+import { setAlertTool } from './tools/set-alert.js';
+import { getAlertsTool } from './tools/get-alerts.js';
+import { getWatchlistReport } from './tools/get-watchlist-report.js';
+import { evaluateStrategyTool } from './tools/evaluate-strategy.js';
+import { setCustomStrategyTool } from './tools/set-custom-strategy.js';
+import { getChainContext } from './tools/get-chain-context.js';
+import { getHistoricalContext } from './tools/get-historical-context.js';
 import { logSignal } from './storage/signal-logger.js';
 import { startBackgroundWorker } from './worker/background-worker.js';
 
@@ -25,7 +32,7 @@ const cache = new CacheService(process.env.CACHE_ENABLED !== 'false');
 
 const server = new McpServer({
   name: 'fathom',
-  version: '2.2.0',
+  version: '3.0.0',
 });
 
 // Helper: check access + rate limit, return error JSON string or null
@@ -255,6 +262,126 @@ server.tool(
   },
 );
 
+// ─── Tool: set_alert ───
+server.tool(
+  'set_alert',
+  'Set custom alerts that trigger when market conditions meet your thresholds. Example: [{field: "fear_greed", operator: "<", threshold: 20, label: "Extreme fear"}]. Call get_alerts to check which are triggered.',
+  {
+    alerts: z.array(z.object({
+      field: z.string().describe('Condition field (fear_greed, risk_score, regime, posture, cycle_phase, tvl_change_7d, etc.)'),
+      operator: z.string().describe('Comparison operator: <, >, <=, >=, ==, !='),
+      threshold: z.union([z.string(), z.number()]).describe('Threshold value'),
+      label: z.string().optional().describe('Human-readable label for this alert'),
+    })).describe('Array of alert conditions'),
+  },
+  async ({ alerts }) => {
+    const gateError = gateTool('set_alert');
+    if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
+
+    const result = setAlertTool(alerts);
+    return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+// ─── Tool: get_alerts ───
+server.tool(
+  'get_alerts',
+  'Check which of your configured alerts are currently triggered. Evaluates all alert conditions against live market data.',
+  {},
+  async () => {
+    const gateError = gateTool('get_alerts');
+    if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
+
+    const text = await executeAndLog('get_alerts', {}, () => getAlertsTool(cache));
+    return { content: [{ type: 'text' as const, text }] };
+  },
+);
+
+// ─── Tool: get_watchlist_report ───
+server.tool(
+  'get_watchlist_report',
+  'Analyze multiple assets at once. Returns cycle position, risk level, and volume health for each. Detects state changes since last check. Max 10 assets.',
+  {
+    assets: z.array(z.string()).max(10).describe('Array of asset names/symbols, e.g. ["btc", "eth", "sol", "avax"]'),
+  },
+  async ({ assets }) => {
+    const gateError = gateTool('get_watchlist_report');
+    if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
+
+    const text = await executeAndLog('get_watchlist_report', { assets }, () => getWatchlistReport(cache, assets));
+    return { content: [{ type: 'text' as const, text }] };
+  },
+);
+
+// ─── Tool: evaluate_strategy ───
+server.tool(
+  'evaluate_strategy',
+  'Evaluate a trading strategy against current market conditions. Built-in strategies: conservative_dca, momentum_rider, macro_aligned, fear_accumulator, full_defensive. Also evaluates custom strategies created with set_custom_strategy.',
+  {
+    strategy: z.string().describe('Strategy name (e.g. "conservative_dca", "momentum_rider", "full_defensive", or a custom name)'),
+  },
+  async ({ strategy }) => {
+    const gateError = gateTool('evaluate_strategy');
+    if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
+
+    const text = await executeAndLog('evaluate_strategy', { strategy }, () => evaluateStrategyTool(cache, strategy));
+    return { content: [{ type: 'text' as const, text }] };
+  },
+);
+
+// ─── Tool: set_custom_strategy ───
+server.tool(
+  'set_custom_strategy',
+  'Create a custom trading strategy with your own conditions. Then use evaluate_strategy to test it against current market conditions.',
+  {
+    name: z.string().describe('Name for your strategy'),
+    conditions: z.array(z.object({
+      field: z.string().describe('Condition field (fear_greed, risk_score, regime, posture, etc.)'),
+      operator: z.string().describe('Comparison operator: <, >, <=, >=, ==, !='),
+      threshold: z.union([z.string(), z.number()]).describe('Threshold value'),
+    })).describe('Array of conditions that must ALL be met'),
+  },
+  async ({ name, conditions }) => {
+    const gateError = gateTool('set_custom_strategy');
+    if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
+
+    const result = setCustomStrategyTool({ name, conditions });
+    return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+// ─── Tool: get_chain_context ───
+server.tool(
+  'get_chain_context',
+  'Get DeFi context for a specific blockchain: TVL, dominance, trend, top protocols, and whether the chain is gaining or losing market share. Supports: ethereum, solana, base, arbitrum, optimism, polygon, avalanche, bsc, tron, bitcoin.',
+  {
+    chain: z.string().describe('Chain name (e.g. "ethereum", "solana", "base", "arbitrum")'),
+  },
+  async ({ chain }) => {
+    const gateError = gateTool('get_chain_context');
+    if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
+
+    const text = await executeAndLog('get_chain_context', { chain }, () => getChainContext(cache, chain));
+    return { content: [{ type: 'text' as const, text }] };
+  },
+);
+
+// ─── Tool: get_historical_context ───
+server.tool(
+  'get_historical_context',
+  'Look up what market conditions were on a specific date. Returns regime, fear/greed, risk score, BTC price, and TVL from that date. Useful for comparing past conditions to current ones.',
+  {
+    date: z.string().describe('Date in ISO format, e.g. "2026-03-01" or "2025-12-15"'),
+  },
+  async ({ date }) => {
+    const gateError = gateTool('get_historical_context');
+    if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
+
+    const text = await executeAndLog('get_historical_context', { date }, () => getHistoricalContext(cache, date));
+    return { content: [{ type: 'text' as const, text }] };
+  },
+);
+
 // ─── Start Server ───
 async function main() {
   // Verify API key against fathom.fyi before accepting requests
@@ -265,7 +392,7 @@ async function main() {
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('Fathom MCP server v2.1.0 running on stdio — 13 tools, 5 sources');
+  console.error('Fathom MCP server v3.0.0 running on stdio — 20 tools, 5 sources');
 }
 
 main().catch((err) => {

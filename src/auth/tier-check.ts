@@ -6,11 +6,16 @@ const STARTER_TOOLS = [
   'get_narrative_pulse', 'get_asset_context', 'get_temporal_context',
   'get_defi_health', 'get_macro_context', 'get_onchain_pulse',
   'set_portfolio_context',
+  'set_alert', 'get_alerts',
+  'get_watchlist_report',
+  'evaluate_strategy',
+  'get_chain_context',
 ];
 
 const PRO_TOOLS = [
   ...STARTER_TOOLS,
   'get_portfolio_analysis', 'get_crowd_intelligence', 'get_signal_history',
+  'get_historical_context', 'set_custom_strategy',
 ];
 
 const ALL_TOOLS = PRO_TOOLS;
