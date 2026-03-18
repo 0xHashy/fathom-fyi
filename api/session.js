@@ -1,49 +1,60 @@
-// GET /api/session?session_id=cs_xxx
-// Returns the API key for a completed checkout session.
-// Used by the success page to display the key after payment.
-// Session → key mapping expires after 1 hour for security.
+const KV_URL = process.env.KV_REST_API_URL;
+const KV_TOKEN = process.env.KV_REST_API_TOKEN;
 
-import { kvGet, isKvConfigured } from './_lib/kv.js';
-import { getCheckoutSession } from './_lib/stripe.js';
+async function kvCommand(...args) {
+  if (!KV_URL || !KV_TOKEN) return null;
+  const res = await fetch(KV_URL, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${KV_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(args),
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.result ?? null;
+}
 
-export default async function handler(req, res) {
+async function kvGet(key) {
+  const raw = await kvCommand('GET', key);
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch { return raw; }
+}
+
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 'no-store');
-
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
   const sessionId = req.query.session_id;
-  if (!sessionId) {
-    return res.status(400).json({ error: 'Missing session_id' });
-  }
+  if (!sessionId) return res.status(400).json({ error: 'Missing session_id' });
 
-  // Try KV first (fast path)
-  if (isKvConfigured()) {
-    const sessionRecord = await kvGet(`session:${sessionId}`);
-    if (sessionRecord && sessionRecord.key) {
-      return res.status(200).json({
-        key: sessionRecord.key,
-        tier: sessionRecord.tier,
-      });
+  if (KV_URL && KV_TOKEN) {
+    // Try session mapping first
+    const sessionRec = await kvGet(`session:${sessionId}`);
+    if (sessionRec && sessionRec.key) {
+      return res.status(200).json({ key: sessionRec.key, tier: sessionRec.tier });
     }
 
-    // Fallback: look up customer from Stripe session
-    const session = await getCheckoutSession(sessionId);
-    if (session && session.customer) {
-      const customerId = typeof session.customer === 'string'
-        ? session.customer
-        : session.customer.id;
-      const customerRecord = await kvGet(`customer:${customerId}`);
-      if (customerRecord && customerRecord.key) {
-        return res.status(200).json({
-          key: customerRecord.key,
-          tier: customerRecord.tier,
-        });
-      }
+    // Fallback: look up via Stripe API
+    const sk = process.env.STRIPE_SECRET_KEY;
+    if (sk) {
+      try {
+        const sRes = await fetch(
+          `https://api.stripe.com/v1/checkout/sessions/${sessionId}`,
+          { headers: { Authorization: `Bearer ${sk}` } }
+        );
+        if (sRes.ok) {
+          const session = await sRes.json();
+          const custId = typeof session.customer === 'string' ? session.customer : session.customer?.id;
+          if (custId) {
+            const custRec = await kvGet(`customer:${custId}`);
+            if (custRec && custRec.key) {
+              return res.status(200).json({ key: custRec.key, tier: custRec.tier });
+            }
+          }
+        }
+      } catch {}
     }
   }
 
-  return res.status(404).json({
-    error: 'Key not found. This can happen if payment is still processing. Wait 30 seconds and refresh.',
-  });
-}
+  return res.status(404).json({ error: 'Key not found. Payment may still be processing. Refresh in 30 seconds.' });
+};

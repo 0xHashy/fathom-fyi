@@ -1,117 +1,84 @@
-// GET /api/crowd?key=fathom_sk_xxx
-// Returns aggregated crowd intelligence from all Fathom-connected agents.
-// Requires Pro+ tier API key.
+const KV_URL = process.env.KV_REST_API_URL;
+const KV_TOKEN = process.env.KV_REST_API_TOKEN;
 
-import { kvGet, kvLrange, kvSet, isKvConfigured } from './_lib/kv.js';
+async function kvCommand(...args) {
+  if (!KV_URL || !KV_TOKEN) return null;
+  const res = await fetch(KV_URL, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${KV_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(args),
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.result ?? null;
+}
 
-const CACHE_TTL = 300; // 5 minutes
+async function kvGet(key) {
+  const raw = await kvCommand('GET', key);
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch { return raw; }
+}
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 'no-store');
-
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+  if (!KV_URL || !KV_TOKEN) return res.status(200).json({ error: 'Crowd data not available' });
 
   const key = req.query.key;
-  if (!key) {
-    return res.status(200).json({ error: 'API key required for crowd intelligence' });
-  }
+  if (!key) return res.status(200).json({ error: 'API key required' });
 
-  // Verify key and check tier
-  if (isKvConfigured()) {
-    const keyRecord = await kvGet(`key:${key}`);
-    if (!keyRecord || !keyRecord.active) {
-      return res.status(200).json({ error: 'Invalid or inactive API key' });
-    }
-    if (keyRecord.tier !== 'pro' && keyRecord.tier !== 'trading_bot') {
-      return res.status(200).json({ error: 'Crowd intelligence requires Pro or Trading Bot tier' });
-    }
+  const keyRec = await kvGet(`key:${key}`);
+  if (!keyRec || !keyRec.active) return res.status(200).json({ error: 'Invalid key' });
+  if (keyRec.tier !== 'pro' && keyRec.tier !== 'trading_bot') {
+    return res.status(200).json({ error: 'Requires Pro or Trading Bot tier' });
   }
 
   // Check cache
-  if (isKvConfigured()) {
-    const cached = await kvGet('crowd:cache');
-    if (cached && cached.computed_at) {
-      const age = Date.now() - new Date(cached.computed_at).getTime();
-      if (age < CACHE_TTL * 1000) {
-        return res.status(200).json(cached);
-      }
-    }
+  const cached = await kvGet('crowd:cache');
+  if (cached && cached.computed_at) {
+    const age = Date.now() - new Date(cached.computed_at).getTime();
+    if (age < 300000) return res.status(200).json(cached);
   }
 
-  // Compute crowd intelligence from recent signals
-  if (!isKvConfigured()) {
-    return res.status(200).json({ error: 'Crowd data not available' });
-  }
-
-  const signals = await kvLrange('signals', 0, 999);
-  const cutoff = Date.now() - 24 * 3600_000;
+  // Get recent signals
+  const raw = await kvCommand('LRANGE', 'signals', 0, 999);
+  const signals = (Array.isArray(raw) ? raw : []).map(s => { try { return JSON.parse(s); } catch { return null; } }).filter(Boolean);
+  const cutoff = Date.now() - 86400000;
   const recent = signals.filter(s => new Date(s.timestamp).getTime() > cutoff);
 
   const agents = new Set(recent.map(s => s.agent_id));
-
-  // Posture distribution
-  const postureCounts = {};
-  const regimeCounts = {};
-  let riskSum = 0, riskCount = 0;
-  let oppSum = 0, oppCount = 0;
+  const pc = {}, rc = {};
+  let rs = 0, rn = 0, os = 0, on = 0;
 
   for (const s of recent) {
-    if (s.posture) postureCounts[s.posture] = (postureCounts[s.posture] || 0) + 1;
-    if (s.regime) regimeCounts[s.regime] = (regimeCounts[s.regime] || 0) + 1;
-    if (s.risk_score != null) { riskSum += s.risk_score; riskCount++; }
-    if (s.opportunity_score != null) { oppSum += s.opportunity_score; oppCount++; }
+    if (s.posture) pc[s.posture] = (pc[s.posture] || 0) + 1;
+    if (s.regime) rc[s.regime] = (rc[s.regime] || 0) + 1;
+    if (s.risk_score != null) { rs += s.risk_score; rn++; }
+    if (s.opportunity_score != null) { os += s.opportunity_score; on++; }
   }
 
-  const totalPosture = Object.values(postureCounts).reduce((a, b) => a + b, 0);
-  const postureDistribution = {};
-  for (const [k, v] of Object.entries(postureCounts)) {
-    postureDistribution[k] = totalPosture > 0 ? Math.round((v / totalPosture) * 100) : 0;
-  }
+  const tp = Object.values(pc).reduce((a, b) => a + b, 0);
+  const pd = {};
+  for (const [k, v] of Object.entries(pc)) pd[k] = tp > 0 ? Math.round(v / tp * 100) : 0;
 
-  const topPosture = Object.entries(postureCounts).sort((a, b) => b[1] - a[1]);
-  const consensusPosture = topPosture[0]?.[0] || 'unknown';
-  const topPct = totalPosture > 0 ? (topPosture[0]?.[1] || 0) / totalPosture : 0;
-
-  let consensusStrength = 'no_consensus';
-  if (topPct > 0.75) consensusStrength = 'strong';
-  else if (topPct > 0.55) consensusStrength = 'moderate';
-  else if (topPct > 0.4) consensusStrength = 'weak';
-
-  const avgRisk = riskCount > 0 ? Math.round(riskSum / riskCount) : 50;
-  const avgOpp = oppCount > 0 ? Math.round(oppSum / oppCount) : 50;
-  const dataSufficient = agents.size >= 3;
-
-  let crowdFear = 'calm';
-  if (avgRisk > 70) crowdFear = 'panicking';
-  else if (avgRisk > 55) crowdFear = 'fearful';
-  else if (avgRisk > 40) crowdFear = 'cautious';
-
-  let guidance = `${agents.size} agent${agents.size === 1 ? '' : 's'} active in last 24h. `;
-  if (!dataSufficient) {
-    guidance += `Crowd data is limited. Consensus signals are unreliable below 3 agents.`;
-  } else if (consensusStrength === 'strong') {
-    guidance += `Strong consensus: ${consensusPosture} posture (>75% agreement).`;
-  } else {
-    guidance += `${consensusStrength} consensus toward ${consensusPosture}.`;
-  }
+  const top = Object.entries(pc).sort((a, b) => b[1] - a[1]);
+  const cp = top[0]?.[0] || 'unknown';
+  const topPct = tp > 0 ? (top[0]?.[1] || 0) / tp : 0;
+  const cs = topPct > 0.75 ? 'strong' : topPct > 0.55 ? 'moderate' : topPct > 0.4 ? 'weak' : 'no_consensus';
+  const ar = rn > 0 ? Math.round(rs / rn) : 50;
+  const ao = on > 0 ? Math.round(os / on) : 50;
+  const cf = ar > 70 ? 'panicking' : ar > 55 ? 'fearful' : ar > 40 ? 'cautious' : 'calm';
 
   const result = {
-    total_agents_24h: agents.size,
-    total_signals_24h: recent.length,
-    posture_distribution: postureDistribution,
-    consensus_posture: consensusPosture,
-    consensus_strength: consensusStrength,
-    avg_risk_score: avgRisk,
-    avg_opportunity_score: avgOpp,
-    crowd_fear_level: crowdFear,
-    data_sufficient: dataSufficient,
-    agent_guidance: guidance,
+    total_agents_24h: agents.size, total_signals_24h: recent.length,
+    posture_distribution: pd, consensus_posture: cp, consensus_strength: cs,
+    avg_risk_score: ar, avg_opportunity_score: ao, crowd_fear_level: cf,
+    data_sufficient: agents.size >= 3,
+    agent_guidance: `${agents.size} agent${agents.size === 1 ? '' : 's'} active. ${cs === 'strong' ? `Strong consensus: ${cp}.` : `${cs} consensus toward ${cp}.`}`,
     computed_at: new Date().toISOString(),
   };
 
-  // Cache the result
-  await kvSet('crowd:cache', result, CACHE_TTL);
-
+  await kvCommand('SET', 'crowd:cache', JSON.stringify(result), 'EX', 300);
   return res.status(200).json(result);
-}
+};

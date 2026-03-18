@@ -1,54 +1,50 @@
-// POST /api/signal
-// Receives anonymized signals from MCP servers.
-// Requires a valid API key. Builds the crowd intelligence dataset.
-//
-// Body: { key, tool, regime, posture, risk_score, opportunity_score, fear_greed }
-// Stores last 5000 signals for crowd aggregation.
+const { createHash } = require('crypto');
 
-import { kvGet, kvLpush, kvLtrim, isKvConfigured } from './_lib/kv.js';
-import { createHash } from 'crypto';
+const KV_URL = process.env.KV_REST_API_URL;
+const KV_TOKEN = process.env.KV_REST_API_TOKEN;
 
-const MAX_SIGNALS = 5000;
+async function kvCommand(...args) {
+  if (!KV_URL || !KV_TOKEN) return null;
+  const res = await fetch(KV_URL, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${KV_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(args),
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.result ?? null;
+}
 
-export default async function handler(req, res) {
+async function kvGet(key) {
+  const raw = await kvCommand('GET', key);
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch { return raw; }
+}
+
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  if (!isKvConfigured()) return res.status(200).json({ stored: false, reason: 'Storage not configured' });
+  if (!KV_URL || !KV_TOKEN) return res.status(200).json({ stored: false });
 
   const body = req.body;
-  if (!body || !body.key) {
-    return res.status(200).json({ stored: false, reason: 'No API key provided' });
-  }
+  if (!body || !body.key) return res.status(200).json({ stored: false });
 
-  // Verify key is valid
-  const keyRecord = await kvGet(`key:${body.key}`);
-  if (!keyRecord || !keyRecord.active) {
-    return res.status(200).json({ stored: false, reason: 'Invalid key' });
-  }
+  const keyRec = await kvGet(`key:${body.key}`);
+  if (!keyRec || !keyRec.active) return res.status(200).json({ stored: false });
 
-  // Anonymize: hash the key to create agent_id
   const agentId = createHash('sha256').update(body.key).digest('hex').slice(0, 12);
-
   const signal = {
-    agent_id: agentId,
-    tier: keyRecord.tier,
-    tool: body.tool || 'unknown',
-    regime: body.regime || null,
-    posture: body.posture || null,
-    risk_score: body.risk_score ?? null,
-    opportunity_score: body.opportunity_score ?? null,
-    fear_greed: body.fear_greed ?? null,
-    timestamp: new Date().toISOString(),
+    agent_id: agentId, tier: keyRec.tier, tool: body.tool || 'unknown',
+    regime: body.regime || null, posture: body.posture || null,
+    risk_score: body.risk_score ?? null, opportunity_score: body.opportunity_score ?? null,
+    fear_greed: body.fear_greed ?? null, timestamp: new Date().toISOString(),
   };
 
-  // Store signal
-  await kvLpush('signals', signal);
-  // Keep only last N signals
-  await kvLtrim('signals', 0, MAX_SIGNALS - 1);
+  await kvCommand('LPUSH', 'signals', JSON.stringify(signal));
+  await kvCommand('LTRIM', 'signals', 0, 4999);
 
   return res.status(200).json({ stored: true });
-}
+};
