@@ -11,6 +11,7 @@ const STARTER_TOOLS = [
   'evaluate_strategy',
   'get_chain_context',
   'get_alternative_signals',
+  'set_signal_preferences',
 ];
 
 const PRO_TOOLS = [

@@ -26,6 +26,7 @@ import { setCustomStrategyTool } from './tools/set-custom-strategy.js';
 import { getChainContext } from './tools/get-chain-context.js';
 import { getHistoricalContext } from './tools/get-historical-context.js';
 import { getAlternativeSignals } from './tools/get-alternative-signals.js';
+import { setSignalPreferencesTool } from './tools/set-signal-preferences.js';
 import { logSignal } from './storage/signal-logger.js';
 import { startBackgroundWorker } from './worker/background-worker.js';
 
@@ -397,6 +398,30 @@ server.tool(
   },
 );
 
+// ─── Tool: set_signal_preferences ───
+server.tool(
+  'set_signal_preferences',
+  'Customize which signals feed into your reality check. Turn individual signal sources on or off. Regime and sentiment are always included. Preferences persist between sessions. Example: {weather: false, political_cycle: false} to disable those signals.',
+  {
+    cycle: z.boolean().optional().describe('Include Bitcoin halving cycle data (default: true)'),
+    defi: z.boolean().optional().describe('Include DeFi TVL and health data (default: true)'),
+    macro: z.boolean().optional().describe('Include Fed rates, DXY, yield curve (default: true)'),
+    onchain: z.boolean().optional().describe('Include Bitcoin on-chain data (default: true)'),
+    narratives: z.boolean().optional().describe('Include sector rotation and narrative data (default: true)'),
+    weather: z.boolean().optional().describe('Include weather in financial centers (default: true)'),
+    political_cycle: z.boolean().optional().describe('Include presidential cycle data (default: true)'),
+    seasonality: z.boolean().optional().describe('Include monthly/seasonal patterns (default: true)'),
+    macro_calendar: z.boolean().optional().describe('Include FOMC, CPI, options expiry dates (default: true)'),
+  },
+  async (params) => {
+    const gateError = gateTool('set_signal_preferences');
+    if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
+
+    const result = setSignalPreferencesTool(params);
+    return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
 // ─── Start Server ───
 async function main() {
   // Verify API key against fathom.fyi before accepting requests
@@ -407,7 +432,7 @@ async function main() {
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('Fathom MCP server v3.0.0 running on stdio — 21 tools, 6 sources');
+  console.error('Fathom MCP server v3.2.0 running on stdio — 22 tools, 6 sources');
 }
 
 main().catch((err) => {

@@ -24,6 +24,11 @@ import {
   getMacroCalendar,
   analyzeWeatherSentiment,
 } from '../intelligence/alternative-signals.js';
+import { getPreferences } from '../storage/preferences-store.js';
+import { createHash } from 'crypto';
+
+const AGENT_ID = process.env.FATHOM_AGENT_ID ??
+  createHash('sha256').update(process.env.CG_API_KEY ?? 'anonymous').digest('hex').slice(0, 12);
 
 const CACHE_KEY = 'reality_check';
 const BASE_TTL = 180;
@@ -36,46 +41,48 @@ export async function getRealityCheck(cache: CacheService): Promise<RealityCheck
   const sourcesUsed: string[] = [];
 
   try {
-    // Check if paid tier (alternative signals only for paid users)
+    // Check tier and preferences
     const isPaid = getTierConfig().tools.includes('get_alternative_signals');
+    const prefs = getPreferences(AGENT_ID);
 
-    // Fetch all data in parallel (weather only for paid tiers)
+    // Fetch data in parallel (respecting preferences)
     const [regimeRes, cycleRes, defiRes, macroRes, sentimentRes, onchainRes, narrativeRes, weatherRes] = await Promise.all([
-      getMarketRegime(cache),
-      getTemporalContext(cache),
-      getDefiHealth(cache),
-      getMacroContext(cache),
-      getSentimentState(cache),
-      getOnchainPulse(cache),
-      getNarrativePulse(cache),
-      isPaid ? getFinancialCenterWeather().catch(() => []) : Promise.resolve([]),
+      getMarketRegime(cache), // always (regime + sentiment are core)
+      prefs.cycle ? getTemporalContext(cache) : Promise.resolve(null),
+      prefs.defi ? getDefiHealth(cache) : Promise.resolve(null),
+      prefs.macro ? getMacroContext(cache) : Promise.resolve(null),
+      getSentimentState(cache), // always
+      prefs.onchain ? getOnchainPulse(cache) : Promise.resolve(null),
+      prefs.narratives ? getNarrativePulse(cache) : Promise.resolve(null),
+      isPaid && prefs.weather ? getFinancialCenterWeather().catch(() => []) : Promise.resolve([]),
     ]);
 
-    // Compute alternative signals (only for paid tiers)
-    const weatherSentiment = isPaid ? analyzeWeatherSentiment(weatherRes) : null;
-    const politicalCycle = isPaid ? getPoliticalCycle() : null;
-    const seasonality = isPaid ? getSeasonality() : null;
-    const macroCalendar = isPaid ? getMacroCalendar() : null;
+    // Compute alternative signals (only for paid tiers, respecting preferences)
+    const weatherSentiment = isPaid && prefs.weather ? analyzeWeatherSentiment(weatherRes) : null;
+    const politicalCycle = isPaid && prefs.political_cycle ? getPoliticalCycle() : null;
+    const seasonality = isPaid && prefs.seasonality ? getSeasonality() : null;
+    const macroCalendar = isPaid && prefs.macro_calendar ? getMacroCalendar() : null;
 
-    // Check for partial failures
-    const isError = (r: unknown): r is ErrorOutput => (r as ErrorOutput).error === true;
+    // Check for partial failures (null = disabled by preference, ErrorOutput = API failure)
+    const isError = (r: unknown): r is ErrorOutput => r !== null && (r as ErrorOutput).error === true;
+    const isGood = (r: unknown): boolean => r !== null && !isError(r);
 
-    if (isError(regimeRes)) { dataWarnings.push(...regimeRes.data_warnings); } else { sourcesUsed.push('CoinGecko', 'Alternative.me Fear & Greed'); }
-    if (isError(cycleRes)) { dataWarnings.push(...cycleRes.data_warnings); } else { sourcesUsed.push('Bitcoin halving cycle data'); }
-    if (isError(defiRes)) { dataWarnings.push(...defiRes.data_warnings); } else { sourcesUsed.push('DeFiLlama'); }
-    if (isError(macroRes)) { dataWarnings.push(...macroRes.data_warnings); } else { sourcesUsed.push('FRED (Federal Reserve)'); }
-    if (isError(sentimentRes)) { dataWarnings.push(...sentimentRes.data_warnings); } else { sourcesUsed.push('Alternative.me Fear & Greed (7-day)'); }
-    if (isError(onchainRes)) { dataWarnings.push(...onchainRes.data_warnings); } else { sourcesUsed.push('Mempool.space'); }
-    if (isError(narrativeRes)) { dataWarnings.push(...narrativeRes.data_warnings); } else { sourcesUsed.push('CoinGecko Categories & Trending'); }
+    if (isError(regimeRes)) { dataWarnings.push(...regimeRes.data_warnings); } else if (isGood(regimeRes)) { sourcesUsed.push('CoinGecko', 'Alternative.me Fear & Greed'); }
+    if (isError(cycleRes)) { dataWarnings.push(...cycleRes.data_warnings); } else if (isGood(cycleRes)) { sourcesUsed.push('Bitcoin halving cycle data'); }
+    if (isError(defiRes)) { dataWarnings.push(...defiRes.data_warnings); } else if (isGood(defiRes)) { sourcesUsed.push('DeFiLlama'); }
+    if (isError(macroRes)) { dataWarnings.push(...macroRes.data_warnings); } else if (isGood(macroRes)) { sourcesUsed.push('FRED (Federal Reserve)'); }
+    if (isError(sentimentRes)) { dataWarnings.push(...sentimentRes.data_warnings); } else if (isGood(sentimentRes)) { sourcesUsed.push('Alternative.me Fear & Greed (7-day)'); }
+    if (isError(onchainRes)) { dataWarnings.push(...onchainRes.data_warnings); } else if (isGood(onchainRes)) { sourcesUsed.push('Mempool.space'); }
+    if (isError(narrativeRes)) { dataWarnings.push(...narrativeRes.data_warnings); } else if (isGood(narrativeRes)) { sourcesUsed.push('CoinGecko Categories & Trending'); }
 
-    // Extract values with safe defaults
-    const regime = isError(regimeRes) ? null : regimeRes;
-    const cycle = isError(cycleRes) ? null : cycleRes;
-    const defi = isError(defiRes) ? null : defiRes;
-    const macro = isError(macroRes) ? null : macroRes;
-    const sentiment = isError(sentimentRes) ? null : sentimentRes;
-    const onchain = isError(onchainRes) ? null : onchainRes;
-    const narrative = isError(narrativeRes) ? null : narrativeRes;
+    // Extract values with safe defaults (null = disabled by preference or error)
+    const regime = (regimeRes && !isError(regimeRes)) ? regimeRes : null;
+    const cycle = (cycleRes && !isError(cycleRes)) ? cycleRes : null;
+    const defi = (defiRes && !isError(defiRes)) ? defiRes : null;
+    const macro = (macroRes && !isError(macroRes)) ? macroRes : null;
+    const sentiment = (sentimentRes && !isError(sentimentRes)) ? sentimentRes : null;
+    const onchain = (onchainRes && !isError(onchainRes)) ? onchainRes : null;
+    const narrative = (narrativeRes && !isError(narrativeRes)) ? narrativeRes : null;
 
     // If regime and sentiment both failed, we can't compute anything meaningful
     if (!regime && !sentiment) {
