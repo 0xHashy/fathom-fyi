@@ -1,9 +1,8 @@
 {
-  "buildCommand": "",
   "outputDirectory": "public",
   "functions": {
-    "api/*.js": {
-      "memory": 128
+    "api/**/*.js": {
+      "runtime": "nodejs20.x"
     }
   }
 }
