@@ -24,6 +24,9 @@ import {
   getMacroCalendar,
   analyzeWeatherSentiment,
 } from '../intelligence/alternative-signals.js';
+import { getDerivativesContext, type DerivativesContextOutput } from './get-derivatives-context.js';
+import { getStablecoinFlowsTool, type StablecoinFlowsOutput } from './get-stablecoin-flows.js';
+import { getCorrelationMatrixTool, type CorrelationMatrixOutput } from './get-correlation-matrix.js';
 import { getPreferences } from '../storage/preferences-store.js';
 import { createHash } from 'crypto';
 
@@ -56,6 +59,22 @@ export async function getRealityCheck(cache: CacheService): Promise<RealityCheck
       prefs.narratives ? getNarrativePulse(cache) : Promise.resolve(null),
       isPaid && prefs.weather ? getFinancialCenterWeather().catch(() => []) : Promise.resolve([]),
     ]);
+
+    // Fetch new data sources in parallel (paid tiers only)
+    const [derivativesRes, stablecoinRes, correlationRes] = await Promise.all([
+      isPaid ? getDerivativesContext(cache).catch(() => null) : Promise.resolve(null),
+      isPaid ? getStablecoinFlowsTool(cache).catch(() => null) : Promise.resolve(null),
+      isPaid ? getCorrelationMatrixTool(cache).catch(() => null) : Promise.resolve(null),
+    ]);
+
+    // Extract new data (null = free tier or error)
+    const derivatives = (derivativesRes && !(derivativesRes as ErrorOutput).error) ? derivativesRes as DerivativesContextOutput : null;
+    const stablecoins = (stablecoinRes && !(stablecoinRes as ErrorOutput).error) ? stablecoinRes as StablecoinFlowsOutput : null;
+    const correlation = (correlationRes && !(correlationRes as ErrorOutput).error) ? correlationRes as CorrelationMatrixOutput : null;
+
+    if (derivatives) sourcesUsed.push('Deribit (derivatives)');
+    if (stablecoins) sourcesUsed.push('DeFiLlama (stablecoins)');
+    if (correlation) sourcesUsed.push('Yahoo Finance (TradFi correlation)');
 
     // Compute alternative signals (only for paid tiers, respecting preferences)
     const weatherSentiment = isPaid && prefs.weather ? analyzeWeatherSentiment(weatherRes) : null;
@@ -115,14 +134,39 @@ export async function getRealityCheck(cache: CacheService): Promise<RealityCheck
       defiTrend,
     });
 
-    const opportunityScore = calculateOpportunityScore(riskScore, fearGreed, currentRegime);
-    const riskEnvironment = getRiskEnvironment(riskScore);
-    const posture = getSuggestedPosture(riskScore);
+    // Adjust risk score with new data sources (paid tiers)
+    let riskAdjustment = 0;
+    let opportunityAdjustment = 0;
+
+    if (derivatives) {
+      if (derivatives.leverage_signal === 'overleveraged_long') { riskAdjustment += 10; }
+      else if (derivatives.leverage_signal === 'overleveraged_short') { opportunityAdjustment += 10; }
+      if (derivatives.options.btc_put_call_ratio > 1.3) { opportunityAdjustment += 5; } // contrarian
+    }
+
+    if (stablecoins) {
+      if (stablecoins.net_flow_signal === 'strong_outflow') { riskAdjustment += 10; }
+      else if (stablecoins.net_flow_signal === 'outflow') { riskAdjustment += 5; }
+      else if (stablecoins.net_flow_signal === 'strong_inflow') { opportunityAdjustment += 10; riskAdjustment -= 5; }
+      else if (stablecoins.net_flow_signal === 'inflow') { opportunityAdjustment += 5; }
+      if (stablecoins.depeg_warnings.length > 0) { riskAdjustment += 5; }
+    }
+
+    if (correlation) {
+      if (correlation.macro_risk_appetite === 'risk_off' && correlation.btc_sp500_correlation > 0.5) {
+        riskAdjustment += 5; // BTC correlated with risk-off equities = double headwind
+      }
+    }
+
+    const adjustedRiskScore = Math.max(0, Math.min(100, riskScore + riskAdjustment));
+    const opportunityScore = Math.max(0, Math.min(100, calculateOpportunityScore(adjustedRiskScore, fearGreed, currentRegime) + opportunityAdjustment));
+    const riskEnvironment = getRiskEnvironment(adjustedRiskScore);
+    const posture = getSuggestedPosture(adjustedRiskScore);
 
     const executiveSummary = generateExecutiveSummary({
       regime: currentRegime,
       fearGreed,
-      riskScore,
+      riskScore: adjustedRiskScore,
       cyclePhase,
       posture,
       macroImpact,
@@ -263,10 +307,10 @@ export async function getRealityCheck(cache: CacheService): Promise<RealityCheck
 
     const result: RealityCheckOutput = {
       timestamp: now.toISOString(),
-      fathom_version: '3.1.0',
+      fathom_version: '4.0.0',
       executive_summary: executiveSummary,
       overall_risk_environment: riskEnvironment,
-      risk_score: riskScore,
+      risk_score: adjustedRiskScore,
       opportunity_score: opportunityScore,
       regime: defaultRegime,
       cycle: defaultCycle,
@@ -275,6 +319,28 @@ export async function getRealityCheck(cache: CacheService): Promise<RealityCheck
       sentiment: defaultSentiment,
       onchain: defaultOnchain,
       top_narratives: topNarratives,
+      derivatives: derivatives ? {
+        funding_rates: derivatives.funding_rates.map(f => ({ asset: f.asset, annualized_pct: f.annualized_pct, sentiment: f.sentiment })),
+        btc_put_call_ratio: derivatives.options.btc_put_call_ratio,
+        btc_open_interest_usd: derivatives.options.btc_open_interest_usd,
+        btc_max_pain: derivatives.options.btc_max_pain,
+        btc_implied_volatility: derivatives.options.btc_implied_volatility,
+        leverage_signal: derivatives.leverage_signal,
+      } : undefined,
+      stablecoin_flows: stablecoins ? {
+        total_supply_usd: stablecoins.total_supply_usd,
+        change_7d_usd: stablecoins.change_7d_usd,
+        change_7d_pct: stablecoins.change_7d_pct,
+        net_flow_signal: stablecoins.net_flow_signal,
+        depeg_warnings: stablecoins.depeg_warnings,
+      } : undefined,
+      tradfi_correlation: correlation ? {
+        btc_sp500_correlation: correlation.btc_sp500_correlation,
+        btc_gold_correlation: correlation.btc_gold_correlation,
+        sp500_price: correlation.sp500_price,
+        gold_price: correlation.gold_price,
+        macro_risk_appetite: correlation.macro_risk_appetite,
+      } : undefined,
       alternative_signals: isPaid && weatherSentiment && politicalCycle && seasonality && macroCalendar ? {
         weather: weatherSentiment,
         political_cycle: politicalCycle,

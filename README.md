@@ -10,7 +10,7 @@ Fathom is an MCP server that gives AI agents financial reality awareness before 
 
 **The problem:** Every AI agent operating in crypto today is blind. Trading bots see prices but don't understand context. DeFi agents deploy capital without knowing where we are in the cycle. Treasury managers make decisions without macro awareness. They have data but no understanding.
 
-**The solution:** Fathom synthesizes 5 real-time data sources into interpreted intelligence — regime classification, cycle positioning, sentiment state, DeFi health, macro context, and on-chain signals — delivered as plain English guidance an agent can act on immediately.
+**The solution:** Fathom synthesizes 8 real-time data sources into interpreted intelligence — regime classification, cycle positioning, sentiment state, DeFi health, macro context, and on-chain signals — delivered as plain English guidance an agent can act on immediately.
 
 Your agent doesn't get "BTC is $82,000." It gets: *"Market is in late-stage risk-off rotation. Fear & Greed at 28. BTC dominance rising — capital rotating to safety. Historical analog: Q4 2022 pre-recovery accumulation zone. Recommended posture: defensive."*
 
@@ -70,7 +70,7 @@ Add an `"env"` block to unlock additional data sources and paid tools:
 |----------|----------------|-----------------|------|
 | `FRED_API_KEY` | Macro data — Fed rates, DXY, yield curve | [fred.stlouisfed.org](https://fred.stlouisfed.org/docs/api/api_key.html) | Free |
 | `CG_API_KEY` | Faster price data, higher rate limits | [coingecko.com/api](https://www.coingecko.com/en/api) | Free |
-| `FATHOM_API_KEY` | All 22 tools, alerts, strategies, alternative signals | [fathom.fyi](https://fathom.fyi) | From $29/mo |
+| `FATHOM_API_KEY` | All 25 tools, alerts, strategies, alternative signals | [fathom.fyi](https://fathom.fyi) | From $29/mo |
 
 ## Tools (22 instruments)
 
@@ -82,7 +82,7 @@ Add an `"env"` block to unlock additional data sources and paid tools:
 | `get_market_regime` | Regime classification (risk-on/off, euphoric, capitulation) with confidence scoring |
 | `get_sentiment_state` | Fear & Greed Index, 7-day trend, contrarian signals, extreme opportunity detection |
 
-### Starter Tier (17 tools — $29/mo)
+### Starter Tier (20 tools — $29/mo)
 
 All free tools plus:
 
@@ -101,9 +101,12 @@ All free tools plus:
 | `evaluate_strategy` | Test built-in or custom strategies against live conditions |
 | `get_chain_context` | Per-chain DeFi intelligence (Ethereum, Solana, Base, Arbitrum, etc.) |
 | `get_alternative_signals` | Weather in financial centers, political cycles, seasonality, macro calendar |
+| `get_derivatives_context` | Funding rates, options data (put/call, OI, IV, max pain), leverage positioning |
+| `get_stablecoin_flows` | Stablecoin supply tracking, minting/redemptions, capital flow signal, depeg warnings |
+| `get_correlation_matrix` | BTC correlation with S&P 500 and Gold, TradFi prices, macro risk appetite |
 | `set_signal_preferences` | Customize which signals feed into your reality check |
 
-### Pro Tier (22 tools — $99/mo)
+### Pro Tier (25 tools — $99/mo)
 
 All Starter tools plus:
 
@@ -140,9 +143,9 @@ All Starter tools plus:
 | Tier | Price | Tools | Rate Limit |
 |------|-------|-------|------------|
 | Free | $0 | 3 core tools | 10 req/hr |
-| Starter | $29/mo | 17 tools + alerts + strategies + alternative signals | 500 req/hr |
-| Pro | $99/mo | All 22 + custom strategies + crowd intelligence | 2,000 req/hr |
-| Unlimited | $299/mo | All 22 + unlimited requests + 4x fresher cache | Unlimited |
+| Starter | $29/mo | 20 tools + alerts + strategies + alternative signals | 500 req/hr |
+| Pro | $99/mo | All 25 + custom strategies + crowd intelligence | 2,000 req/hr |
+| Unlimited | $299/mo | All 25 + unlimited requests + 4x fresher cache | Unlimited |
 
 [Subscribe at fathom.fyi](https://fathom.fyi)
 
@@ -152,9 +155,12 @@ All Starter tools plus:
 |--------|------------------|-----------|
 | **CoinGecko** | Prices, market caps, OHLC, categories, trending | Real-time |
 | **Alternative.me** | Fear & Greed Index | Real-time |
-| **DeFiLlama** | DeFi TVL, protocol data, fees | Real-time |
+| **DeFiLlama** | DeFi TVL, protocol data, stablecoin supply | Real-time |
+| **Deribit** | Funding rates, options OI, put/call, implied vol, max pain | Real-time |
+| **Yahoo Finance** | S&P 500, Gold — TradFi correlation | Daily |
 | **FRED** | Fed Funds Rate, DXY, yield curve | Daily |
 | **Mempool.space** | Bitcoin network health, fees, mining | Real-time |
+| **Open-Meteo** | Weather in financial centers (sunshine effect) | Real-time |
 
 ## License
 

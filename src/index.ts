@@ -27,6 +27,9 @@ import { getChainContext } from './tools/get-chain-context.js';
 import { getHistoricalContext } from './tools/get-historical-context.js';
 import { getAlternativeSignals } from './tools/get-alternative-signals.js';
 import { setSignalPreferencesTool } from './tools/set-signal-preferences.js';
+import { getDerivativesContext } from './tools/get-derivatives-context.js';
+import { getStablecoinFlowsTool } from './tools/get-stablecoin-flows.js';
+import { getCorrelationMatrixTool } from './tools/get-correlation-matrix.js';
 import { logSignal } from './storage/signal-logger.js';
 import { startBackgroundWorker } from './worker/background-worker.js';
 
@@ -237,7 +240,7 @@ server.tool(
 // ─── Tool: get_crowd_intelligence ───
 server.tool(
   'get_crowd_intelligence',
-  'See what other Fathom-connected agents are doing. Returns aggregate posture distribution, consensus strength, most-queried assets, and crowd fear levels. Data improves as more agents connect.',
+  '[BETA] See what other Fathom-connected agents are doing. Returns aggregate posture distribution, consensus strength, most-queried assets, and crowd fear levels. Signal quality scales with network size.',
   {},
   async () => {
     const gateError = gateTool('get_crowd_intelligence');
@@ -251,7 +254,7 @@ server.tool(
 // ─── Tool: get_signal_history ───
 server.tool(
   'get_signal_history',
-  'View Fathom\'s signal history and accuracy track record. Shows recent signals with their regimes, postures, and risk scores, plus aggregate accuracy statistics. Fathom logs every signal and tracks what it recommended vs what actually happened.',
+  '[BETA] View Fathom\'s signal log. Shows recent signals with their regimes, postures, and risk scores. Useful for tracking how conditions evolved over time. Accuracy scoring is under development.',
   {
     limit: z.number().optional().describe('Number of recent signals to return (default: 20)'),
   },
@@ -422,6 +425,48 @@ server.tool(
   },
 );
 
+// ─── Tool: get_derivatives_context ───
+server.tool(
+  'get_derivatives_context',
+  'Derivatives intelligence: perpetual funding rates (BTC/ETH/SOL), options data (put/call ratio, open interest, implied volatility, max pain price), and leverage positioning. Critical for understanding market positioning and liquidation risk. Data from Deribit.',
+  {},
+  async () => {
+    const gateError = gateTool('get_derivatives_context');
+    if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
+
+    const text = await executeAndLog('get_derivatives_context', {}, () => getDerivativesContext(cache));
+    return { content: [{ type: 'text' as const, text }] };
+  },
+);
+
+// ─── Tool: get_stablecoin_flows ───
+server.tool(
+  'get_stablecoin_flows',
+  'Track stablecoin supply changes across USDT, USDC, and all major stablecoins. Shows total supply, 24h/7d/30d minting and redemptions, net capital flow signal, depeg warnings, and liquidity assessment. Stablecoin flows are a leading indicator of capital entering or leaving crypto.',
+  {},
+  async () => {
+    const gateError = gateTool('get_stablecoin_flows');
+    if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
+
+    const text = await executeAndLog('get_stablecoin_flows', {}, () => getStablecoinFlowsTool(cache));
+    return { content: [{ type: 'text' as const, text }] };
+  },
+);
+
+// ─── Tool: get_correlation_matrix ───
+server.tool(
+  'get_correlation_matrix',
+  'BTC correlation with traditional finance: 30-day Pearson correlation with S&P 500 and Gold, plus current TradFi prices. Shows whether BTC is trading as a risk asset, safe haven, or independently. Critical for understanding macro spillover risk.',
+  {},
+  async () => {
+    const gateError = gateTool('get_correlation_matrix');
+    if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
+
+    const text = await executeAndLog('get_correlation_matrix', {}, () => getCorrelationMatrixTool(cache));
+    return { content: [{ type: 'text' as const, text }] };
+  },
+);
+
 // ─── Start Server ───
 async function main() {
   // Verify API key against fathom.fyi before accepting requests
@@ -432,7 +477,7 @@ async function main() {
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('Fathom MCP server v3.2.0 running on stdio — 22 tools, 6 sources');
+  console.error('Fathom MCP server v4.0.0 running on stdio — 25 tools, 8 sources');
 }
 
 main().catch((err) => {

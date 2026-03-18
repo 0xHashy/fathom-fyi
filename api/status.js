@@ -44,8 +44,8 @@ export default async function handler(req, res) {
       key_store: kv,
       payments: stripe,
     },
-    version: '3.3.0',
-    tools: 22,
+    version: '4.0.0',
+    tools: 25,
     timestamp: new Date().toISOString(),
   });
 }

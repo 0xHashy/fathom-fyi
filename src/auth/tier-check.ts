@@ -12,6 +12,9 @@ const STARTER_TOOLS = [
   'get_chain_context',
   'get_alternative_signals',
   'set_signal_preferences',
+  'get_derivatives_context',
+  'get_stablecoin_flows',
+  'get_correlation_matrix',
 ];
 
 const PRO_TOOLS = [

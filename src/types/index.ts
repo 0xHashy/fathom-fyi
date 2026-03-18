@@ -219,6 +219,28 @@ export interface RealityCheckOutput {
   sentiment: SentimentStateOutput;
   onchain: OnchainPulseOutput;
   top_narratives: NarrativeEntry[];
+  derivatives?: {
+    funding_rates: Array<{ asset: string; annualized_pct: number; sentiment: string }>;
+    btc_put_call_ratio: number;
+    btc_open_interest_usd: number;
+    btc_max_pain: number;
+    btc_implied_volatility: number;
+    leverage_signal: string;
+  };
+  stablecoin_flows?: {
+    total_supply_usd: number;
+    change_7d_usd: number;
+    change_7d_pct: number;
+    net_flow_signal: string;
+    depeg_warnings: string[];
+  };
+  tradfi_correlation?: {
+    btc_sp500_correlation: number;
+    btc_gold_correlation: number;
+    sp500_price: number;
+    gold_price: number;
+    macro_risk_appetite: string;
+  };
   alternative_signals?: {
     weather: unknown;
     political_cycle: unknown;
