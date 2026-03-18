@@ -48,7 +48,7 @@ Example: "Defensive posture recommended. Multiple risk indicators elevated. Redu
 - Deep asset context
 
 **Tweet 6**
-Built on 5 free data sources. $0/month infrastructure cost.
+Built on 5 real-time data sources. No paid API keys required to get started.
 
 The value isn't the data — it's the interpretation layer.
 
@@ -164,8 +164,6 @@ Pricing:
 - Starter ($29/mo): All 9 tools, 500 req/hr
 - Pro ($99/mo): All 9 tools, fresher cache, 2,000 req/hr
 - Trading Bot ($299/mo): Priority freshness, unlimited requests
-
-10 customers on Trading Bot tier = $2,990/mo revenue on ~$0 infrastructure.
 
 **Tweet 5**
 The free tier is not a demo. It's a fully functional financial awareness layer.

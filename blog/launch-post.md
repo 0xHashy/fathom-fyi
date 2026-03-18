@@ -85,7 +85,7 @@ One of the design principles behind Fathom is that intelligence should not be ga
 - **FRED / Federal Reserve** (free forever) — Fed Funds Rate, DXY, yield curve, Treasury rates
 - **Mempool.space** (free forever) — Bitcoin network health, fees, mining data
 
-Total infrastructure cost at launch: approximately $0/month. The value is not in the data — it is in the interpretation layer that sits on top of it.
+All data sources are free to access. The value is not in the data — it is in the interpretation layer that sits on top of it.
 
 ## How It Works Under the Hood
 

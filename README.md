@@ -164,7 +164,7 @@ All Starter tools plus:
 | **FRED** | Free forever | Fed Funds Rate, DXY, yield curve |
 | **Mempool.space** | Free forever | Bitcoin network health, fees, mining |
 
-**Total infrastructure cost at launch: ~$0/month.**
+**All data sources are free or have generous free tiers. No paid API subscriptions required to run Fathom.**
 
 ## License
 

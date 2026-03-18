@@ -41,7 +41,7 @@ All five data sources are free or near-free:
 - FRED / Federal Reserve (free forever) — rates, DXY, yield curve
 - Mempool.space (free forever) — Bitcoin network health
 
-Total infrastructure cost: ~$0/month. The value is the intelligence layer, not the data.
+No paid API subscriptions required. The value is the intelligence layer, not the data.
 
 ### How to Get Started
 
