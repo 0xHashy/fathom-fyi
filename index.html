@@ -796,57 +796,53 @@ to recover above 40 before adding exposure.</span>
     <hr class="sec-rule">
     <div class="sec-header"><span class="sec-label rv">QUICK START</span><span class="sec-date rv">Configuration</span></div>
     <h2 class="sec-title rv">Running in under two minutes</h2>
-    <p class="rv" style="font-size: 14px; color: var(--text-2); margin-bottom: 24px; max-width: 560px;">Free tier gives you 3 core tools with no API key required. <a href="#pricing" style="color: var(--gold); text-decoration: none;">Subscribe</a> to unlock all 22 tools and get your Fathom API key.</p>
+    <p class="rv" style="font-size: 14px; color: var(--text-2); margin-bottom: 24px; max-width: 560px;">Zero config required. Paste one JSON block and you're live. No API keys needed for the free tier.</p>
     <div class="qs-blocks">
       <div class="qs-block rv">
-        <div class="qs-head"><span class="qs-head-title">Install</span><span class="qs-head-step">Step 1</span></div>
-        <pre><span class="c"># Install globally</span>
-$ npm install -g fathom-fyi
+        <div class="qs-head"><span class="qs-head-title">Claude Desktop</span><span class="qs-head-step">Option A</span></div>
+        <pre><span class="c">// Settings &rarr; Developer &rarr; Edit Config
+// Paste this. Save. Restart Claude Desktop. Done.</span>
 
-<span class="c"># Or run directly</span>
-$ npx fathom-fyi</pre>
-      </div>
-      <div class="qs-block rv">
-        <div class="qs-head"><span class="qs-head-title">Claude Desktop &mdash; claude_desktop_config.json</span><span class="qs-head-step">Step 2</span></div>
-        <pre>{
+{
   <span class="k">"mcpServers"</span>: {
     <span class="k">"fathom"</span>: {
       <span class="k">"command"</span>: <span class="g">"npx"</span>,
-      <span class="k">"args"</span>: [<span class="g">"fathom-fyi"</span>],
-      <span class="k">"env"</span>: {
-        <span class="k">"CG_API_KEY"</span>: <span class="g">"your_coingecko_key"</span>,
-        <span class="k">"FRED_API_KEY"</span>: <span class="g">"your_fred_key"</span>,
-        <span class="k">"FATHOM_API_KEY"</span>: <span class="g">"your_fathom_key"</span>
-      }
+      <span class="k">"args"</span>: [<span class="g">"-y"</span>, <span class="g">"fathom-fyi"</span>]
     }
   }
 }</pre>
       </div>
       <div class="qs-block rv">
-        <div class="qs-head"><span class="qs-head-title">Cursor &mdash; .cursor/mcp.json</span><span class="qs-head-step">Step 2 alt</span></div>
-        <pre>{
+        <div class="qs-head"><span class="qs-head-title">Cursor</span><span class="qs-head-step">Option B</span></div>
+        <pre><span class="c">// .cursor/mcp.json
+// Save. Restart Cursor. Done.</span>
+
+{
   <span class="k">"mcpServers"</span>: {
     <span class="k">"fathom"</span>: {
       <span class="k">"command"</span>: <span class="g">"npx"</span>,
-      <span class="k">"args"</span>: [<span class="g">"fathom-fyi"</span>],
-      <span class="k">"env"</span>: {
-        <span class="k">"CG_API_KEY"</span>: <span class="g">"your_coingecko_key"</span>,
-        <span class="k">"FRED_API_KEY"</span>: <span class="g">"your_fred_key"</span>,
-        <span class="k">"FATHOM_API_KEY"</span>: <span class="g">"your_fathom_key"</span>
-      }
+      <span class="k">"args"</span>: [<span class="g">"-y"</span>, <span class="g">"fathom-fyi"</span>]
     }
   }
 }</pre>
       </div>
       <div class="qs-block rv">
-        <div class="qs-head"><span class="qs-head-title">API Keys</span><span class="qs-head-step">Step 3</span></div>
-        <pre><span class="c"># CoinGecko key (free at coingecko.com/en/api)</span>
-<span class="c"># FRED key (free at fred.stlouisfed.org)</span>
-<span class="c"># Both are free to obtain and required for data access.</span>
+        <div class="qs-head"><span class="qs-head-title">Unlock more</span><span class="qs-head-step">Optional</span></div>
+        <pre><span class="c">// Add these to "env" in the config above to unlock more data:</span>
 
-<span class="c"># Fathom API key (unlocks paid tools)</span>
-<span class="c"># Subscribe at fathom.fyi to get your key.</span>
-<span class="c"># Without it, you get 3 free tools at 10 requests/hour.</span></pre>
+<span class="k">"env"</span>: {
+  <span class="c">// Free &mdash; adds macro data (Fed rates, DXY, yield curve)</span>
+  <span class="c">// Get yours: fred.stlouisfed.org/docs/api/api_key.html</span>
+  <span class="k">"FRED_API_KEY"</span>: <span class="g">"your_key"</span>,
+
+  <span class="c">// Free &mdash; faster price data, higher rate limits</span>
+  <span class="c">// Get yours: coingecko.com/en/api</span>
+  <span class="k">"CG_API_KEY"</span>: <span class="g">"your_key"</span>,
+
+  <span class="c">// Paid &mdash; unlocks all 22 tools</span>
+  <span class="c">// Subscribe above, key is emailed instantly</span>
+  <span class="k">"FATHOM_API_KEY"</span>: <span class="g">"your_key"</span>
+}</pre>
       </div>
     </div>
   </div>

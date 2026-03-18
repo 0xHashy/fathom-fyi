@@ -16,39 +16,26 @@ Your agent doesn't get "BTC is $82,000." It gets: *"Market is in late-stage risk
 
 ## Quick Start
 
-### Install via npm
+### Zero config — works immediately
 
-```bash
-npm install -g fathom-fyi
-```
-
-Or run directly with npx (no install needed):
-
-```bash
-npx fathom-fyi
-```
-
-### Configure for Claude Desktop
-
-Add to your `claude_desktop_config.json`:
+Add to your **Claude Desktop** config (`Settings → Developer → Edit Config`):
 
 ```json
 {
   "mcpServers": {
     "fathom": {
       "command": "npx",
-      "args": ["-y", "fathom-fyi"],
-      "env": {
-        "CG_API_KEY": "your_coingecko_key",
-        "FRED_API_KEY": "your_fred_key",
-        "FATHOM_API_KEY": "your_fathom_api_key"
-      }
+      "args": ["-y", "fathom-fyi"]
     }
   }
 }
 ```
 
-### Configure for Cursor
+Save. Restart Claude Desktop. Ask Claude: *"Use Fathom to check the market."*
+
+That's it. Three free tools, live data, no API keys needed.
+
+### Cursor
 
 Add to `.cursor/mcp.json`:
 
@@ -57,37 +44,33 @@ Add to `.cursor/mcp.json`:
   "mcpServers": {
     "fathom": {
       "command": "npx",
-      "args": ["-y", "fathom-fyi"],
-      "env": {
-        "CG_API_KEY": "your_coingecko_key",
-        "FRED_API_KEY": "your_fred_key",
-        "FATHOM_API_KEY": "your_fathom_api_key"
-      }
+      "args": ["-y", "fathom-fyi"]
     }
   }
 }
 ```
 
-### Configure for any MCP client
+### Any MCP client
 
-Fathom uses stdio transport. Point any MCP client at:
+Fathom uses stdio transport. Point any MCP client at `npx -y fathom-fyi`.
 
-```bash
-npx -y fathom-fyi
+### Optional: add API keys for more data
+
+Add an `"env"` block to unlock additional data sources and paid tools:
+
+```json
+"env": {
+  "FRED_API_KEY": "your_key",
+  "CG_API_KEY": "your_key",
+  "FATHOM_API_KEY": "your_key"
+}
 ```
 
-Set environment variables `CG_API_KEY`, `FRED_API_KEY`, and optionally `FATHOM_API_KEY` before launching.
-
-## Environment Setup
-
-| Variable | Description | Where to get it | Required? |
-|----------|-------------|-----------------|-----------|
-| `CG_API_KEY` | CoinGecko API key | [coingecko.com/api](https://www.coingecko.com/en/api) | Yes |
-| `FRED_API_KEY` | Federal Reserve (FRED) API key | [fred.stlouisfed.org](https://fred.stlouisfed.org/docs/api/api_key.html) | Yes (for macro data) |
-| `FATHOM_API_KEY` | Your Fathom subscription key | [fathom.fyi](https://fathom.fyi) | No (free tier without it) |
-| `CACHE_ENABLED` | Enable response caching | — | No (defaults to `true`) |
-
-CoinGecko and FRED API keys are **free** to obtain. `FATHOM_API_KEY` unlocks paid tiers.
+| Variable | What it unlocks | Where to get it | Cost |
+|----------|----------------|-----------------|------|
+| `FRED_API_KEY` | Macro data — Fed rates, DXY, yield curve | [fred.stlouisfed.org](https://fred.stlouisfed.org/docs/api/api_key.html) | Free |
+| `CG_API_KEY` | Faster price data, higher rate limits | [coingecko.com/api](https://www.coingecko.com/en/api) | Free |
+| `FATHOM_API_KEY` | All 22 tools, alerts, strategies, alternative signals | [fathom.fyi](https://fathom.fyi) | From $29/mo |
 
 ## Tools (22 instruments)
 

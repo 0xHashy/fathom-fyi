@@ -4,7 +4,7 @@ const BASE_URL = 'https://api.stlouisfed.org/fred';
 
 async function fetchFredSeries(seriesId: string, limit = 5): Promise<FredResponse> {
   const key = process.env.FRED_API_KEY;
-  if (!key) throw new Error('FRED_API_KEY not configured');
+  if (!key) throw new Error('FRED_API_KEY not set — macro data unavailable. Add a free key from https://fred.stlouisfed.org/docs/api/api_key.html');
 
   const url = `${BASE_URL}/series/observations?series_id=${encodeURIComponent(seriesId)}&api_key=${key}&file_type=json&sort_order=desc&limit=${limit}`;
   const res = await fetch(url, { headers: { Accept: 'application/json' } });

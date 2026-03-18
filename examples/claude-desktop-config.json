@@ -2,12 +2,7 @@
   "mcpServers": {
     "fathom": {
       "command": "npx",
-      "args": ["-y", "fathom-fyi"],
-      "env": {
-        "CG_API_KEY": "your-coingecko-api-key",
-        "FRED_API_KEY": "your-fred-api-key",
-        "FATHOM_API_KEY": "your-fathom-api-key"
-      }
+      "args": ["-y", "fathom-fyi"]
     }
   }
 }
