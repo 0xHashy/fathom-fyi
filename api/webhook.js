@@ -1,7 +1,6 @@
 const { createHmac, timingSafeEqual, randomFillSync } = require('crypto');
 
-const config = { api: { bodyParser: false } };
-module.exports.config = config;
+// Config exported at bottom of file
 
 // ── KV helpers ──
 const KV_URL = process.env.KV_REST_API_URL;
@@ -71,7 +70,7 @@ function generateKey() {
 }
 
 // ── Handler ──
-module.exports = async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const chunks = [];
@@ -136,4 +135,7 @@ module.exports = async function handler(req, res) {
   }
 
   return res.status(200).json({ received: true });
-};
+}
+
+module.exports = handler;
+module.exports.config = { api: { bodyParser: false } };
