@@ -10,6 +10,7 @@ const STARTER_TOOLS = [
   'get_watchlist_report',
   'evaluate_strategy',
   'get_chain_context',
+  'get_alternative_signals',
 ];
 
 const PRO_TOOLS = [

@@ -25,6 +25,7 @@ import { evaluateStrategyTool } from './tools/evaluate-strategy.js';
 import { setCustomStrategyTool } from './tools/set-custom-strategy.js';
 import { getChainContext } from './tools/get-chain-context.js';
 import { getHistoricalContext } from './tools/get-historical-context.js';
+import { getAlternativeSignals } from './tools/get-alternative-signals.js';
 import { logSignal } from './storage/signal-logger.js';
 import { startBackgroundWorker } from './worker/background-worker.js';
 
@@ -382,6 +383,20 @@ server.tool(
   },
 );
 
+// ─── Tool: get_alternative_signals ───
+server.tool(
+  'get_alternative_signals',
+  'Unconventional market signals that 99% of agents ignore. Weather in financial centers (sunshine effect), political cycle positioning (presidential year), seasonality patterns (sell in May, January effect, Santa Claus rally), and macro event calendar (FOMC, CPI, options expiry). Academically documented patterns most tools overlook.',
+  {},
+  async () => {
+    const gateError = gateTool('get_alternative_signals');
+    if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
+
+    const text = await executeAndLog('get_alternative_signals', {}, () => getAlternativeSignals(cache));
+    return { content: [{ type: 'text' as const, text }] };
+  },
+);
+
 // ─── Start Server ───
 async function main() {
   // Verify API key against fathom.fyi before accepting requests
@@ -392,7 +407,7 @@ async function main() {
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('Fathom MCP server v3.0.0 running on stdio — 20 tools, 5 sources');
+  console.error('Fathom MCP server v3.0.0 running on stdio — 21 tools, 6 sources');
 }
 
 main().catch((err) => {
