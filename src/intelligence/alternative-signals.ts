@@ -58,6 +58,119 @@ export function getPoliticalCycle(): PoliticalCycleInfo {
 
 // ── Seasonality ──
 
+// ── Day-of-Week Patterns ──
+
+export interface DayOfWeekInfo {
+  day: string;
+  day_number: number; // 0=Sunday
+  crypto_bias: 'bullish' | 'bearish' | 'neutral';
+  volume_expectation: 'low' | 'normal' | 'high';
+  pattern: string;
+  guidance: string;
+}
+
+const DAY_PATTERNS: Record<number, { bias: 'bullish' | 'bearish' | 'neutral'; volume: 'low' | 'normal' | 'high'; pattern: string; guidance: string }> = {
+  0: {
+    bias: 'bearish',
+    volume: 'low',
+    pattern: 'Sunday — historically lowest volume day in crypto. 30-40% below weekday average. Institutional desks off. Market makers thin out.',
+    guidance: 'Low liquidity increases wick risk. Reduce position sizes. Avoid market orders — use limits. Stop losses may get hunted on thin books.',
+  },
+  1: {
+    bias: 'bearish',
+    volume: 'normal',
+    pattern: 'Monday — "Monday effect" documented across equities and crypto. Historically weakest day. Weekend sentiment (often negative news) gets priced in.',
+    guidance: 'Expect selling pressure early in the session. If bearish regime, Monday amplifies downside. Wait for afternoon stabilization before entries.',
+  },
+  2: {
+    bias: 'neutral',
+    volume: 'normal',
+    pattern: 'Tuesday — typically a stabilization day after Monday. Volume normalizes. Often sees reversal of Monday moves.',
+    guidance: 'Good day for entries if Monday created a dip in a bullish regime. Neutral otherwise.',
+  },
+  3: {
+    bias: 'neutral',
+    volume: 'normal',
+    pattern: 'Wednesday — midweek. Volume steady. FOMC announcements often fall on Wednesday which can create outsized moves.',
+    guidance: 'Check macro calendar — if FOMC is today, expect compressed volatility pre-announcement then explosive moves after. Otherwise neutral.',
+  },
+  4: {
+    bias: 'bullish',
+    volume: 'high',
+    pattern: 'Thursday — volume picks up ahead of Friday options expiry. Institutional positioning for weekly close begins.',
+    guidance: 'Momentum tends to build Thursday into Friday. If trend is up, Thursday continuation is likely. Pre-expiry positioning can create directional moves.',
+  },
+  5: {
+    bias: 'bullish',
+    volume: 'high',
+    pattern: 'Friday — options expiry day. Highest volume day on average. Price gravitates toward max pain. End-of-week profit taking and positioning.',
+    guidance: 'Price tends to move toward options max pain. If Fathom provides max pain, compare to current price for likely direction. Volatility peaks around expiry time.',
+  },
+  6: {
+    bias: 'bullish',
+    volume: 'low',
+    pattern: 'Saturday — historically the best day for BTC returns in multiple studies. Thin order books + retail buying without institutional selling pressure.',
+    guidance: 'Retail-driven rallies are common but fragile. Low liquidity means moves can reverse quickly. Good for small scalps, not for large positions.',
+  },
+};
+
+export function getDayOfWeekPattern(): DayOfWeekInfo {
+  const now = new Date();
+  const day = now.getDay();
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const p = DAY_PATTERNS[day];
+
+  return {
+    day: dayNames[day],
+    day_number: day,
+    crypto_bias: p.bias,
+    volume_expectation: p.volume,
+    pattern: p.pattern,
+    guidance: p.guidance,
+  };
+}
+
+// ── Hour-of-Day Patterns (UTC) ──
+
+export interface HourPatternInfo {
+  hour_utc: number;
+  session: string;
+  volume_expectation: 'low' | 'normal' | 'high' | 'peak';
+  pattern: string;
+}
+
+export function getHourPattern(): HourPatternInfo {
+  const hour = new Date().getUTCHours();
+
+  let session: string;
+  let volume: 'low' | 'normal' | 'high' | 'peak';
+  let pattern: string;
+
+  if (hour >= 0 && hour < 7) {
+    session = 'Asia';
+    volume = 'normal';
+    pattern = 'Asian session active (Tokyo, Hong Kong, Singapore). Altcoin and memecoin activity often peaks here. BTC tends to be quieter.';
+  } else if (hour >= 7 && hour < 12) {
+    session = 'Europe';
+    volume = 'high';
+    pattern = 'European session (London open ~7-8 UTC). Volume ramps up significantly. Often sets the directional tone for the day.';
+  } else if (hour >= 12 && hour < 16) {
+    session = 'US + Europe overlap';
+    volume = 'peak';
+    pattern = 'US market open overlaps with European afternoon. Highest volume window of the day. Most macro data releases happen here. Maximum liquidity.';
+  } else if (hour >= 16 && hour < 21) {
+    session = 'US';
+    volume = 'high';
+    pattern = 'US session continues after Europe closes. Still high volume. Institutional trading active. Stock market correlation strongest here.';
+  } else {
+    session = 'Off-hours';
+    volume = 'low';
+    pattern = 'Between US close and Asia open. Lowest volume window. Thin order books. Wicks and liquidation cascades are overrepresented in this window.';
+  }
+
+  return { hour_utc: hour, session, volume_expectation: volume, pattern };
+}
+
 export interface SeasonalityInfo {
   month: string;
   month_number: number;
@@ -65,6 +178,9 @@ export interface SeasonalityInfo {
   week_of_year: number;
   seasonal_pattern: string;
   monthly_bias: 'bullish' | 'bearish' | 'neutral';
+  day_of_week_bias: 'bullish' | 'bearish' | 'neutral';
+  volume_expectation: 'low' | 'normal' | 'high' | 'peak';
+  trading_session: string;
   active_effects: string[];
 }
 
@@ -109,6 +225,18 @@ export function getSeasonality(): SeasonalityInfo {
     effects.push('Quarter-end rebalancing window — institutional flows may distort prices');
   }
 
+  const dowPattern = getDayOfWeekPattern();
+  const hourPattern = getHourPattern();
+
+  // Add day-of-week effects
+  if (dowPattern.crypto_bias === 'bearish') effects.push(`${dowPattern.day}: ${dowPattern.pattern.split('—')[0].trim()} — historically bearish`);
+  if (dowPattern.crypto_bias === 'bullish') effects.push(`${dowPattern.day}: historically bullish for crypto`);
+  if (dowPattern.volume_expectation === 'low') effects.push(`Low volume expected (${dowPattern.day}) — elevated wick risk`);
+
+  // Add session info
+  if (hourPattern.volume_expectation === 'low') effects.push(`Off-hours session — thin order books, elevated liquidation risk`);
+  if (hourPattern.volume_expectation === 'peak') effects.push(`Peak volume window (US + Europe overlap) — maximum liquidity`);
+
   return {
     month: monthNames[month - 1],
     month_number: month,
@@ -116,6 +244,9 @@ export function getSeasonality(): SeasonalityInfo {
     week_of_year: weekOfYear,
     seasonal_pattern: pattern.pattern,
     monthly_bias: pattern.bias,
+    day_of_week_bias: dowPattern.crypto_bias,
+    volume_expectation: hourPattern.volume_expectation,
+    trading_session: hourPattern.session,
     active_effects: effects,
   };
 }

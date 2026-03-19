@@ -7,10 +7,14 @@ import {
   getSeasonality,
   getMacroCalendar,
   analyzeWeatherSentiment,
+  getDayOfWeekPattern,
+  getHourPattern,
   type PoliticalCycleInfo,
   type SeasonalityInfo,
   type MacroCalendarInfo,
   type WeatherSentiment,
+  type DayOfWeekInfo,
+  type HourPatternInfo,
 } from '../intelligence/alternative-signals.js';
 
 const BASE_TTL = 1800; // 30 minutes
@@ -19,6 +23,8 @@ export interface AlternativeSignalsOutput {
   weather: WeatherSentiment;
   political_cycle: PoliticalCycleInfo;
   seasonality: SeasonalityInfo;
+  day_of_week: DayOfWeekInfo;
+  trading_session: HourPatternInfo;
   macro_calendar: MacroCalendarInfo;
   composite_alternative_bias: 'bullish' | 'bearish' | 'neutral';
   signal_count: number;
@@ -41,6 +47,8 @@ export async function getAlternativeSignals(cache: CacheService): Promise<Altern
     const political = getPoliticalCycle();
     const seasonal = getSeasonality();
     const calendar = getMacroCalendar();
+    const dayOfWeek = getDayOfWeekPattern();
+    const hourPattern = getHourPattern();
 
     // Composite scoring
     const bullish: string[] = [];
@@ -67,6 +75,15 @@ export async function getAlternativeSignals(cache: CacheService): Promise<Altern
       }
     }
 
+    // Day of week
+    if (dayOfWeek.crypto_bias === 'bullish') bullish.push(`${dayOfWeek.day} historically bullish for crypto`);
+    if (dayOfWeek.crypto_bias === 'bearish') bearish.push(`${dayOfWeek.day} historically bearish for crypto`);
+    if (dayOfWeek.volume_expectation === 'low') bearish.push(`Low volume day (${dayOfWeek.day}) — elevated wick and liquidation risk`);
+
+    // Trading session
+    if (hourPattern.volume_expectation === 'low') bearish.push(`Off-hours session — thin order books, avoid large positions`);
+    if (hourPattern.volume_expectation === 'peak') bullish.push(`Peak liquidity window (${hourPattern.session}) — best execution`);
+
     // Calendar
     if (calendar.calendar_risk === 'high') bearish.push('Major macro event imminent — elevated volatility risk');
     if (calendar.next_options_expiry.days_until <= 3) bearish.push(`Options expiration in ${calendar.next_options_expiry.days_until} days — expect volatility`);
@@ -81,6 +98,8 @@ export async function getAlternativeSignals(cache: CacheService): Promise<Altern
       weather,
       political_cycle: political,
       seasonality: seasonal,
+      day_of_week: dayOfWeek,
+      trading_session: hourPattern,
       macro_calendar: calendar,
       composite_alternative_bias: compositeBias,
       signal_count: bullish.length + bearish.length,
