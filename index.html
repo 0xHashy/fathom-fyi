@@ -909,6 +909,7 @@ to recover above 40 before adding exposure.</span>
       <li><a href="https://www.npmjs.com/package/fathom-fyi" target="_blank" rel="noopener">npm</a></li>
       <li><a href="#quickstart">Quick Start</a></li>
       <li><a href="#pricing">Pricing</a></li>
+      <li><a href="javascript:void(0)" onclick="manageSubscription()">Manage Subscription</a></li>
     </ul>
   </div>
 </footer>
@@ -924,6 +925,12 @@ to recover above 40 before adding exposure.</span>
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
   }, { threshold: 0.08 });
   document.querySelectorAll('.rv, .rv-line').forEach(el => obs.observe(el));
+
+  // Manage Subscription — prompt for email, redirect to Stripe portal
+  function manageSubscription() {
+    const email = prompt('Enter the email you subscribed with:');
+    if (email) window.location.href = '/api/portal?email=' + encodeURIComponent(email);
+  }
 
   // Count-up
   document.querySelectorAll('[data-count]').forEach(el => {
