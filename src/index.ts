@@ -445,7 +445,7 @@ server.tool(
     const gateError = gateTool('set_webhook');
     if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
 
-    const webhook = registerWebhook({
+    const webhook = await registerWebhook({
       url,
       conditions: conditions as { field: string; operator: '<' | '>' | '<=' | '>=' | '==' | '!='; threshold: string | number }[],
       label,
@@ -477,7 +477,7 @@ server.tool(
     if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
 
     if (action === 'list') {
-      const hooks = listWebhooks();
+      const hooks = await listWebhooks();
       return { content: [{ type: 'text' as const, text: JSON.stringify({
         webhooks: hooks.map(h => ({
           id: h.id,
@@ -500,7 +500,7 @@ server.tool(
       if (!webhook_id) {
         return { content: [{ type: 'text' as const, text: JSON.stringify({ error: 'webhook_id is required for remove action' }) }] };
       }
-      const removed = removeWebhook(webhook_id);
+      const removed = await removeWebhook(webhook_id);
       return { content: [{ type: 'text' as const, text: JSON.stringify({
         status: removed ? 'removed' : 'not_found',
         webhook_id,

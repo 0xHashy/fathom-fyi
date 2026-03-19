@@ -19,11 +19,14 @@ async function kvGet(key) {
   try { return JSON.parse(raw); } catch { return raw; }
 }
 
+import { rateLimit, setSecurityHeaders, sanitizeQuery } from './_security.js';
+
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  setSecurityHeaders(res);
   res.setHeader('Cache-Control', 'no-store');
   if (req.method === 'OPTIONS') return res.status(200).end();
+  if (!rateLimit(req, res)) return;
+  req.query = sanitizeQuery(req.query);
   if (req.method !== 'GET') return res.status(405).json({ valid: false, error: 'Method not allowed' });
 
   const key = req.query.key;

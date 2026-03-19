@@ -3,7 +3,7 @@ import type { RealityCheckOutput, ErrorOutput } from '../types/index.js';
 // ─── Types ───
 
 export interface WebhookCondition {
-  field: string;        // e.g. "fear_greed", "risk_score", "regime", "posture", "net_flow_signal"
+  field: string;
   operator: '<' | '>' | '<=' | '>=' | '==' | '!=';
   threshold: string | number;
 }
@@ -16,14 +16,60 @@ export interface WebhookConfig {
   created_at: string;
   last_triggered?: string;
   trigger_count: number;
-  cooldown_minutes: number;  // min time between triggers (prevent spam)
+  cooldown_minutes: number;
 }
 
-// ─── In-memory store (persisted to disk for local, Redis for deployed) ───
+// ─── Persistent storage via Fathom API (Upstash Redis) ───
 
+const FATHOM_API_KEY = process.env.FATHOM_API_KEY ?? '';
+const AGENT_ID = process.env.FATHOM_AGENT_ID ?? 'default';
+
+// In-memory cache of webhooks (synced to/from server)
 const webhooks = new Map<string, WebhookConfig>();
+let initialized = false;
 
-export function registerWebhook(config: Omit<WebhookConfig, 'id' | 'created_at' | 'trigger_count'>): WebhookConfig {
+async function kvSet(key: string, value: unknown): Promise<void> {
+  if (!FATHOM_API_KEY) return; // Free tier can't use webhooks anyway
+  try {
+    await fetch('https://fathom.fyi/api/kv', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-fathom-key': FATHOM_API_KEY },
+      body: JSON.stringify({ action: 'set', key, value }),
+      signal: AbortSignal.timeout(5000),
+    });
+  } catch { /* non-blocking */ }
+}
+
+async function kvGet(key: string): Promise<unknown> {
+  if (!FATHOM_API_KEY) return null;
+  try {
+    const res = await fetch(`https://fathom.fyi/api/kv?action=get&key=${encodeURIComponent(key)}`, {
+      headers: { 'x-fathom-key': FATHOM_API_KEY },
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) return null;
+    const data = await res.json() as { value?: unknown };
+    return data.value ?? null;
+  } catch { return null; }
+}
+
+async function loadWebhooks(): Promise<void> {
+  if (initialized) return;
+  const stored = await kvGet(`webhooks:${AGENT_ID}`) as WebhookConfig[] | null;
+  if (stored && Array.isArray(stored)) {
+    for (const wh of stored) webhooks.set(wh.id, wh);
+  }
+  initialized = true;
+}
+
+async function saveWebhooks(): Promise<void> {
+  await kvSet(`webhooks:${AGENT_ID}`, Array.from(webhooks.values()));
+}
+
+// ─── Public API ───
+
+export async function registerWebhook(config: Omit<WebhookConfig, 'id' | 'created_at' | 'trigger_count'>): Promise<WebhookConfig> {
+  await loadWebhooks();
   const id = 'wh_' + crypto.randomUUID().slice(0, 12);
   const webhook: WebhookConfig = {
     ...config,
@@ -32,14 +78,19 @@ export function registerWebhook(config: Omit<WebhookConfig, 'id' | 'created_at' 
     trigger_count: 0,
   };
   webhooks.set(id, webhook);
+  await saveWebhooks();
   return webhook;
 }
 
-export function removeWebhook(id: string): boolean {
-  return webhooks.delete(id);
+export async function removeWebhook(id: string): Promise<boolean> {
+  await loadWebhooks();
+  const removed = webhooks.delete(id);
+  if (removed) await saveWebhooks();
+  return removed;
 }
 
-export function listWebhooks(): WebhookConfig[] {
+export async function listWebhooks(): Promise<WebhookConfig[]> {
+  await loadWebhooks();
   return Array.from(webhooks.values());
 }
 
@@ -77,16 +128,14 @@ function evaluateCondition(value: string | number | null, condition: WebhookCond
   const threshold = condition.threshold;
   const op = condition.operator;
 
-  // String comparisons
   if (typeof value === 'string' || typeof threshold === 'string') {
     const a = String(value);
     const b = String(threshold);
     if (op === '==') return a === b;
     if (op === '!=') return a !== b;
-    return false; // other operators don't make sense for strings
+    return false;
   }
 
-  // Numeric comparisons
   const a = Number(value);
   const b = Number(threshold);
   if (isNaN(a) || isNaN(b)) return false;
@@ -105,11 +154,12 @@ function evaluateCondition(value: string | number | null, condition: WebhookCond
 // ─── Webhook evaluation and delivery ───
 
 export async function evaluateAndFireWebhooks(data: RealityCheckOutput | ErrorOutput): Promise<void> {
-  // Don't fire webhooks on error data
   if ((data as ErrorOutput).error === true) return;
   const realityCheck = data as RealityCheckOutput;
 
+  await loadWebhooks();
   const now = Date.now();
+  let changed = false;
 
   for (const webhook of webhooks.values()) {
     // Check cooldown
@@ -154,7 +204,7 @@ export async function evaluateAndFireWebhooks(data: RealityCheckOutput | ErrorOu
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': 'Fathom/4.0.0',
+          'User-Agent': 'Fathom/4.3.0',
           'X-Fathom-Webhook-Id': webhook.id,
         },
         body: JSON.stringify(payload),
@@ -163,9 +213,11 @@ export async function evaluateAndFireWebhooks(data: RealityCheckOutput | ErrorOu
 
       webhook.last_triggered = new Date().toISOString();
       webhook.trigger_count++;
+      changed = true;
     } catch {
-      // Delivery failed — don't crash, don't retry immediately
-      // The next worker cycle will re-evaluate
+      // Delivery failed — retry next cycle
     }
   }
+
+  if (changed) await saveWebhooks();
 }

@@ -102,10 +102,13 @@ function setCache(key, data) {
   }
 }
 
+import { rateLimit, setSecurityHeaders, sanitizeQuery } from './_security.js';
+
 export default async function handler(req, res) {
-  // CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  setSecurityHeaders(res);
   if (req.method === 'OPTIONS') return res.status(200).end();
+  if (!rateLimit(req, res)) return;
+  req.query = sanitizeQuery(req.query);
 
   // Auth: require valid paid Fathom key
   const apiKey = req.query.key || req.headers['x-fathom-key'];

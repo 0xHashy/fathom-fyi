@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Fathom</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%230A0A08'/%3E%3Ctext x='16' y='24' text-anchor='middle' font-family='Georgia,serif' font-size='22' fill='%23C9A84C'%3E%CE%A8%3C/text%3E%3C/svg%3E">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: #0A0A08; color: #C8C0B4; line-height: 1.8; padding: 48px 24px; }
+    .container { max-width: 720px; margin: 0 auto; }
+    .logo { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: #F5F0E8; margin-bottom: 48px; letter-spacing: 0.08em; }
+    .logo a { color: #F5F0E8; text-decoration: none; }
+    .trident { color: #C9A84C; margin-right: 6px; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-size: 36px; color: #F5F0E8; font-weight: 400; margin-bottom: 8px; }
+    .date { font-size: 13px; color: #4A4840; margin-bottom: 48px; font-family: 'IBM Plex Mono', monospace; }
+    h2 { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #C9A84C; margin: 36px 0 12px; }
+    p { font-size: 14px; margin-bottom: 16px; }
+    ul { font-size: 14px; margin: 0 0 16px 20px; }
+    li { margin-bottom: 6px; }
+    a { color: #C9A84C; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo"><a href="/"><span class="trident">&Psi;</span>Fathom</a></div>
+    <h1>Privacy Policy</h1>
+    <div class="date">Last updated: March 19, 2026</div>
+
+    <h2>1. What We Collect</h2>
+    <p>We collect minimal data necessary to operate the Service:</p>
+    <ul>
+      <li><strong>Email address</strong> — collected during Stripe checkout for billing and key delivery.</li>
+      <li><strong>Payment information</strong> — processed by Stripe. We never see or store your card number.</li>
+      <li><strong>API usage data</strong> — tool calls, timestamps, and tier information for rate limiting and analytics. We do not log the content of your queries or portfolio data.</li>
+    </ul>
+
+    <h2>2. What We Don't Collect</h2>
+    <ul>
+      <li>We do not collect or store your portfolio holdings. Portfolio data is stored locally on your machine.</li>
+      <li>We do not track which assets you query or what strategies you test.</li>
+      <li>We do not sell or share your data with third parties.</li>
+      <li>We do not use cookies or tracking scripts on our website.</li>
+    </ul>
+
+    <h2>3. How We Use Your Data</h2>
+    <ul>
+      <li><strong>Email</strong> — to deliver your API key, send payment receipts, and communicate service changes.</li>
+      <li><strong>API key metadata</strong> — to authenticate requests, enforce rate limits, and manage your subscription tier.</li>
+      <li><strong>Aggregate usage analytics</strong> — to understand which tools are used most and improve the Service. This data is anonymized.</li>
+    </ul>
+
+    <h2>4. Data Storage</h2>
+    <p>Account data (email, API key, tier) is stored in Upstash Redis, a SOC 2 compliant database service. Payment data is stored by Stripe. We do not maintain our own database of payment details.</p>
+
+    <h2>5. MCP Server Data</h2>
+    <p>The Fathom MCP server runs on your machine. All market data, portfolio context, alerts, strategies, and signal preferences are stored locally on your device. We have no access to this data. When paid tier users route through our data proxy, we fetch data from third-party sources on your behalf but do not log the requests or responses.</p>
+
+    <h2>6. Third-Party Services</h2>
+    <ul>
+      <li><strong>Stripe</strong> — payment processing. <a href="https://stripe.com/privacy" target="_blank">Stripe Privacy Policy</a></li>
+      <li><strong>Vercel</strong> — hosting. <a href="https://vercel.com/legal/privacy-policy" target="_blank">Vercel Privacy Policy</a></li>
+      <li><strong>Upstash</strong> — key storage. <a href="https://upstash.com/privacy" target="_blank">Upstash Privacy Policy</a></li>
+    </ul>
+
+    <h2>7. Data Deletion</h2>
+    <p>You may request deletion of your data at any time by emailing <a href="mailto:support@fathom.fyi">support@fathom.fyi</a>. Upon request, we will delete your API key record, customer record, and any associated metadata. Stripe retains payment records per their own retention policy.</p>
+
+    <h2>8. Changes</h2>
+    <p>We may update this policy as the Service evolves. Material changes will be communicated via email to active subscribers.</p>
+
+    <h2>9. Contact</h2>
+    <p>Questions? <a href="mailto:support@fathom.fyi">support@fathom.fyi</a></p>
+  </div>
+</body>
+</html>
