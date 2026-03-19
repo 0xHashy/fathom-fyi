@@ -151,6 +151,66 @@ export function checkRateLimit(clientId = 'default'): { allowed: boolean; messag
   return { allowed: true };
 }
 
+export function getAccountStatus(): {
+  tier: string;
+  requests_used: number;
+  requests_limit: number;
+  requests_remaining: number;
+  tools_available: number;
+  tools_total: number;
+  tools_locked: string[];
+  cache_freshness: string;
+  upgrade_url: string;
+  upgrade_benefits: string[];
+} {
+  const tier = getCurrentTier();
+  const config = TIER_CONFIGS[tier];
+
+  // Get current usage
+  const entry = requestCounts.get('default');
+  const now = Date.now();
+  const isExpired = !entry || now - entry.windowStart > 3600_000;
+  const used = isExpired ? 0 : entry.count;
+  const limit = config.rateLimit === -1 ? Infinity : config.rateLimit;
+  const remaining = limit === Infinity ? Infinity : Math.max(0, limit - used);
+
+  // Locked tools
+  const allTools = UNLIMITED_TOOLS;
+  const locked = allTools.filter(t => !config.tools.includes(t));
+
+  // Upgrade benefits
+  const benefits: string[] = [];
+  if (tier === 'free') {
+    benefits.push('Starter ($29/mo): 20 tools including derivatives, stablecoins, correlation, alternative signals, alerts, strategies');
+    benefits.push('Pro ($99/mo): 25 tools + custom strategies, crowd intelligence, portfolio analysis');
+    benefits.push('Unlimited ($299/mo): 27 tools + webhooks, unlimited requests, 4x fresher data');
+  } else if (tier === 'starter') {
+    benefits.push('Pro ($99/mo): +5 tools — portfolio analysis, custom strategies, crowd intelligence, signal history, historical context');
+    benefits.push('Unlimited ($299/mo): +webhooks, unlimited requests, 4x fresher data');
+  } else if (tier === 'pro') {
+    benefits.push('Unlimited ($299/mo): +webhooks, unlimited requests, 4x fresher data');
+  }
+
+  const freshnessLabels: Record<number, string> = {
+    1: 'Standard',
+    0.5: '2x fresher',
+    0.25: '4x fresher',
+  };
+
+  return {
+    tier,
+    requests_used: used,
+    requests_limit: limit === Infinity ? -1 : limit,
+    requests_remaining: remaining === Infinity ? -1 : remaining,
+    tools_available: config.tools.length,
+    tools_total: allTools.length,
+    tools_locked: locked,
+    cache_freshness: freshnessLabels[config.cacheTtlMultiplier] ?? 'Standard',
+    upgrade_url: 'https://fathom.fyi/#pricing',
+    upgrade_benefits: benefits,
+  };
+}
+
 export function getCacheTtl(baseTtl: number): number {
   return Math.round(baseTtl * getTierConfig().cacheTtlMultiplier);
 }

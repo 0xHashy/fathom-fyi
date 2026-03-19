@@ -4,7 +4,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 import { CacheService } from './cache/cache-service.js';
-import { checkToolAccess, checkRateLimit, verifyApiKey } from './auth/tier-check.js';
+import { checkToolAccess, checkRateLimit, verifyApiKey, getAccountStatus } from './auth/tier-check.js';
 import { getMarketRegime } from './tools/get-market-regime.js';
 import { getSentimentState } from './tools/get-sentiment-state.js';
 import { getNarrativePulse } from './tools/get-narrative-pulse.js';
@@ -427,6 +427,17 @@ server.tool(
   },
 );
 
+// ─── Tool: get_account_status ───
+server.tool(
+  'get_account_status',
+  'Check your Fathom account: current tier, requests used this hour, available and locked tools, cache freshness, and upgrade options. Available on all tiers including free.',
+  {},
+  async () => {
+    const status = getAccountStatus();
+    return { content: [{ type: 'text' as const, text: JSON.stringify(status, null, 2) }] };
+  },
+);
+
 // ─── Tool: set_webhook ───
 server.tool(
   'set_webhook',
@@ -567,7 +578,7 @@ async function main() {
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('Fathom MCP server v4.2.0 running on stdio — 27 tools, 8 sources');
+  console.error('Fathom MCP server v4.4.0 running on stdio — 27 tools + account status, 8 sources');
 }
 
 main().catch((err) => {
