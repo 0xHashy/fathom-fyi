@@ -49,6 +49,31 @@ async function getSession(sessionId) {
   return r.json();
 }
 
+async function cancelOldSubscriptions(customerId, currentSubId) {
+  const sk = process.env.STRIPE_SECRET_KEY;
+  if (!sk) return;
+  try {
+    // List all active subscriptions for this customer
+    const res = await fetch(
+      `https://api.stripe.com/v1/subscriptions?customer=${customerId}&status=active&limit=10`,
+      { headers: { Authorization: `Bearer ${sk}` } }
+    );
+    if (!res.ok) return;
+    const data = await res.json();
+    // Cancel all except the one they just purchased
+    for (const sub of (data.data || [])) {
+      if (sub.id !== currentSubId) {
+        await fetch(`https://api.stripe.com/v1/subscriptions/${sub.id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${sk}` },
+        });
+      }
+    }
+  } catch {
+    // Don't block the webhook if cancellation fails
+  }
+}
+
 function tierFromName(name) {
   const l = (name || '').toLowerCase();
   if (l.includes('unlimited')) return 'unlimited';
@@ -91,6 +116,9 @@ async function handler(req, res) {
         const item = full.line_items.data[0];
         tier = tierFromName(item.description || item.price?.product?.name || '');
       }
+
+      // Cancel any existing lower-tier subscriptions for this customer
+      await cancelOldSubscriptions(customerId, session.subscription);
 
       const existing = await kvGet(`customer:${customerId}`);
       if (existing && existing.key) {
