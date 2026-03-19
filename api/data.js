@@ -154,6 +154,33 @@ export default async function handler(req, res) {
   if (!keyRec || !keyRec.active) return res.status(401).json({ error: 'Invalid API key' });
   if (keyRec.tier === 'free') return res.status(403).json({ error: 'Data proxy requires a paid tier. Free tier fetches data directly.' });
 
+  // ─── Key Sharing Detection ───
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'unknown';
+  const keyHash = apiKey.slice(-8); // last 8 chars for privacy
+  const ipSetKey = `ips:${keyHash}`;
+  const MAX_IPS = 10; // max unique IPs per key in 24h window
+
+  try {
+    // Add this IP to the key's set with 24h expiry
+    await kvCommand('SADD', ipSetKey, ip);
+    await kvCommand('EXPIRE', ipSetKey, 86400); // 24 hours
+
+    // Check how many unique IPs this key has
+    const uniqueIPs = await kvCommand('SCARD', ipSetKey);
+
+    if (uniqueIPs > MAX_IPS * 2) {
+      // Hard block at 2x threshold — obvious sharing
+      return res.status(403).json({
+        error: 'key_suspended',
+        message: 'This key has been suspended due to unusual activity. Fathom keys are licensed per seat. Contact support@fathom.fyi for team pricing.',
+      });
+    } else if (uniqueIPs > MAX_IPS) {
+      // Soft warning — might be legitimate, add header warning
+      res.setHeader('X-Fathom-Warning', 'unusual-activity');
+      // Continue serving but flag it
+    }
+  } catch { /* Redis failure shouldn't block the request */ }
+
   // Route
   const source = req.query.source;
   const handler = SOURCES[source];
