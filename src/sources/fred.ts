@@ -1,8 +1,11 @@
 import type { FredResponse } from '../types/index.js';
+import { isProxyEnabled, proxyFetch } from './proxy.js';
 
 const BASE_URL = 'https://api.stlouisfed.org/fred';
 
 async function fetchFredSeries(seriesId: string, limit = 5): Promise<FredResponse> {
+  if (isProxyEnabled()) return proxyFetch<FredResponse>('fred/series', { series_id: seriesId, limit });
+
   const key = process.env.FRED_API_KEY;
   if (!key) throw new Error('FRED_API_KEY not set — macro data unavailable. Add a free key from https://fred.stlouisfed.org/docs/api/api_key.html');
 

@@ -307,7 +307,7 @@ export async function getRealityCheck(cache: CacheService): Promise<RealityCheck
 
     const result: RealityCheckOutput = {
       timestamp: now.toISOString(),
-      fathom_version: '4.0.0',
+      fathom_version: '4.2.0',
       executive_summary: executiveSummary,
       overall_risk_environment: riskEnvironment,
       risk_score: adjustedRiskScore,

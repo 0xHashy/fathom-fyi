@@ -31,6 +31,7 @@ import { getDerivativesContext } from './tools/get-derivatives-context.js';
 import { getStablecoinFlowsTool } from './tools/get-stablecoin-flows.js';
 import { getCorrelationMatrixTool } from './tools/get-correlation-matrix.js';
 import { registerWebhook, removeWebhook, listWebhooks } from './worker/webhook-manager.js';
+import { initProxy } from './sources/proxy.js';
 import { logSignal } from './storage/signal-logger.js';
 import { startBackgroundWorker } from './worker/background-worker.js';
 
@@ -555,6 +556,9 @@ server.tool(
 
 // ─── Start Server ───
 async function main() {
+  // Initialize data proxy routing (paid tiers use server-side data)
+  initProxy();
+
   // Verify API key against fathom.fyi before accepting requests
   await verifyApiKey();
 
@@ -563,7 +567,7 @@ async function main() {
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('Fathom MCP server v4.1.0 running on stdio — 27 tools, 8 sources');
+  console.error('Fathom MCP server v4.2.0 running on stdio — 27 tools, 8 sources');
 }
 
 main().catch((err) => {

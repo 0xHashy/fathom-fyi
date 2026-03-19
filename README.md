@@ -54,23 +54,15 @@ Add to `.cursor/mcp.json`:
 
 Fathom uses stdio transport. Point any MCP client at `npx -y fathom-fyi`.
 
-### Optional: add API keys for more data
+### Unlock everything with one key
 
-Add an `"env"` block to unlock additional data sources and paid tools:
+Subscribe at [fathom.fyi](https://fathom.fyi), add your key to the config, and you're done. One key unlocks all 27 tools, all 8 data sources, and premium data routing. No other API keys needed — Fathom handles all data source authentication server-side.
 
 ```json
 "env": {
-  "FRED_API_KEY": "your_key",
-  "CG_API_KEY": "your_key",
-  "FATHOM_API_KEY": "your_key"
+  "FATHOM_API_KEY": "fathom_sk_your_key"
 }
 ```
-
-| Variable | What it unlocks | Where to get it | Cost |
-|----------|----------------|-----------------|------|
-| `FRED_API_KEY` | Macro data — Fed rates, DXY, yield curve | [fred.stlouisfed.org](https://fred.stlouisfed.org/docs/api/api_key.html) | Free |
-| `CG_API_KEY` | Faster price data, higher rate limits | [coingecko.com/api](https://www.coingecko.com/en/api) | Free |
-| `FATHOM_API_KEY` | All 27 tools, alerts, strategies, alternative signals | [fathom.fyi](https://fathom.fyi) | From $29/mo |
 
 ## Tools (27 instruments)
 

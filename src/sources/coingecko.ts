@@ -4,6 +4,7 @@ import type {
   CoinGeckoCategory,
   CoinGeckoTrending,
 } from '../types/index.js';
+import { isProxyEnabled, proxyFetch } from './proxy.js';
 
 const BASE_URL = 'https://api.coingecko.com/api/v3';
 
@@ -41,6 +42,7 @@ async function fetchWithRetry(url: string, maxRetries = 3): Promise<Response> {
 }
 
 export async function getGlobalData(): Promise<CoinGeckoGlobal> {
+  if (isProxyEnabled()) return proxyFetch<CoinGeckoGlobal>('cg/global');
   const res = await fetchWithRetry(`${BASE_URL}/global`);
   return res.json() as Promise<CoinGeckoGlobal>;
 }
@@ -51,12 +53,18 @@ export async function getMarkets(
   sparkline = false,
   priceChange = '7d',
 ): Promise<CoinGeckoMarketCoin[]> {
+  if (isProxyEnabled()) return proxyFetch<CoinGeckoMarketCoin[]>('cg/markets', { per_page: perPage });
   const url = `${BASE_URL}/coins/markets?vs_currency=${vsCurrency}&order=market_cap_desc&per_page=${perPage}&page=1&sparkline=${sparkline}&price_change_percentage=${priceChange}`;
   const res = await fetchWithRetry(url);
   return res.json() as Promise<CoinGeckoMarketCoin[]>;
 }
 
 export async function getCoinMarket(coinId: string): Promise<CoinGeckoMarketCoin> {
+  if (isProxyEnabled()) {
+    const data = await proxyFetch<CoinGeckoMarketCoin[]>('cg/coin', { id: coinId });
+    if (!data.length) throw new Error('Coin not found or not indexed');
+    return data[0];
+  }
   const url = `${BASE_URL}/coins/markets?vs_currency=usd&ids=${encodeURIComponent(coinId)}&price_change_percentage=7d`;
   const res = await fetchWithRetry(url);
   const data = (await res.json()) as CoinGeckoMarketCoin[];
@@ -77,11 +85,13 @@ export async function getMarketChart(coinId: string, days = 30): Promise<{ price
 }
 
 export async function getCategories(): Promise<CoinGeckoCategory[]> {
+  if (isProxyEnabled()) return proxyFetch<CoinGeckoCategory[]>('cg/categories');
   const res = await fetchWithRetry(`${BASE_URL}/coins/categories`);
   return res.json() as Promise<CoinGeckoCategory[]>;
 }
 
 export async function getTrending(): Promise<CoinGeckoTrending> {
+  if (isProxyEnabled()) return proxyFetch<CoinGeckoTrending>('cg/trending');
   const res = await fetchWithRetry(`${BASE_URL}/search/trending`);
   return res.json() as Promise<CoinGeckoTrending>;
 }
