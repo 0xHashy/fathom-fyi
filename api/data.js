@@ -102,13 +102,30 @@ function setCache(key, data) {
   }
 }
 
-import { rateLimit, setSecurityHeaders, sanitizeQuery } from './_security.js';
+// ─── Inline Security ───
+const _rl = new Map();
+function _sec(req, res) {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Access-Control-Allow-Origin', 'https://fathom.fyi');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-fathom-key');
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'unknown';
+  const now = Date.now();
+  let e = _rl.get(ip);
+  if (!e || now - e.t > 60000) { e = { c: 0, t: now }; _rl.set(ip, e); }
+  if (++e.c > 60) { res.status(429).json({ error: 'Too many requests' }); return false; }
+  // Sanitize query params
+  for (const [k, v] of Object.entries(req.query)) {
+    if (typeof v === 'string') req.query[k] = v.replace(/<[^>]*>/g, '').slice(0, 200);
+  }
+  return true;
+}
 
 export default async function handler(req, res) {
-  setSecurityHeaders(res);
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (!rateLimit(req, res)) return;
-  req.query = sanitizeQuery(req.query);
+  if (req.method === 'OPTIONS') { res.setHeader('Access-Control-Allow-Origin', 'https://fathom.fyi'); return res.status(200).end(); }
+  if (!_sec(req, res)) return;
 
   // Auth: require valid paid Fathom key
   const apiKey = req.query.key || req.headers['x-fathom-key'];

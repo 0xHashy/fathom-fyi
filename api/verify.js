@@ -19,14 +19,27 @@ async function kvGet(key) {
   try { return JSON.parse(raw); } catch { return raw; }
 }
 
-import { rateLimit, setSecurityHeaders, sanitizeQuery } from './_security.js';
+const _rl = new Map();
+function _sec(req, res) {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Access-Control-Allow-Origin', 'https://fathom.fyi');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Cache-Control', 'no-store');
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'unknown';
+  const now = Date.now();
+  let e = _rl.get(ip);
+  if (!e || now - e.t > 60000) { e = { c: 0, t: now }; _rl.set(ip, e); }
+  if (++e.c > 60) { res.status(429).json({ error: 'Too many requests' }); return false; }
+  for (const [k, v] of Object.entries(req.query)) {
+    if (typeof v === 'string') req.query[k] = v.replace(/<[^>]*>/g, '').slice(0, 200);
+  }
+  return true;
+}
 
 export default async function handler(req, res) {
-  setSecurityHeaders(res);
-  res.setHeader('Cache-Control', 'no-store');
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (!rateLimit(req, res)) return;
-  req.query = sanitizeQuery(req.query);
+  if (!_sec(req, res)) return;
   if (req.method !== 'GET') return res.status(405).json({ valid: false, error: 'Method not allowed' });
 
   const key = req.query.key;
