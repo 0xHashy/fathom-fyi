@@ -1,7 +1,26 @@
 // Data proxy for paid tiers — routes all data source calls through Fathom's server
 // with server-side API keys. Paid users never need CG_API_KEY or FRED_API_KEY.
 
-import { kv } from '@vercel/kv';
+const KV_URL = process.env.KV_REST_API_URL;
+const KV_TOKEN = process.env.KV_REST_API_TOKEN;
+
+async function kvCommand(...args) {
+  if (!KV_URL || !KV_TOKEN) return null;
+  const res = await fetch(KV_URL, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${KV_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(args),
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.result ?? null;
+}
+
+async function kvGet(key) {
+  const raw = await kvCommand('GET', key);
+  if (!raw) return null;
+  try { return typeof raw === 'string' ? JSON.parse(raw) : raw; } catch { return raw; }
+}
 
 const CG_KEY = process.env.CG_PRO_KEY || process.env.CG_API_KEY || '';
 const FRED_KEY = process.env.FRED_API_KEY || '';
@@ -131,7 +150,7 @@ export default async function handler(req, res) {
   const apiKey = req.query.key || req.headers['x-fathom-key'];
   if (!apiKey) return res.status(401).json({ error: 'API key required' });
 
-  const keyRec = await kv.get(`key:${apiKey}`);
+  const keyRec = await kvGet(`key:${apiKey}`);
   if (!keyRec || !keyRec.active) return res.status(401).json({ error: 'Invalid API key' });
   if (keyRec.tier === 'free') return res.status(403).json({ error: 'Data proxy requires a paid tier. Free tier fetches data directly.' });
 
