@@ -181,9 +181,9 @@ export function getAccountStatus(): {
   // Upgrade benefits
   const benefits: string[] = [];
   if (tier === 'free') {
-    benefits.push('Starter ($29/mo): 20 tools including derivatives, stablecoins, correlation, alternative signals, alerts, strategies');
-    benefits.push('Pro ($99/mo): 25 tools + custom strategies, crowd intelligence, portfolio analysis');
-    benefits.push('Unlimited ($299/mo): 27 tools + webhooks, unlimited requests, 4x fresher data');
+    benefits.push('Starter ($29/mo): 19 tools including derivatives, stablecoins, correlation, alternative signals, alerts, strategies');
+    benefits.push('Pro ($99/mo): 24 tools + custom strategies, crowd intelligence, portfolio analysis');
+    benefits.push('Unlimited ($299/mo): All 28 tools + webhooks, unlimited requests, 4x fresher data');
   } else if (tier === 'starter') {
     benefits.push('Pro ($99/mo): +5 tools — portfolio analysis, custom strategies, crowd intelligence, signal history, historical context');
     benefits.push('Unlimited ($299/mo): +webhooks, unlimited requests, 4x fresher data');
