@@ -16,6 +16,8 @@ const STARTER_TOOLS = [
   'get_stablecoin_flows',
   'get_correlation_matrix',
   'rotate_api_key',
+  'get_asset_momentum',
+  'get_event_catalyst_timeline',
 ];
 
 const PRO_TOOLS = [
@@ -182,9 +184,9 @@ export function getAccountStatus(): {
   // Upgrade benefits
   const benefits: string[] = [];
   if (tier === 'free') {
-    benefits.push('Starter ($29/mo): 20 tools including derivatives, stablecoins, correlation, alternative signals, alerts, strategies, key rotation');
-    benefits.push('Pro ($99/mo): 25 tools + custom strategies, crowd intelligence, portfolio analysis');
-    benefits.push('Unlimited ($299/mo): All 29 tools + webhooks, unlimited requests, 4x fresher data');
+    benefits.push('Starter ($29/mo): 22 tools including derivatives, stablecoins, correlation, alternative signals, alerts, strategies, key rotation');
+    benefits.push('Pro ($99/mo): 27 tools + custom strategies, crowd intelligence, portfolio analysis');
+    benefits.push('Unlimited ($299/mo): All 31 tools + webhooks, unlimited requests, 4x fresher data');
   } else if (tier === 'starter') {
     benefits.push('Pro ($99/mo): +5 tools — portfolio analysis, custom strategies, crowd intelligence, signal history, historical context');
     benefits.push('Unlimited ($299/mo): +webhooks, unlimited requests, 4x fresher data');

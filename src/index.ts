@@ -31,6 +31,8 @@ import { getDerivativesContext } from './tools/get-derivatives-context.js';
 import { getStablecoinFlowsTool } from './tools/get-stablecoin-flows.js';
 import { getCorrelationMatrixTool } from './tools/get-correlation-matrix.js';
 import { rotateApiKey } from './tools/rotate-api-key.js';
+import { getAssetMomentum } from './tools/get-asset-momentum.js';
+import { getEventCatalystTimeline } from './tools/get-event-catalyst-timeline.js';
 import { registerWebhook, removeWebhook, listWebhooks } from './worker/webhook-manager.js';
 import { initProxy } from './sources/proxy.js';
 import { logSignal } from './storage/signal-logger.js';
@@ -580,6 +582,35 @@ server.tool(
   },
 );
 
+// ─── Tool: get_asset_momentum ───
+server.tool(
+  'get_asset_momentum',
+  'Short-term momentum signal for any asset. Returns direction (bullish/bearish), strength, confidence, RSI, volume trend, and consecutive direction count. Timeframes: 1h, 4h, 1d, 7d. Essential for timing entries and exits.',
+  { asset: z.string().describe('Asset name or symbol (e.g., "bitcoin", "sol", "eth")'), timeframe: z.string().optional().describe('Timeframe: 1h, 4h, 1d, or 7d. Default: 4h') },
+  async ({ asset, timeframe }) => {
+    const gateError = gateTool('get_asset_momentum');
+    if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
+
+    const tf = timeframe || '4h';
+    const text = await executeAndLog('get_asset_momentum', { asset, timeframe: tf }, () => getAssetMomentum(cache, asset, tf));
+    return { content: [{ type: 'text' as const, text }] };
+  },
+);
+
+// ─── Tool: get_event_catalyst_timeline ───
+server.tool(
+  'get_event_catalyst_timeline',
+  'Upcoming market-moving events: FOMC, CPI, jobs reports, options expiry, quad witching, political events, BTC halving. Returns next 24h, 7d, and 30d catalysts with impact ratings, expected direction, historical volatility, and specific trading notes for each event.',
+  {},
+  async () => {
+    const gateError = gateTool('get_event_catalyst_timeline');
+    if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
+
+    const text = await executeAndLog('get_event_catalyst_timeline', {}, () => getEventCatalystTimeline(cache));
+    return { content: [{ type: 'text' as const, text }] };
+  },
+);
+
 // ─── Start Server ───
 async function main() {
   // Initialize data proxy routing (paid tiers use server-side data)
@@ -593,7 +624,7 @@ async function main() {
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('Fathom MCP server v4.4.0 running on stdio — 29 tools, 8 sources');
+  console.error('Fathom MCP server v4.5.0 running on stdio — 31 tools, 8 sources');
 }
 
 main().catch((err) => {

@@ -56,7 +56,7 @@ Fathom uses stdio transport. Point any MCP client at `npx -y fathom-fyi`.
 
 ### Unlock everything with one key
 
-Subscribe at [fathom.fyi](https://fathom.fyi), add your key to the config, and you're done. One key unlocks all 29 tools, all 8 data sources, and premium data routing. No other API keys needed — Fathom handles all data source authentication server-side.
+Subscribe at [fathom.fyi](https://fathom.fyi), add your key to the config, and you're done. One key unlocks all 31 tools, all 8 data sources, and premium data routing. No other API keys needed — Fathom handles all data source authentication server-side.
 
 ```json
 "env": {
@@ -64,7 +64,7 @@ Subscribe at [fathom.fyi](https://fathom.fyi), add your key to the config, and y
 }
 ```
 
-## Tools (29 instruments)
+## Tools (31 instruments)
 
 ### Free Tier (3 tools)
 
@@ -74,7 +74,7 @@ Subscribe at [fathom.fyi](https://fathom.fyi), add your key to the config, and y
 | `get_market_regime` | Regime classification (risk-on/off, euphoric, capitulation) with confidence scoring |
 | `get_sentiment_state` | Fear & Greed Index, 7-day trend, contrarian signals, extreme opportunity detection |
 
-### Starter Tier (20 tools — $29/mo)
+### Starter Tier (22 tools — $29/mo)
 
 All free tools plus:
 
@@ -99,7 +99,7 @@ All free tools plus:
 | `set_signal_preferences` | Customize which signals feed into your reality check |
 | `rotate_api_key` | Rotate your API key — deactivates old key, issues new one |
 
-### Pro Tier (26 tools — $99/mo)
+### Pro Tier (28 tools — $99/mo)
 
 All Starter tools plus:
 
@@ -111,7 +111,7 @@ All Starter tools plus:
 | `get_historical_context` | What were market conditions on any past date? |
 | `set_custom_strategy` | Create custom trading strategies with your own condition rules |
 
-### Unlimited Tier (29 tools — $299/mo)
+### Unlimited Tier (31 tools — $299/mo)
 
 All Pro tools plus:
 
@@ -145,9 +145,9 @@ All Pro tools plus:
 | Tier | Price | Tools | Rate Limit |
 |------|-------|-------|------------|
 | Free | $0 | 3 core tools | 10 req/hr |
-| Starter | $29/mo | 20 tools + alerts + strategies + alternative signals + key rotation | 500 req/hr |
-| Pro | $99/mo | 26 tools + custom strategies + crowd intelligence | 2,000 req/hr |
-| Unlimited | $299/mo | All 29 + webhooks + unlimited requests + 4x fresher cache | Unlimited |
+| Starter | $29/mo | 22 tools + alerts + strategies + alternative signals + key rotation | 500 req/hr |
+| Pro | $99/mo | 28 tools + custom strategies + crowd intelligence | 2,000 req/hr |
+| Unlimited | $299/mo | All 31 + webhooks + unlimited requests + 4x fresher cache | Unlimited |
 
 [Subscribe at fathom.fyi](https://fathom.fyi)
 
