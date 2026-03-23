@@ -10,5 +10,6 @@ Thumbs.db
 npm-debug.log*
 .vscode/
 .idea/
-.claude/
+CLAUDE.local.md
+.claude/settings.local.json
 data/
