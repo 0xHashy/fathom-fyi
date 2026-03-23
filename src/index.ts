@@ -30,6 +30,7 @@ import { setSignalPreferencesTool } from './tools/set-signal-preferences.js';
 import { getDerivativesContext } from './tools/get-derivatives-context.js';
 import { getStablecoinFlowsTool } from './tools/get-stablecoin-flows.js';
 import { getCorrelationMatrixTool } from './tools/get-correlation-matrix.js';
+import { rotateApiKey } from './tools/rotate-api-key.js';
 import { registerWebhook, removeWebhook, listWebhooks } from './worker/webhook-manager.js';
 import { initProxy } from './sources/proxy.js';
 import { logSignal } from './storage/signal-logger.js';
@@ -565,6 +566,20 @@ server.tool(
   },
 );
 
+// ─── Tool: rotate_api_key ───
+server.tool(
+  'rotate_api_key',
+  'Rotate your Fathom API key. Generates a new key, deactivates the old one, and returns the new key. The user must update their MCP config with the new key. Max 3 rotations per day. Requires Starter tier or above.',
+  {},
+  async () => {
+    const gateError = gateTool('rotate_api_key');
+    if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
+
+    const text = await executeAndLog('rotate_api_key', {}, () => rotateApiKey());
+    return { content: [{ type: 'text' as const, text }] };
+  },
+);
+
 // ─── Start Server ───
 async function main() {
   // Initialize data proxy routing (paid tiers use server-side data)
@@ -578,7 +593,7 @@ async function main() {
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('Fathom MCP server v4.4.0 running on stdio — 27 tools + account status, 8 sources');
+  console.error('Fathom MCP server v4.4.0 running on stdio — 29 tools, 8 sources');
 }
 
 main().catch((err) => {
