@@ -12,12 +12,16 @@ interface MomentumOutput {
   direction: 'strongly_bullish' | 'bullish' | 'neutral' | 'bearish' | 'strongly_bearish';
   strength: number; // 0-100
   confidence: number; // 0-100
+  confidence_score: number; // -100 to +100 (negative = bearish conviction, positive = bullish conviction)
   price_change_percent: number;
   price_start: number;
   price_current: number;
   volume_trend: 'increasing' | 'stable' | 'decreasing';
   momentum_score: number; // -100 to +100
   rsi_14: number;
+  atr_percentile: number; // 0-100, how volatile vs recent history
+  bollinger_bandwidth: number; // width of bands as % of price
+  volatility_state: 'compressed' | 'normal' | 'expanding' | 'extreme';
   consecutive_direction: number; // how many periods in same direction
   agent_guidance: string;
 }
@@ -65,7 +69,7 @@ export async function getAssetMomentum(
   if (cached) return cached.data;
 
   try {
-    const daysMap: Record<string, number> = { '1h': 1, '4h': 2, '1d': 7, '7d': 30 };
+    const daysMap: Record<string, number> = { '15m': 1, '1h': 1, '4h': 2, '1d': 7, '7d': 30 };
     const days = daysMap[timeframe] || 2;
     const chartData = await getMarketChart(coingeckoId, days);
 
@@ -132,6 +136,38 @@ export async function getAssetMomentum(
     const aligned = signals.filter(s => s === Math.sign(momentumScore)).length;
     confidence = Math.min(95, 40 + aligned * 15);
 
+    // ATR (Average True Range) percentile
+    const trueRanges: number[] = [];
+    for (let i = 1; i < prices.length; i++) {
+      const high = Math.max(prices[i], prices[i - 1]);
+      const low = Math.min(prices[i], prices[i - 1]);
+      trueRanges.push(high - low);
+    }
+    const atr14 = trueRanges.slice(-14).reduce((a, b) => a + b, 0) / Math.min(14, trueRanges.length);
+    const allAtrs = trueRanges.map((_, i) => {
+      const slice = trueRanges.slice(Math.max(0, i - 13), i + 1);
+      return slice.reduce((a, b) => a + b, 0) / slice.length;
+    });
+    const sortedAtrs = [...allAtrs].sort((a, b) => a - b);
+    const atrRank = sortedAtrs.findIndex(a => a >= atr14);
+    const atrPercentile = Math.round((atrRank / Math.max(1, sortedAtrs.length - 1)) * 100);
+
+    // Bollinger Bandwidth
+    const sma20 = prices.slice(-20).reduce((a: number, b: number) => a + b, 0) / Math.min(20, prices.length);
+    const variance = prices.slice(-20).reduce((sum: number, p: number) => sum + Math.pow(p - sma20, 2), 0) / Math.min(20, prices.length);
+    const stdDev = Math.sqrt(variance);
+    const bollingerBandwidth = parseFloat(((stdDev * 4) / sma20 * 100).toFixed(2)); // 2 std devs each side as % of price
+
+    // Volatility state
+    const volatilityState: MomentumOutput['volatility_state'] =
+      atrPercentile < 20 ? 'compressed' :
+      atrPercentile < 60 ? 'normal' :
+      atrPercentile < 85 ? 'expanding' :
+      'extreme';
+
+    // Confidence score: -100 to +100 (signed, indicates direction + conviction)
+    const confidenceScore = parseFloat((momentumScore * (confidence / 100)).toFixed(2));
+
     // Guidance
     let guidance = '';
     if (direction === 'strongly_bullish') {
@@ -146,6 +182,13 @@ export async function getAssetMomentum(
       guidance = `${asset.toUpperCase()} showing strong bearish momentum on ${timeframe}. Price down ${priceChangePercent.toFixed(2)}%, RSI at ${rsi.toFixed(0)}, volume ${volumeTrend}. ${consecutive.count} consecutive bearish periods. High conviction short signal but watch for oversold bounce below RSI 20.`;
     }
 
+    // Append volatility context to guidance
+    if (volatilityState === 'compressed') {
+      guidance += ` Volatility compressed (ATR percentile: ${atrPercentile}%). Breakout likely imminent — size up for the move when direction confirms.`;
+    } else if (volatilityState === 'extreme') {
+      guidance += ` Extreme volatility (ATR percentile: ${atrPercentile}%). Reduce position sizes, widen stops.`;
+    }
+
     const result: MomentumOutput = {
       asset: asset.toLowerCase(),
       coingecko_id: coingeckoId,
@@ -153,12 +196,16 @@ export async function getAssetMomentum(
       direction,
       strength,
       confidence,
+      confidence_score: confidenceScore,
       price_change_percent: parseFloat(priceChangePercent.toFixed(4)),
       price_start: priceStart,
       price_current: priceCurrent,
       volume_trend: volumeTrend,
       momentum_score: parseFloat(momentumScore.toFixed(2)),
       rsi_14: parseFloat(rsi.toFixed(2)),
+      atr_percentile: atrPercentile,
+      bollinger_bandwidth: bollingerBandwidth,
+      volatility_state: volatilityState,
       consecutive_direction: consecutive.count,
       agent_guidance: guidance,
     };

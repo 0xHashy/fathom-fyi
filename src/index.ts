@@ -585,8 +585,8 @@ server.tool(
 // ─── Tool: get_asset_momentum ───
 server.tool(
   'get_asset_momentum',
-  'Short-term momentum signal for any asset. Returns direction (bullish/bearish), strength, confidence, RSI, volume trend, and consecutive direction count. Timeframes: 1h, 4h, 1d, 7d. Essential for timing entries and exits.',
-  { asset: z.string().describe('Asset name or symbol (e.g., "bitcoin", "sol", "eth")'), timeframe: z.string().optional().describe('Timeframe: 1h, 4h, 1d, or 7d. Default: 4h') },
+  'Short-term momentum signal for any asset. Returns direction, strength, confidence_score (-100 to +100), RSI, ATR percentile, Bollinger bandwidth, volatility state (compressed/normal/expanding/extreme), volume trend, and momentum score. Timeframes: 15m, 1h, 4h, 1d, 7d. Essential for timing entries and exits.',
+  { asset: z.string().describe('Asset name or symbol (e.g., "bitcoin", "sol", "eth")'), timeframe: z.string().optional().describe('Timeframe: 15m, 1h, 4h, 1d, or 7d. Default: 4h') },
   async ({ asset, timeframe }) => {
     const gateError = gateTool('get_asset_momentum');
     if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };

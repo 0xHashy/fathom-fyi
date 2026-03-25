@@ -11,7 +11,10 @@ export interface DerivativesContextOutput {
     asset: string;
     rate_8h: number;
     annualized_pct: number;
+    annualized_rate: number;
     sentiment: string;
+    trajectory: 'rising' | 'stable' | 'falling';
+    projected_next: string;
   }>;
   options: {
     btc_put_call_ratio: number;
@@ -37,12 +40,25 @@ export async function getDerivativesContext(cache: CacheService): Promise<Deriva
   try {
     const data = await getDerivativesData();
 
-    const fundingRates = data.funding_rates.map(f => ({
-      asset: f.asset,
-      rate_8h: f.current_rate_8h,
-      annualized_pct: f.annualized_rate,
-      sentiment: f.sentiment,
-    }));
+    const fundingRates = data.funding_rates.map(f => {
+      // Determine trajectory from annualized rate magnitude
+      const rate = f.annualized_rate;
+      const trajectory: 'rising' | 'stable' | 'falling' =
+        rate > 30 ? 'rising' : rate < -10 ? 'falling' : 'stable';
+      // Project next funding direction
+      const projected = rate > 20 ? 'Likely to remain elevated or increase — longs paying heavy premium'
+        : rate < -10 ? 'Likely to go more negative — shorts paying premium, potential short squeeze setup'
+        : 'Likely stable — no strong directional pressure from funding';
+      return {
+        asset: f.asset,
+        rate_8h: f.current_rate_8h,
+        annualized_pct: f.annualized_rate,
+        annualized_rate: f.annualized_rate,
+        sentiment: f.sentiment,
+        trajectory,
+        projected_next: projected,
+      };
+    });
 
     const btcOpts = data.options_btc;
     const ethOpts = data.options_eth;
