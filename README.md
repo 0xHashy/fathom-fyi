@@ -4,6 +4,8 @@
 
 **Live at [fathom.fyi](https://fathom.fyi)**
 
+[![fathom-fyi MCP server](https://glama.ai/mcp/servers/0xHashy/fathom-fyi/badges/card.svg)](https://glama.ai/mcp/servers/0xHashy/fathom-fyi)
+
 ## What is Fathom?
 
 Fathom is an MCP server that gives AI agents financial reality awareness before they make consequential decisions.
