@@ -573,7 +573,7 @@
         <div class="hero-panel-line"><span class="lbl">Data feeds</span><span class="val" data-count="8" data-immediate="true">0</span></div>
         <div class="hero-panel-line"><span class="lbl">Tools</span><span class="val" data-count="31" data-immediate="true">0</span></div>
         <div class="hero-panel-line"><span class="lbl">Response</span><span class="val">&lt;3 seconds</span></div>
-        <div class="hero-panel-line"><span class="lbl">Free tier</span><span class="val-gold">3 tools, no card required</span></div>
+        <div class="hero-panel-line"><span class="lbl">Free tier</span><span class="val-gold">4 tools, no card required</span></div>
       </div>
     </div>
   </div>
@@ -727,7 +727,8 @@ to recover above 40 before adding exposure.</span>
         <tr><td class="iname">get_reality_check</td><td class="idesc">Master briefing. All sources synthesized into one assessment. Paid tiers add derivatives, stablecoin flows, TradFi correlation, weather, political cycles, and seasonality.</td><td class="ittl">~3 min</td><td><span class="tier-free">FREE*</span></td></tr>
         <tr><td class="iname">get_market_regime</td><td class="idesc">Classify current regime: risk-on, risk-off, transitional, euphoric, or capitulation. Confidence-scored.</td><td class="ittl">~5 min</td><td><span class="tier-free">FREE</span></td></tr>
         <tr><td class="iname">get_sentiment_state</td><td class="idesc">Fear &amp; Greed Index, 7-day trend, contrarian signals, extreme opportunity detection.</td><td class="ittl">~5 min</td><td><span class="tier-free">FREE</span></td></tr>
-        <!-- STARTER (17 additional) -->
+        <tr><td class="iname">get_account_status</td><td class="idesc">Your tier, usage stats, which tools are locked, and how to upgrade. The agent surfaces this naturally.</td><td class="ittl">Live</td><td><span class="tier-free">FREE</span></td></tr>
+        <!-- STARTER (20 additional) -->
         <tr><td class="iname">get_narrative_pulse</td><td class="idesc">Accelerating, decelerating, and emerging narratives. Sector rotation and momentum scoring.</td><td class="ittl">~15 min</td><td><span class="tier-starter">STARTER+</span></td></tr>
         <tr><td class="iname">get_asset_context</td><td class="idesc">Deep context on any asset: cycle position, trend, volume health, holder behavior, risk level.</td><td class="ittl">~2 min</td><td><span class="tier-starter">STARTER+</span></td></tr>
         <tr><td class="iname">get_temporal_context</td><td class="idesc">Bitcoin halving cycle positioning. Days since halving, phase estimation, historical analogs.</td><td class="ittl">~1 hr</td><td><span class="tier-starter">STARTER+</span></td></tr>
@@ -745,6 +746,9 @@ to recover above 40 before adding exposure.</span>
         <tr><td class="iname">get_watchlist_report</td><td class="idesc">Batch analyze up to 10 assets. Detects state changes, ranks by risk, flags volume spikes.</td><td class="ittl">Live</td><td><span class="tier-starter">STARTER+</span></td></tr>
         <tr><td class="iname">evaluate_strategy</td><td class="idesc">Test a strategy against live conditions. 5 built-in: conservative_dca, momentum_rider, macro_aligned, fear_accumulator, full_defensive.</td><td class="ittl">Live</td><td><span class="tier-starter">STARTER+</span></td></tr>
         <tr><td class="iname">set_signal_preferences</td><td class="idesc">Your mixing board. Choose which signals feed into your reality check. Turn weather on, turn on-chain off. Fully customizable.</td><td class="ittl">&mdash;</td><td><span class="tier-starter">STARTER+</span></td></tr>
+        <tr><td class="iname">get_asset_momentum</td><td class="idesc">Short-term momentum on any asset. 15m, 1h, 4h, 1d, 7d timeframes. RSI, ATR percentile, Bollinger bandwidth, volatility state, confidence score (-100 to +100), funding rate trajectory.</td><td class="ittl">~2 min</td><td><span class="tier-starter">STARTER+</span></td></tr>
+        <tr><td class="iname">get_event_catalyst_timeline</td><td class="idesc">Upcoming market catalysts: FOMC, CPI, jobs report, options expiry, quad witching. Impact rating, expected direction, days until event, trading notes.</td><td class="ittl">~1 hr</td><td><span class="tier-starter">STARTER+</span></td></tr>
+        <tr><td class="iname">rotate_api_key</td><td class="idesc">Self-service key rotation. Generates a new key, deactivates the old one instantly. No support ticket needed.</td><td class="ittl">Instant</td><td><span class="tier-starter">STARTER+</span></td></tr>
         <!-- PRO (5 additional) -->
         <tr><td class="iname">get_portfolio_analysis</td><td class="idesc">Personalized portfolio analysis. Regime alignment, concentration risk, PnL, and specific rebalancing.</td><td class="ittl">Live</td><td><span class="tier-pro">PRO+</span></td></tr>
         <tr><td class="iname">set_custom_strategy</td><td class="idesc">Create your own strategy with custom condition rules. Evaluate with evaluate_strategy.</td><td class="ittl">&mdash;</td><td><span class="tier-pro">PRO+</span></td></tr>
@@ -795,9 +799,9 @@ to recover above 40 before adding exposure.</span>
     <table class="price-table rv">
       <thead><tr><th>Tier</th><th>Price</th><th>Instruments</th><th>Rate</th><th>Cache</th><th></th></tr></thead>
       <tbody>
-        <tr><td class="tname">Free</td><td><span class="tprice">$0</span></td><td>3 core tools</td><td>10/hr</td><td>Standard</td><td><a href="#quickstart" class="sub-link">START</a></td></tr>
-        <tr><td class="tname">Starter</td><td><span class="tprice">$29<small>/mo</small></span></td><td>22 tools + alerts + strategies + signal mixing + key rotation</td><td>500/hr</td><td>Standard</td><td><a href="https://buy.stripe.com/14A9ASeyNgTb5lg21e0Fi00" target="_blank" rel="noopener" class="sub-link">SUBSCRIBE</a></td></tr>
-        <tr class="feat"><td class="tname">Pro</td><td><span class="tprice">$99<small>/mo</small></span></td><td>27 tools + custom strategies + crowd intelligence</td><td>2,000/hr</td><td>2x fresher</td><td><a href="https://buy.stripe.com/14A5kC0HXauNfZU6hu0Fi01" target="_blank" rel="noopener" class="sub-link">SUBSCRIBE</a></td></tr>
+        <tr><td class="tname">Free</td><td><span class="tprice">$0</span></td><td>4 core tools</td><td>10/hr</td><td>Standard</td><td><a href="#quickstart" class="sub-link">START</a></td></tr>
+        <tr><td class="tname">Starter</td><td><span class="tprice">$29<small>/mo</small></span></td><td>24 tools + momentum + catalysts + alerts + strategies + key rotation</td><td>500/hr</td><td>Standard</td><td><a href="https://buy.stripe.com/14A9ASeyNgTb5lg21e0Fi00" target="_blank" rel="noopener" class="sub-link">SUBSCRIBE</a></td></tr>
+        <tr class="feat"><td class="tname">Pro</td><td><span class="tprice">$99<small>/mo</small></span></td><td>29 tools + custom strategies + crowd intelligence</td><td>2,000/hr</td><td>2x fresher</td><td><a href="https://buy.stripe.com/14A5kC0HXauNfZU6hu0Fi01" target="_blank" rel="noopener" class="sub-link">SUBSCRIBE</a></td></tr>
         <tr><td class="tname">Unlimited</td><td><span class="tprice">$299<small>/mo</small></span></td><td>All 31 + webhooks + unlimited requests + fastest data</td><td>Unlimited</td><td>4x fresher</td><td><a href="https://buy.stripe.com/aFa28q8ap7iB6pk8pC0Fi02" target="_blank" rel="noopener" class="sub-link">SUBSCRIBE</a></td></tr>
       </tbody>
     </table>

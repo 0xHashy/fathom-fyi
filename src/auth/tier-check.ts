@@ -70,7 +70,7 @@ export async function verifyApiKey(): Promise<void> {
   if (!apiKey) {
     verifiedTier = 'free';
     tierVerified = true;
-    console.error('Fathom: No API key provided. Free tier active (3 tools, 10 req/hr).');
+    console.error('Fathom: No API key provided. Free tier active (4 tools, 10 req/hr).');
     return;
   }
 

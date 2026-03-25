@@ -66,15 +66,16 @@ Subscribe at [fathom.fyi](https://fathom.fyi), add your key to the config, and y
 
 ## Tools (31 instruments)
 
-### Free Tier (3 tools)
+### Free Tier (4 tools)
 
 | Tool | Description |
 |------|-------------|
 | `get_reality_check` | Market briefing with regime, sentiment, risk score. Paid tiers add alternative signals. |
 | `get_market_regime` | Regime classification (risk-on/off, euphoric, capitulation) with confidence scoring |
 | `get_sentiment_state` | Fear & Greed Index, 7-day trend, contrarian signals, extreme opportunity detection |
+| `get_account_status` | Your tier, usage stats, locked tools, upgrade path |
 
-### Starter Tier (22 tools — $29/mo)
+### Starter Tier (24 tools — $29/mo)
 
 All free tools plus:
 
@@ -98,8 +99,10 @@ All free tools plus:
 | `get_correlation_matrix` | BTC correlation with S&P 500 and Gold, TradFi prices, macro risk appetite |
 | `set_signal_preferences` | Customize which signals feed into your reality check |
 | `rotate_api_key` | Rotate your API key — deactivates old key, issues new one |
+| `get_asset_momentum` | Short-term momentum (15m/1h/4h/1d/7d). RSI, ATR percentile, Bollinger bandwidth, volatility state, confidence score, funding trajectory |
+| `get_event_catalyst_timeline` | Upcoming catalysts: FOMC, CPI, jobs, options expiry, quad witching. Impact rating, expected direction, trading notes |
 
-### Pro Tier (28 tools — $99/mo)
+### Pro Tier (29 tools — $99/mo)
 
 All Starter tools plus:
 
@@ -144,9 +147,9 @@ All Pro tools plus:
 
 | Tier | Price | Tools | Rate Limit |
 |------|-------|-------|------------|
-| Free | $0 | 3 core tools | 10 req/hr |
-| Starter | $29/mo | 22 tools + alerts + strategies + alternative signals + key rotation | 500 req/hr |
-| Pro | $99/mo | 28 tools + custom strategies + crowd intelligence | 2,000 req/hr |
+| Free | $0 | 4 core tools | 10 req/hr |
+| Starter | $29/mo | 24 tools + momentum + catalysts + alerts + strategies + key rotation | 500 req/hr |
+| Pro | $99/mo | 29 tools + custom strategies + crowd intelligence | 2,000 req/hr |
 | Unlimited | $299/mo | All 31 + webhooks + unlimited requests + 4x fresher cache | Unlimited |
 
 [Subscribe at fathom.fyi](https://fathom.fyi)
