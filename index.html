@@ -877,6 +877,33 @@ to recover above 40 before adding exposure.</span>
   </div>
 </section>
 
+<!-- ─── Workflows ─── -->
+<section class="audience" id="workflows">
+  <div class="container">
+    <hr class="sec-rule">
+    <div class="sec-header"><span class="sec-label rv">WORKFLOWS</span><span class="sec-date rv">Get the most out of Fathom</span></div>
+    <h2 class="sec-title rv">Real patterns from real users</h2>
+    <div class="aud-grid rv">
+      <div class="aud-cell">
+        <div class="aud-label">Prediction Market Bot</div>
+        <p>Call <code>get_asset_momentum</code> (15m + 4h) for directional signal, <code>get_derivatives_context</code> for funding rates + max pain, <code>get_event_catalyst_timeline</code> to suppress bets near FOMC/CPI, and <code>get_signal_history</code> to weight signals by past accuracy. One user runs 12 tools every 3 minutes to price Polymarket barrier events.</p>
+      </div>
+      <div class="aud-cell">
+        <div class="aud-label">Daily Trading Briefing</div>
+        <p>Call <code>get_reality_check</code> once at market open. Parse <code>risk_score</code>, <code>suggested_posture</code>, and <code>key_risks</code>. If risk_score &gt; 70, reduce exposure. If posture is "sideline", close leveraged positions. Add <code>get_macro_context</code> before FOMC weeks and <code>get_stablecoin_flows</code> to confirm capital direction.</p>
+      </div>
+      <div class="aud-cell">
+        <div class="aud-label">Portfolio Rebalancing Agent</div>
+        <p>Call <code>set_portfolio_context</code> with your holdings, then <code>get_portfolio_analysis</code> for regime-aligned rebalancing suggestions. Use <code>get_watchlist_report</code> for batch asset comparison and <code>get_correlation_matrix</code> to check if your BTC and equity exposure are double-counting the same macro risk.</p>
+      </div>
+      <div class="aud-cell">
+        <div class="aud-label">Automated Alert Pipeline</div>
+        <p>Use <code>set_alert</code> for conditions like "fear_greed &lt; 20" or "regime == capitulation". Poll with <code>get_alerts</code> every 5 minutes. On Unlimited tier, use <code>set_webhook</code> to POST directly to your bot when conditions are met. Combine with <code>evaluate_strategy</code> to auto-check your strategy against live data.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ─── Coming Soon ─── -->
 <section class="audience" id="roadmap">
   <div class="container">

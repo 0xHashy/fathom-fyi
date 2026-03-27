@@ -123,6 +123,26 @@ All Pro tools plus:
 | `set_webhook` | Register HTTP webhooks that fire when market conditions meet your criteria |
 | `manage_webhooks` | List, monitor, and remove active webhooks |
 
+## Documentation
+
+| Doc | What it covers |
+|-----|---------------|
+| **[Tool Reference](examples/tool-reference.md)** | Every tool, every parameter, every output field |
+| **[Output Examples](examples/tool-output-examples.md)** | Real JSON output examples for key tools |
+| **[Agent Prompt Templates](examples/agent-prompt-templates.md)** | 10 ready-to-use prompts for common workflows |
+| **[Trading Bot Skeleton](examples/trading-bot-skeleton.ts)** | TypeScript bot pattern with decision logic |
+| **[LangChain Example](examples/langchain-example.ts)** | LangChain MCP integration |
+
+## Real-World Workflows
+
+**Prediction Market Bot** — Call `get_asset_momentum` (15m + 4h) for direction, `get_derivatives_context` for funding rates + max pain, `get_event_catalyst_timeline` to suppress bets near FOMC/CPI, and `get_signal_history` to weight signals by past accuracy.
+
+**Daily Trading Briefing** — Call `get_reality_check` at market open. If `risk_score > 70`, reduce exposure. If `suggested_posture` is "sideline", close leveraged positions. Add `get_stablecoin_flows` to confirm capital direction.
+
+**Portfolio Rebalancing** — `set_portfolio_context` with your holdings, then `get_portfolio_analysis` for regime-aligned suggestions. Use `get_correlation_matrix` to check if your BTC and equity exposure are double-counting the same macro risk.
+
+**Automated Alerts** — `set_alert` for conditions like `fear_greed < 20`. Poll with `get_alerts`. On Unlimited tier, `set_webhook` to POST directly to your bot when conditions are met.
+
 ## Example Agent Prompts
 
 **Before any trade:**
