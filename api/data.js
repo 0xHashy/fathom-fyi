@@ -65,8 +65,8 @@ const SOURCES = {
   'weather': (q) => extFetch(`https://api.open-meteo.com/v1/forecast?latitude=${q.lat}&longitude=${q.lon}&current=temperature_2m,weather_code,cloud_cover`),
 };
 
-// CoinGecko with Pro key
-async function cgFetch(path) {
+// CoinGecko with Pro key + retry on 429
+async function cgFetch(path, retries = 3) {
   const base = CG_KEY.startsWith('CG-')
     ? 'https://api.coingecko.com/api/v3'
     : 'https://pro-api.coingecko.com/api/v3';
@@ -78,9 +78,16 @@ async function cgFetch(path) {
       headers['x-cg-pro-api-key'] = CG_KEY;
     }
   }
-  const res = await fetch(`${base}${path}`, { headers, signal: AbortSignal.timeout(10000) });
-  if (!res.ok) throw new Error(`CoinGecko ${res.status}`);
-  return res.json();
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const res = await fetch(`${base}${path}`, { headers, signal: AbortSignal.timeout(10000) });
+    if (res.status === 429 && attempt < retries) {
+      await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000));
+      continue;
+    }
+    if (!res.ok) throw new Error(`CoinGecko ${res.status}`);
+    return res.json();
+  }
+  throw new Error('CoinGecko rate limited after retries');
 }
 
 // FRED with server key

@@ -73,12 +73,14 @@ export async function getCoinMarket(coinId: string): Promise<CoinGeckoMarketCoin
 }
 
 export async function getOHLC(coinId: string, days = 90): Promise<number[][]> {
+  if (isProxyEnabled()) return proxyFetch<number[][]>('cg/ohlc', { id: coinId, days });
   const url = `${BASE_URL}/coins/${encodeURIComponent(coinId)}/ohlc?vs_currency=usd&days=${days}`;
   const res = await fetchWithRetry(url);
   return res.json() as Promise<number[][]>;
 }
 
 export async function getMarketChart(coinId: string, days = 30): Promise<{ prices: number[][]; total_volumes: number[][] }> {
+  if (isProxyEnabled()) return proxyFetch<{ prices: number[][]; total_volumes: number[][] }>('cg/chart', { id: coinId, days });
   const url = `${BASE_URL}/coins/${encodeURIComponent(coinId)}/market_chart?vs_currency=usd&days=${days}`;
   const res = await fetchWithRetry(url);
   return res.json() as Promise<{ prices: number[][]; total_volumes: number[][] }>;
