@@ -20,8 +20,7 @@ export default function handler(req, res) {
   <text x="110" y="160" font-family="Georgia, serif" font-size="28" fill="#C9A84C" letter-spacing="0.15em">&#936; FATHOM</text>
   <!-- tagline -->
   <text x="110" y="250" font-family="Cormorant Garamond, Georgia, serif" font-size="58" fill="#F5F0E8" font-weight="300">Can your agent</text>
-  <text x="110" y="320" font-family="Cormorant Garamond, Georgia, serif" font-size="58" fill="#C9A84C" font-weight="600" font-style="italic">fathom</text>
-  <text x="370" y="320" font-family="Cormorant Garamond, Georgia, serif" font-size="58" fill="#F5F0E8" font-weight="300"> the market?</text>
+  <text x="110" y="320" font-family="Cormorant Garamond, Georgia, serif" font-size="58"><tspan fill="#C9A84C" font-weight="600" font-style="italic">fathom</tspan><tspan fill="#F5F0E8" font-weight="300"> the market?</tspan></text>
   <!-- stats bar -->
   <line x1="110" y1="380" x2="900" y2="380" stroke="#2A2A26" stroke-width="1"/>
   <text x="110" y="420" font-family="IBM Plex Mono, monospace" font-size="13" fill="#4A4840" letter-spacing="0.15em">TOOLS</text>
