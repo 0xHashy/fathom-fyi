@@ -1,13 +1,28 @@
 const BASE_URL = 'https://www.deribit.com/api/v2/public';
 
-async function deribitFetch<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`, {
-    headers: { Accept: 'application/json' },
-    signal: AbortSignal.timeout(10000),
-  });
-  if (!res.ok) throw new Error(`Deribit ${path} returned ${res.status}`);
-  const json = await res.json() as { result: T };
-  return json.result;
+async function deribitFetch<T>(path: string, retries = 2): Promise<T> {
+  let lastError: Error | null = null;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(`${BASE_URL}${path}`, {
+        headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(10000),
+      });
+      if (res.status === 429 && attempt < retries) {
+        await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000));
+        continue;
+      }
+      if (!res.ok) throw new Error(`Deribit ${path} returned ${res.status}`);
+      const json = await res.json() as { result: T };
+      return json.result;
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      if (attempt < retries) {
+        await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000));
+      }
+    }
+  }
+  throw lastError ?? new Error(`Deribit ${path} request failed`);
 }
 
 // ─── Funding Rates ───

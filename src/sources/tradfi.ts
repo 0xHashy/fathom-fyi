@@ -1,3 +1,5 @@
+import { isProxyEnabled, proxyFetch } from './proxy.js';
+
 const YAHOO_BASE = 'https://query1.finance.yahoo.com/v8/finance/chart';
 
 interface YahooChartResult {
@@ -21,35 +23,72 @@ interface AssetPriceHistory {
 }
 
 async function fetchYahoo(symbol: string): Promise<AssetPriceHistory> {
-  const url = `${YAHOO_BASE}/${encodeURIComponent(symbol)}?range=1mo&interval=1d`;
-  const res = await fetch(url, {
-    headers: { Accept: 'application/json', 'User-Agent': 'Fathom/1.0' },
-    signal: AbortSignal.timeout(10000),
-  });
-
-  if (!res.ok) throw new Error(`Yahoo Finance ${symbol} returned ${res.status}`);
-
-  const data = await res.json() as YahooChartResult;
-  const result = data.chart.result?.[0];
-  if (!result) throw new Error(`No data for ${symbol}`);
-
-  const closes = result.indicators.adjclose?.[0]?.adjclose ?? [];
-  const dailyReturns: number[] = [];
-  for (let i = 1; i < closes.length; i++) {
-    if (closes[i - 1] > 0) {
-      dailyReturns.push(((closes[i] - closes[i - 1]) / closes[i - 1]) * 100);
+  // Route through proxy for paid tiers — Yahoo rate-limits aggressively
+  if (isProxyEnabled()) {
+    const data = await proxyFetch<YahooChartResult>('yahoo/chart', { symbol, range: '1mo', interval: '1d' });
+    const result = data.chart.result?.[0];
+    if (!result) throw new Error(`No data for ${symbol}`);
+    const closes = result.indicators.adjclose?.[0]?.adjclose ?? [];
+    const dailyReturns: number[] = [];
+    for (let i = 1; i < closes.length; i++) {
+      if (closes[i - 1] > 0) {
+        dailyReturns.push(((closes[i] - closes[i - 1]) / closes[i - 1]) * 100);
+      }
     }
+    return {
+      symbol: result.meta.symbol,
+      current_price: result.meta.regularMarketPrice,
+      previous_close: result.meta.previousClose,
+      change_pct: result.meta.previousClose > 0
+        ? ((result.meta.regularMarketPrice - result.meta.previousClose) / result.meta.previousClose) * 100
+        : 0,
+      daily_returns: dailyReturns,
+    };
   }
 
-  return {
-    symbol: result.meta.symbol,
-    current_price: result.meta.regularMarketPrice,
-    previous_close: result.meta.previousClose,
-    change_pct: result.meta.previousClose > 0
-      ? ((result.meta.regularMarketPrice - result.meta.previousClose) / result.meta.previousClose) * 100
-      : 0,
-    daily_returns: dailyReturns,
-  };
+  const url = `${YAHOO_BASE}/${encodeURIComponent(symbol)}?range=1mo&interval=1d`;
+  let lastError: Error | null = null;
+  for (let attempt = 0; attempt <= 2; attempt++) {
+    try {
+      const res = await fetch(url, {
+        headers: { Accept: 'application/json', 'User-Agent': 'Mozilla/5.0 (compatible; Fathom/4.6)' },
+        signal: AbortSignal.timeout(10000),
+      });
+      if (res.status === 429 && attempt < 2) {
+        await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000));
+        continue;
+      }
+      if (!res.ok) throw new Error(`Yahoo Finance ${symbol} returned ${res.status}`);
+
+      const data = await res.json() as YahooChartResult;
+      const result = data.chart.result?.[0];
+      if (!result) throw new Error(`No data for ${symbol}`);
+
+      const closes = result.indicators.adjclose?.[0]?.adjclose ?? [];
+      const dailyReturns: number[] = [];
+      for (let i = 1; i < closes.length; i++) {
+        if (closes[i - 1] > 0) {
+          dailyReturns.push(((closes[i] - closes[i - 1]) / closes[i - 1]) * 100);
+        }
+      }
+
+      return {
+        symbol: result.meta.symbol,
+        current_price: result.meta.regularMarketPrice,
+        previous_close: result.meta.previousClose,
+        change_pct: result.meta.previousClose > 0
+          ? ((result.meta.regularMarketPrice - result.meta.previousClose) / result.meta.previousClose) * 100
+          : 0,
+        daily_returns: dailyReturns,
+      };
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      if (attempt < 2) {
+        await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000));
+      }
+    }
+  }
+  throw lastError ?? new Error(`Yahoo Finance ${symbol} request failed`);
 }
 
 function pearsonCorrelation(x: number[], y: number[]): number {
