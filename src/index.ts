@@ -33,6 +33,7 @@ import { getCorrelationMatrixTool } from './tools/get-correlation-matrix.js';
 import { rotateApiKey } from './tools/rotate-api-key.js';
 import { getAssetMomentum } from './tools/get-asset-momentum.js';
 import { getEventCatalystTimeline } from './tools/get-event-catalyst-timeline.js';
+import { getQuestionContext } from './tools/get-question-context.js';
 import { registerWebhook, removeWebhook, listWebhooks } from './worker/webhook-manager.js';
 import { initProxy } from './sources/proxy.js';
 import { logSignal } from './storage/signal-logger.js';
@@ -441,6 +442,23 @@ server.tool(
   },
 );
 
+// ─── Tool: get_question_context ───
+server.tool(
+  'get_question_context',
+  'Enrich any binary yes/no question with relevant Fathom signals. Auto-detects if the question is macro, political, crypto, or derivatives-related and returns all relevant signals, upcoming catalysts, and historical context. Designed for prediction market bots — call this for any Polymarket question to give your LLM the context it needs to estimate probability.',
+  {
+    question: z.string().describe('Binary yes/no question, e.g. "Will the Fed cut rates in May 2026?" or "Will BTC hit $90k by April?"'),
+    context: z.string().optional().describe('Optional additional context about the market or resolution criteria'),
+  },
+  async ({ question, context }) => {
+    const gateError = gateTool('get_question_context');
+    if (gateError) return { content: [{ type: 'text' as const, text: gateError }] };
+
+    const text = await executeAndLog('get_question_context', { question, context }, () => getQuestionContext(cache, question, context));
+    return { content: [{ type: 'text' as const, text }] };
+  },
+);
+
 // ─── Tool: set_webhook ───
 server.tool(
   'set_webhook',
@@ -624,7 +642,7 @@ async function main() {
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('Fathom MCP server v4.5.0 running on stdio — 31 tools, 8 sources');
+  console.error('Fathom MCP server v4.6.0 running on stdio — 32 tools, 8 sources');
 }
 
 main().catch((err) => {

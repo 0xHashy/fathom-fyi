@@ -10,7 +10,7 @@ npm publish          # Publish to npm (bump version first)
 ## Architecture
 - MCP server (stdio transport) built with @modelcontextprotocol/sdk
 - TypeScript strict mode — zero errors tolerated
-- 31 tools, 8 data sources, 4 pricing tiers
+- 32 tools, 8 data sources, 4 pricing tiers
 - Vercel: site (index.html) + API routes (api/*.js) + Redis (Upstash)
 - npm: fathom-fyi package, users run via `npx fathom-fyi`
 
@@ -35,7 +35,7 @@ success.html        — Post-payment key delivery page
 ### Accuracy
 - Tool count, source count, and tier details MUST match across:
   index.html, README.md, package.json, twitter threads, and src/index.ts
-- Current counts: **31 tools, 8 sources, 4 tiers**
+- Current counts: **32 tools, 8 sources, 4 tiers**
 - Never update one without updating all
 
 ### Security

@@ -56,7 +56,7 @@ Fathom uses stdio transport. Point any MCP client at `npx -y fathom-fyi`.
 
 ### Unlock everything with one key
 
-Subscribe at [fathom.fyi](https://fathom.fyi), add your key to the config, and you're done. One key unlocks all 31 tools, all 8 data sources, and premium data routing. No other API keys needed — Fathom handles all data source authentication server-side.
+Subscribe at [fathom.fyi](https://fathom.fyi), add your key to the config, and you're done. One key unlocks all 32 tools, all 8 data sources, and premium data routing. No other API keys needed — Fathom handles all data source authentication server-side.
 
 ```json
 "env": {
@@ -64,7 +64,7 @@ Subscribe at [fathom.fyi](https://fathom.fyi), add your key to the config, and y
 }
 ```
 
-## Tools (31 instruments)
+## Tools (32 instruments)
 
 ### Free Tier (4 tools)
 
@@ -75,7 +75,7 @@ Subscribe at [fathom.fyi](https://fathom.fyi), add your key to the config, and y
 | `get_sentiment_state` | Fear & Greed Index, 7-day trend, contrarian signals, extreme opportunity detection |
 | `get_account_status` | Your tier, usage stats, locked tools, upgrade path |
 
-### Starter Tier (24 tools — $29/mo)
+### Starter Tier (25 tools — $29/mo)
 
 All free tools plus:
 
@@ -101,8 +101,9 @@ All free tools plus:
 | `rotate_api_key` | Rotate your API key — deactivates old key, issues new one |
 | `get_asset_momentum` | Short-term momentum (15m/1h/4h/1d/7d). RSI, ATR percentile, Bollinger bandwidth, volatility state, confidence score, funding trajectory |
 | `get_event_catalyst_timeline` | Upcoming catalysts: FOMC, CPI, jobs, options expiry, quad witching. Impact rating, expected direction, trading notes |
+| `get_question_context` | Enrich any yes/no question with relevant Fathom signals. Auto-detects macro, political, crypto, derivatives topics. Built for prediction market bots. |
 
-### Pro Tier (29 tools — $99/mo)
+### Pro Tier (30 tools — $99/mo)
 
 All Starter tools plus:
 
@@ -114,7 +115,7 @@ All Starter tools plus:
 | `get_historical_context` | What were market conditions on any past date? |
 | `set_custom_strategy` | Create custom trading strategies with your own condition rules |
 
-### Unlimited Tier (31 tools — $299/mo)
+### Unlimited Tier (32 tools — $299/mo)
 
 All Pro tools plus:
 
@@ -170,7 +171,7 @@ All Pro tools plus:
 | Free | $0 | 4 core tools | 10 req/hr |
 | Starter | $29/mo | 24 tools + momentum + catalysts + alerts + strategies + key rotation | 500 req/hr |
 | Pro | $99/mo | 29 tools + custom strategies + crowd intelligence | 2,000 req/hr |
-| Unlimited | $299/mo | All 31 + webhooks + unlimited requests + 4x fresher cache | Unlimited |
+| Unlimited | $299/mo | All 32 + webhooks + unlimited requests + 4x fresher cache | Unlimited |
 
 [Subscribe at fathom.fyi](https://fathom.fyi)
 

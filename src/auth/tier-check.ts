@@ -18,6 +18,7 @@ const STARTER_TOOLS = [
   'rotate_api_key',
   'get_asset_momentum',
   'get_event_catalyst_timeline',
+  'get_question_context',
 ];
 
 const PRO_TOOLS = [
