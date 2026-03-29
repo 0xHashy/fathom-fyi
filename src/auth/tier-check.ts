@@ -48,12 +48,12 @@ const TIER_CONFIGS: Record<ApiTier, TierConfig> = {
   pro: {
     tools: PRO_TOOLS,
     rateLimit: 2000,
-    cacheTtlMultiplier: 0.5,
+    cacheTtlMultiplier: 1,
   },
   unlimited: {
     tools: UNLIMITED_TOOLS,
     rateLimit: -1,
-    cacheTtlMultiplier: 0.25,
+    cacheTtlMultiplier: 2,
   },
 };
 

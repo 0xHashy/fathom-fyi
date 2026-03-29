@@ -171,7 +171,7 @@ All Pro tools plus:
 | Free | $0 | 4 core tools | 10 req/hr |
 | Starter | $29/mo | 24 tools + momentum + catalysts + alerts + strategies + key rotation | 500 req/hr |
 | Pro | $99/mo | 29 tools + custom strategies + crowd intelligence | 2,000 req/hr |
-| Unlimited | $299/mo | All 32 + webhooks + unlimited requests + 4x fresher cache | Unlimited |
+| Unlimited | $299/mo | All 32 + webhooks + unlimited requests + optimized cache | Unlimited |
 
 [Subscribe at fathom.fyi](https://fathom.fyi)
 

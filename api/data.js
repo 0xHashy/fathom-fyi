@@ -65,8 +65,35 @@ const SOURCES = {
   'weather': (q) => extFetch(`https://api.open-meteo.com/v1/forecast?latitude=${q.lat}&longitude=${q.lon}&current=temperature_2m,weather_code,cloud_cover`),
 };
 
-// CoinGecko with Pro key + retry on 429
+// CoinGecko concurrency limiter — max 3 concurrent requests to avoid burst rate limits
+const cgQueue = [];
+let cgActive = 0;
+const CG_MAX_CONCURRENT = 3;
+
+function cgEnqueue(fn) {
+  return new Promise((resolve, reject) => {
+    cgQueue.push({ fn, resolve, reject });
+    cgProcessQueue();
+  });
+}
+
+function cgProcessQueue() {
+  while (cgActive < CG_MAX_CONCURRENT && cgQueue.length > 0) {
+    const { fn, resolve, reject } = cgQueue.shift();
+    cgActive++;
+    fn().then(resolve).catch(reject).finally(() => {
+      cgActive--;
+      cgProcessQueue();
+    });
+  }
+}
+
+// CoinGecko with Pro key + retry on 429 + concurrency limiting
 async function cgFetch(path, retries = 3) {
+  return cgEnqueue(() => _cgFetchInner(path, retries));
+}
+
+async function _cgFetchInner(path, retries = 3) {
   const base = CG_KEY.startsWith('CG-')
     ? 'https://api.coingecko.com/api/v3'
     : 'https://pro-api.coingecko.com/api/v3';
@@ -111,7 +138,7 @@ async function extFetch(url, extraHeaders = {}) {
 
 // Simple in-memory cache (Vercel serverless functions persist across warm invocations)
 const cache = new Map();
-const CACHE_TTL = 60_000; // 1 minute
+const CACHE_TTL = 120_000; // 2 minutes — bots run on 3-min cycles, this ensures cache hits
 
 function getCached(key) {
   const entry = cache.get(key);
